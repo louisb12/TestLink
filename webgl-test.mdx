@@ -1,0 +1,55 @@
+---
+title: 'Interactive SDK Showcase (test)'
+description: 'Proof-of-concept for LNK-462 — phone-framed popup screenshot'
+---
+
+This page previews the real Link SDK reward popup, phone-framed the same way
+as the main showcase page.
+
+<div
+  style={{
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '32px 0',
+  }}
+>
+  <div
+    style={{
+      width: '300px',
+      height: '620px',
+      borderRadius: '46px',
+      background: '#111',
+      padding: '14px',
+      boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
+      position: 'relative',
+    }}
+  >
+    <div
+      style={{
+        position: 'absolute',
+        top: '14px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '120px',
+        height: '20px',
+        background: '#111',
+        borderRadius: '0 0 14px 14px',
+        zIndex: 2,
+      }}
+    />
+    <img
+      src="/popup.png"
+      alt="Almedia Link reward popup rendered live inside a mobile game"
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        borderRadius: '32px',
+        display: 'block',
+      }}
+    />
+  </div>
+</div>
+
+If this renders the reward popup inside a phone-shaped frame, the mechanism
+works end to end: MDX → styled wrapper → real product screenshot.

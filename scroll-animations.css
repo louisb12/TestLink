@@ -1,0 +1,29 @@
+/*
+ * Scroll-reveal animation for the main content feed.
+ * scroll-animations.js adds/removes these classes; this file only
+ * defines what they look like. If JS fails to load, nothing is hidden
+ * (progressive enhancement) — see the .scroll-reveal rule below, which
+ * JS applies together with the hidden state in the same call.
+ */
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
