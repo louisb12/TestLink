@@ -33,6 +33,7 @@ const PAGES = [
   ['overview-get-started', '/overview/get-started'],
   ['publisher-index', '/publisher'],
   ['publisher-prerequisites', '/publisher/prerequisites'],
+
   ['publisher-best-practices', '/publisher/best-practices'],
   ['publisher-adjust', '/publisher/mmp/adjust'],
   ['technical-index', '/technical'],

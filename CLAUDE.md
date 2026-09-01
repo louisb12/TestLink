@@ -118,6 +118,7 @@ team maintains the Publisher Guide *in the web editor*. Therefore:
 | Path | Owner | Constraint |
 |---|---|---|
 | `publisher/**` | **Commercial team** (web editor) | **Plain MDX + built-in components ONLY.** No snippets, no custom components, no `import`. |
+| `publisher/best-practices.mdx` | **Engineering** — the one carve-out | Interactive guide with inline React components. **Not web-editor editable.** Edit in the repo. See §5 and decisions.md D-028. |
 | `overview/**` | Engineering | Snippets and custom components allowed. |
 | `index.mdx` (landing) | Engineering | Snippets and custom components allowed. |
 | `technical/**` | Engineering — **synced from the SDK repo** | Never hand-write. See §5. |
@@ -137,12 +138,23 @@ Before shipping, verify a `publisher/**` page by **actually opening it in the we
 
   Anything else needs a real number from the team. Leave a clearly marked placeholder
   (`<!-- TODO(copy) -->` / the `PlaceholderNote` pattern) instead.
+- **`publisher/best-practices.mdx` carries additional approved facts**, because it was ported
+  verbatim from Lou's own guide rather than written here: the **$10 sign-up bonus**, the
+  **$3 CPA** per completed Earn Tab offer, **80 million players**, **SDK 1.1+** for Rewarded
+  Progression and the Earn Tab, and the Link Coins scoring. These are approved *on that page*.
+  Do not spread them to other pages without checking, and do not treat them as licence to
+  invent new figures anywhere.
 - **Never hand-write Technical Docs content.** README, Integration Guide and API Reference
   sync from **`github.com/almedia-tm/almedia-link-sdk`** — the single source of truth. The
   current pages are honest placeholders that say so. Keep them honest until sync is live.
-- **Never duplicate the best-practices guide.** `publisher/best-practices.mdx` is a *bridge
-  page* that links out to `https://almedia-link-best-practices.lovable.app` — a separate,
-  visually rich SPA. Confirm that URL before launch; it is still a Lovable preview domain.
+- **The best-practices guide is now hosted here, not linked out.** It was ported from the
+  standalone Lovable SPA into `publisher/best-practices.mdx` (decisions.md D-028), so
+  `/publisher/best-practices` is the single canonical copy. The old bridge-page rule is
+  retired. Two things follow:
+  - **Do not re-introduce a link-out**, and do not let a second copy appear anywhere.
+  - **All its media is local** under `images/best-practices/`. Nothing is fetched from
+    Lovable at runtime. `scripts/fetch-guide-assets.mjs` re-downloads from the export if
+    assets are ever lost.
 - **Do not rewrite approved prose** while doing design work. If copy genuinely blocks a
   layout, propose the change; do not ship it silently.
 - **Voice:** energetic, pioneering, committed. Short, punchy, concrete. Tie claims to real

@@ -77,12 +77,17 @@ pass on the first preview deploy.
 4. **Page `.md` suffixes.** Also deploy-time only, so the raw-Markdown-per-page behaviour is
    likewise unverified here.
 
-### 6. Best-practices guide's final URL
-**Status:** still a Lovable preview domain — `https://almedia-link-best-practices.lovable.app`
+### 6. The two remaining Lovable survey links
+**Status:** still preview domains.
 
-`publisher/best-practices.mdx` is a bridge page that links out to it and deliberately does not
-duplicate its content. If that guide is moving to a permanent domain, tell me and I'll update
-the link and add a redirect.
+The best-practices guide itself is now hosted here (D-028), so its old URL is gone. But two
+links inside it still point at a different Lovable app:
+
+- `https://link-asset-hub.lovable.app/earn-tab-survey` — the Earn Tab survey
+- `https://link-asset-hub.lovable.app/survey` — submit-your-integration
+
+Those are separate tools, not the guide, so I left them alone. If they are moving to permanent
+homes, send the URLs and I'll swap them.
 
 ### 7. Technical Docs sync from the SDK repo
 **Status:** not configured — requires GitHub App installation, which I will not do unasked.
@@ -105,6 +110,7 @@ final.
 | — | **Light/dark toggle** | **Working**, verified end to end including OS-dark-plus-manual-light (D-023). |
 | — | **Daimito Expanded** | **In and rendering.** Licensed `.woff2` supplied and verified genuinely active, not falling back (D-026). Note the configured path had a case mismatch that would have 404'd in production — fixed. |
 | — | **Nav "bubble" shapes** | **Fixed.** Caused by an over-broad `[class*="primary"]` selector capturing Aspen's active tab, plus pill radii on short wide elements. Tabs and sidebar rows are rounded rectangles now (D-027). |
+| — | **Best-practices guide** | **Ported and self-hosted** at `/publisher/best-practices` (D-028). All 19 media files are local; Lovable is no longer a runtime dependency. Interactive parts — staged checklist, chaptered videos, lightbox, prompt copy — all verified working. |
 | — | **`mint a11y` reports FAIL** | **False positive**, proven by DOM probe — `colors.dark` only ever paints the navbar CTA's background fill, never text (D-020). The MDX half of the audit is clean. Expect the overall line to keep reading FAIL. |
 
 ---

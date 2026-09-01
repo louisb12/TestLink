@@ -7,6 +7,13 @@ scripts/
 # Internal project context (also covered by the automatic .claude ignore)
 CLAUDE.md
 
+# The uploaded Lovable export. It is the SOURCE the best-practices guide was
+# ported from, not publishable content — Mintlify otherwise tries to build its
+# .tsx and fails on every @/assets import. Kept for provenance; everything the
+# guide needs is already extracted into publisher/best-practices.mdx and
+# images/best-practices/.
+Best Practises Guide LInk (1)/
+
 # Draft content
 drafts/
 *.draft.mdx

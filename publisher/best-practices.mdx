@@ -1,31 +1,909 @@
 ---
 title: "Best practices"
-description: "How to get the most out of an Almedia Link placement — the full guide lives in a dedicated companion site."
+description: "The patterns behind a high install-to-link rate and a clear LTV lift for linked users — pop-up timing and design, the homescreen entry point, Rewarded Progression, the Earn Tab and a pre-launch checklist."
 icon: "lightbulb"
 ---
 
-The best-practices guide is a separate, visually rich companion site rather than a page here.
-It covers placement, creative, timing and the tactical detail of making a Link placement
-perform.
+{/*
+  ─────────────────────────────────────────────────────────────────────────────
+  ENGINEERING-OWNED PAGE. This is the one exception to the publisher/** rule
+  in CLAUDE.md §4.
 
-<Card title="Open the Almedia Link best-practices guide" icon="external-link" href="https://almedia-link-best-practices.lovable.app" horizontal>
-  Placement, creative and timing guidance — the full interactive guide.
-</Card>
+  It uses inline React components, so it CANNOT be edited in the Mintlify web
+  editor. Every other page under publisher/** stays plain MDX and web-editor
+  safe. Do not add components to those.
 
-## Why it lives somewhere else
+  Ported from the standalone Lovable SPA (previously at
+  almedia-link-best-practices.lovable.app) so the guide is hosted here. All
+  media is local under /images/best-practices/ — re-fetch with
+  `node scripts/fetch-guide-assets.mjs`. Lovable is no longer a dependency.
 
-Keeping one canonical copy means the guidance can never disagree with itself. This page is
-deliberately a bridge, not a summary — a summary would drift out of date the first time the
-guide is revised, and a reader would have no way of knowing which version they were looking
-at.
+  Styles: styles/60-best-practices.css (bp- prefix).
+  ─────────────────────────────────────────────────────────────────────────────
+*/}
 
-<Warning>
-  **Do not paste the guide's content into this page.** If something in it needs to live in the
-  docs permanently, move it here and remove it there, so there is still exactly one copy.
-</Warning>
+export const ICON_CHECK = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"
+       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M20 6L9 17l-5-5" />
+  </svg>
+);
 
-<Info>
-  **TODO(link)** — confirm the final URL before launch. The link above still points at a
-  Lovable preview domain (`almedia-link-best-practices.lovable.app`). If the guide is moving to
-  a permanent home, update this page and add a redirect in `docs.json`.
-</Info>
+export const ICON_CROSS = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"
+       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M18 6L6 18M6 6l12 12" />
+  </svg>
+);
+
+{/* ── Media: image or video, images open in a lightbox ────────────────────── */}
+
+export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize = false, showCaption = true }) => {
+  const [open, setOpen] = useState(false);
+  const frameClass =
+    "bp-frame bp-frame-" + ratio + (emphasize ? " bp-frame-emphasize" : "");
+
+  if (kind === "video") {
+    return (
+      <figure className="bp-media">
+        <div className={"bp-frame bp-frame-" + ratio + " bp-frame-auto"}>
+          <video src={src} controls playsInline muted preload="metadata"
+                 controlsList="nofullscreen" aria-label={caption} />
+        </div>
+        {showCaption ? <figcaption className="bp-caption">{caption}</figcaption> : null}
+      </figure>
+    );
+  }
+
+  return (
+    <figure className="bp-media">
+      <button type="button" className={frameClass} onClick={() => setOpen(true)}
+              aria-label={"Enlarge: " + caption}>
+        <img src={src} alt={caption} loading="lazy" />
+      </button>
+      {showCaption ? <figcaption className="bp-caption">{caption}</figcaption> : null}
+      {open ? (
+        <button type="button" className="bp-lightbox" onClick={() => setOpen(false)}
+                aria-label="Close enlarged image">
+          <span>
+            <img src={src} alt={caption} />
+            <span className="bp-lightbox-cap">{caption}</span>
+          </span>
+        </button>
+      ) : null}
+    </figure>
+  );
+};
+
+{/* ── Do / Don't ──────────────────────────────────────────────────────────── */}
+
+export const Panel = ({ variant, points, media, ratio, kind }) => {
+  const isDo = variant === "do";
+  const list = Array.isArray(media) ? media : [media];
+  return (
+    <div className={"bp-panel" + (isDo ? " bp-panel-do" : "")}>
+      <span className={"bp-badge" + (isDo ? " bp-badge-do" : "")}>
+        <span className={"bp-mark" + (isDo ? " bp-mark-do" : "")}>
+          {isDo ? ICON_CHECK : ICON_CROSS}
+        </span>
+        {isDo ? "Do" : "Don't"}
+      </span>
+
+      {list.length > 1 ? (
+        <div className="bp-media-grid">
+          {list.map((m, i) => (
+            <Media key={i} src={m.src} caption={m.caption} ratio={ratio} kind={kind}
+                   emphasize={m.emphasize} showCaption={false} />
+          ))}
+        </div>
+      ) : (
+        <Media src={list[0].src} caption={list[0].caption} ratio={ratio} kind={kind} />
+      )}
+
+      <ul className="bp-points">
+        {points.map((p, i) => (
+          <li className="bp-point" key={i}>
+            <span className={"bp-mark" + (isDo ? " bp-mark-do" : "")}>
+              {isDo ? ICON_CHECK : ICON_CROSS}
+            </span>
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export const DoDont = ({ doPoints, dontPoints, doMedia, dontMedia, ratio = "phone", kind = "image" }) => (
+  <div className="bp-dodont">
+    <Panel variant="do" points={doPoints} media={doMedia} ratio={ratio} kind={kind} />
+    <Panel variant="dont" points={dontPoints} media={dontMedia} ratio={ratio} kind={kind} />
+  </div>
+);
+
+{/* ── Chaptered video ─────────────────────────────────────────────────────── */}
+
+export const ChapteredVideo = ({ src, chapters, ariaLabel }) => {
+  const ref = useRef(null);
+  const [active, setActive] = useState(0);
+
+  const onTime = () => {
+    const t = ref.current ? ref.current.currentTime : 0;
+    const i = chapters.findIndex((c) => t >= c.start && t < c.end);
+    if (i !== -1 && i !== active) setActive(i);
+  };
+
+  const seek = (i) => {
+    setActive(i);
+    if (ref.current) {
+      ref.current.currentTime = chapters[i].start + 0.05;
+      const play = ref.current.play();
+      if (play && play.catch) play.catch(() => {});
+    }
+  };
+
+  return (
+    <div className="bp-chaptered">
+      <video ref={ref} src={src} controls playsInline muted preload="metadata"
+             onTimeUpdate={onTime} aria-label={ariaLabel} />
+      <ol className="bp-chapters">
+        {chapters.map((c, i) => (
+          <li key={i}>
+            <button type="button" className="bp-chapter" aria-current={i === active}
+                    onClick={() => seek(i)}>
+              <span className="bp-chapter-head">
+                <span className="bp-chapter-n">{i + 1}</span>
+                <span className="bp-chapter-title">{c.title}</span>
+              </span>
+              <span className="bp-chapter-note">{c.note}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+};
+
+{/* ── Copy-to-clipboard prompt card ───────────────────────────────────────── */}
+
+export const PromptCard = ({ tag, title, copy, buttonLabel, prompt }) => {
+  const [copied, setCopied] = useState(false);
+  const [shown, setShown] = useState(false);
+
+  // Three tiers, because the async Clipboard API is unavailable in plenty of
+  // real contexts (non-secure origins, embedded webviews, permission denied):
+  // 1. navigator.clipboard  2. execCommand fallback  3. reveal the prompt so
+  // it can be selected by hand. The reader always ends up able to copy it.
+  const doCopy = () => {
+    const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2400); };
+
+    const legacy = () => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = prompt;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.top = "-1000px";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) { done(); return true; }
+      } catch (e) { /* fall through */ }
+      return false;
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(prompt).then(done, () => { if (!legacy()) setShown(true); });
+    } else if (!legacy()) {
+      setShown(true);
+    }
+  };
+
+  return (
+    <div className="bp-prompt">
+      <span className="bp-num">{tag}</span>
+      <h3>{title}</h3>
+      <p>{copy}</p>
+      <div className="bp-prompt-actions">
+        <button type="button" className="al-btn al-btn-primary" onClick={doCopy}>
+          {copied ? "Copied" : buttonLabel}
+        </button>
+        <button type="button" className="al-btn al-btn-secondary" onClick={() => setShown(!shown)}>
+          {shown ? "Hide prompt" : "Read the prompt"}
+        </button>
+      </div>
+      {shown ? <pre className="bp-prompt-pre">{prompt}</pre> : null}
+    </div>
+  );
+};
+
+{/* ── The gamified checklist ──────────────────────────────────────────────── */}
+
+export const CORE_STAGES = [
+  { group: "Pop-up placement", items: [
+    "Surfaces within the first 2-5 minutes of play time",
+    "Force-shown, no tap required",
+    "Re-shown at least every 30 minutes to unlinked players",
+    "Never fired straight after a rewarded ad",
+    "Not capped to once per session",
+    "Rolled out to at least 90% of users",
+  ]},
+  { group: "Pop-up design", items: [
+    "Covers at least half the screen and native to your game's art and fonts",
+    "Dismissal blocked for a few seconds",
+    "$10 sign-up bonus stated outright",
+    "In-game currency reward shown on the banner",
+    "One clear CTA focused on rewards, no \"Sign Up\" wording",
+    "Freecash icon used",
+    "Includes a social-proof or trust-signal line",
+  ]},
+  { group: "Homescreen icon", items: [
+    "Freecash icon carried on the button",
+    "Reward signal (cash, coins or gift) visible on it",
+    "Draws the eye: notification bubble, animation or colour highlight",
+    "Placed in the homescreen corner or in the shop",
+    "Stays on screen for anyone who hasn't linked",
+    "Stays visible after linking, as the route into Rewarded Progression and the Earn Tab",
+  ]},
+  { group: "User flow (SDK 1.1+)", items: [
+    "In-game reward paid out on the player's next return",
+    "Player is shown that they received the reward",
+    "Player is nudged toward the Freecash icon once, not auto-opened",
+    "Rewarded Progression walked through once",
+    "Icon badged with a red \"1\" on every milestone via reward notification",
+  ]},
+];
+
+export const BONUS_STAGE = {
+  group: "Earn Tab",
+  items: [
+    "Own dedicated pop-up for the Earn Tab",
+    "Exact offer reward and payout stated on that pop-up",
+    "One clear CTA focused on Rewards, no \"Sign Up\" wording",
+    "One-time tutorial: what an offer is and what it pays",
+    "Earn Tab reachable from the same Freecash homescreen icon",
+    "Earn Tab survey submitted so we can set it up",
+  ],
+};
+
+export const CORE_TOTAL = CORE_STAGES.reduce((n, g) => n + g.items.length, 0);
+export const CORE_COINS = CORE_TOTAL * 10;
+export const BONUS_COINS = BONUS_STAGE.items.length * 15;
+export const COIN_SRC = "/images/best-practices/link-coin.png";
+
+export const CheckRow = ({ label, checked, onToggle }) => (
+  <li className="bp-check">
+    <label>
+      <input type="checkbox" checked={checked} onChange={(e) => onToggle(e.target.checked)} />
+      <span className="bp-check-box" aria-hidden="true">{ICON_CHECK}</span>
+      <span className="bp-check-label">{label}</span>
+    </label>
+  </li>
+);
+
+export const Progress = ({ pct }) => (
+  <div className="bp-progress">
+    {/* --bp-pct is a genuinely dynamic value driven by user interaction, set
+        after hydration. That is the one case where the style prop is safe —
+        there is no server-rendered value for it to mismatch. */}
+    <span className="bp-progress-track" aria-hidden="true">
+      <span className="bp-progress-fill" style={{ "--bp-pct": pct }} />
+    </span>
+    <span className="bp-progress-pct">{pct}%</span>
+  </div>
+);
+
+export const Checklist = () => {
+  const [checked, setChecked] = useState({});
+  const [unlocked, setUnlocked] = useState(0);
+  const [bonusOpen, setBonusOpen] = useState(false);
+
+  const toggle = (item) => (next) => setChecked((prev) => ({ ...prev, [item]: next }));
+  const doneIn = (items) => items.filter((i) => checked[i]).length;
+
+  const coreDone = CORE_STAGES.reduce((n, g) => n + doneIn(g.items), 0);
+  const bonusDone = doneIn(BONUS_STAGE.items);
+  const coins = coreDone * 10 + bonusDone * 15;
+  const allDone = coreDone === CORE_TOTAL;
+
+  // Auto-advance as soon as the current stage is fully ticked.
+  useEffect(() => {
+    const cur = CORE_STAGES[unlocked];
+    if (cur && cur.items.every((i) => checked[i]) && unlocked < CORE_STAGES.length - 1) {
+      setUnlocked(unlocked + 1);
+    }
+  }, [checked, unlocked]);
+
+  return (
+    <div>
+      <div className="bp-coinbar">
+        <span className="bp-coinpill">
+          <img src={COIN_SRC} alt="" aria-hidden="true" />
+          <span aria-live="polite">{coins} / {CORE_COINS + BONUS_COINS} Link Coins</span>
+        </span>
+        <span className="bp-coinbar-note">{CORE_COINS} core + {BONUS_COINS} bonus</span>
+      </div>
+
+      {CORE_STAGES.map((stage, gi) => {
+        const done = doneIn(stage.items);
+        const complete = done === stage.items.length;
+        const pct = Math.round((done / stage.items.length) * 100);
+
+        if (gi > unlocked) {
+          return (
+            <div className="bp-stage bp-stage-locked" key={stage.group}>
+              <span className="bp-stage-n" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                     strokeLinecap="round" style={{ width: "0.85rem", height: "0.85rem" }}>
+                  <rect x="4" y="10" width="16" height="10" rx="2" />
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                </svg>
+              </span>
+              <span>
+                <strong>Stage {gi + 1} locked</strong>
+                <span className="bp-chapter-note">
+                  {stage.items.length} checks, worth {stage.items.length * 10} Link Coins.
+                </span>
+              </span>
+            </div>
+          );
+        }
+
+        const next = CORE_STAGES[gi + 1];
+        const canUnlock = gi === unlocked && !!next && done >= Math.ceil(stage.items.length / 2);
+
+        return (
+          <div className={"bp-stage" + (complete ? " bp-stage-complete" : "")} key={stage.group}>
+            <div className="bp-stage-head">
+              <span className="bp-stage-head-l">
+                <span className="bp-stage-n" aria-hidden="true">{gi + 1}</span>
+                <h3>{stage.group}</h3>
+              </span>
+              <span className="bp-stage-score">
+                <img src={COIN_SRC} alt="" aria-hidden="true" />
+                {done * 10} / {stage.items.length * 10}
+              </span>
+            </div>
+
+            <Progress pct={pct} />
+
+            <ul className="bp-checks">
+              {stage.items.map((item) => (
+                <CheckRow key={item} label={item} checked={!!checked[item]} onToggle={toggle(item)} />
+              ))}
+            </ul>
+
+            {gi === unlocked && next ? (
+              <div className="bp-unlock">
+                <button type="button" className="al-btn al-btn-primary" disabled={!canUnlock}
+                        onClick={() => setUnlocked(gi + 1)}>
+                  {canUnlock
+                    ? "Unlock stage " + (gi + 2)
+                    : "Tick " + (Math.ceil(stage.items.length / 2) - done) + " more to unlock"}
+                </button>
+                {canUnlock && !complete ? (
+                  <span className="bp-unlock-note">
+                    {stage.items.length - done} boxes still open in this stage.
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+
+      {bonusOpen ? (
+        <div className={"bp-stage bp-stage-bonus" + (bonusDone === BONUS_STAGE.items.length ? " bp-stage-complete" : "")}>
+          <div className="bp-stage-head">
+            <span className="bp-stage-head-l">
+              <span className="bp-num">Bonus stage</span>
+              <h3>{BONUS_STAGE.group}</h3>
+            </span>
+            <span className="bp-stage-score">
+              <img src={COIN_SRC} alt="" aria-hidden="true" />
+              {bonusDone * 15} / {BONUS_COINS}
+            </span>
+          </div>
+          <p className="bp-sub-intro">
+            Always open, never required. Every box here is worth 15 Link Coins instead of 10, as the
+            Earn Tab is an additional feature inside of Link.
+          </p>
+          <Progress pct={Math.round((bonusDone / BONUS_STAGE.items.length) * 100)} />
+          <ul className="bp-checks">
+            {BONUS_STAGE.items.map((item) => (
+              <CheckRow key={item} label={item} checked={!!checked[item]} onToggle={toggle(item)} />
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div className="bp-bonus-invite">
+          <p>Setting up the Earn Tab? Bonus stage: {BONUS_COINS} extra Link Coins.</p>
+          <button type="button" className="al-btn al-btn-primary" onClick={() => setBonusOpen(true)}>
+            Unlock bonus stage
+          </button>
+        </div>
+      )}
+
+      <p className="bp-verdict">
+        {allDone
+          ? "Full board, all " + CORE_COINS + " core Link Coins. This is the strongest Link setup we can advise for today. A/B test from here, and keep us updated about the results."
+          : "This is the same checklist we use to audit live integrations. Every unticked box is a known drop in install-to-link rate or LTV, so the target is " + CORE_COINS + " core Link Coins plus the " + BONUS_COINS + " bonus coins on the Earn Tab."}
+      </p>
+    </div>
+  );
+};
+
+{/* ── AI audit prompts, verbatim from the source guide ────────────────────── */}
+
+export const MONEY_RULE = `
+## Hard rule on money wording
+
+There is exactly ONE dollar figure allowed anywhere on the pop-up or entry point: the **$10 sign-up bonus**. Nothing else may carry a dollar amount.
+
+- Never recommend adding a second money number, for example "$5 in Gift Cards", "Earn $50 a month", "$2 cash back" or a payout total.
+- Vague reward wording like "Real Rewards" is fixed by naming the reward type and its exact in-game amount ("500 Coins", "3 Gems"), not by attaching a dollar value.
+- Payout options (cash, gift cards, PayPal, Visa, Amazon) appear as logos or plain labels with NO amounts attached.
+- If the material shows more than one dollar figure, mark it a fail and instruct the team to remove every dollar amount except the $10 sign-up bonus.
+`;
+
+export const SHARED_TAIL = `
+## Rules for you, the assistant
+
+- Never start the audit before you have the visual material. If it is missing, ask for it and stop.
+- Never guess. If something cannot be judged from the screenshot or the answers, mark it "Cannot tell" and say exactly what you would need to see.
+- Do not invent rules beyond the ones listed above. These rules come from Almedia's published Link best practices.
+- Never propose a second dollar figure. The $10 sign-up bonus is the only monetary number allowed.
+- Write for a design or product manager: plain language, no code, no SDK details.
+
+
+## Output format
+
+1. **Scorecard**: a table with three columns, Rule | Pass / Fail / Cannot tell | What you can see.
+2. **Fix list**: every failed rule as a concrete change, ranked by impact on install-to-link rate and LTV. One sentence each, written as an instruction ("Move the pop-up to fire at minute 3 of the first session").
+3. **Copy check**: quote the exact wording currently used on the CTA and the reward lines, and give the replacement wording where it breaks a rule.
+4. **One-line verdict**: how far this integration is from the strongest setup, and the single highest-impact change.
+5. Close with: full guide at https://dev.almedia.co/publisher/best-practices and "Send your setup to link@almedia.co for a human review."
+`;
+
+export const POPUP_PROMPT = `You are auditing the Freecash Link pop-up inside a mobile game against Almedia's Link best practices. Your job is to tell the team exactly what is wrong with their pop-up and how to fix it.
+
+## Step 1: get the visual
+
+If no screenshot or screen recording of the pop-up is attached to this message, ask for it now and wait. Say exactly what you need:
+- A full screen capture of the pop-up as a player sees it, gameplay behind it included.
+- Ideally also a short screen recording showing the moment it appears.
+
+Do not audit anything until you have it.
+
+## Step 2: ask what a picture cannot answer
+
+Once you have the visual, ask these questions in one short numbered batch and wait for the answers:
+
+1. How many minutes into the player's very first session does the pop-up first appear?
+2. Does it appear on its own, or does the player have to tap an icon, menu or shop tab?
+3. If the player dismisses it, how often is it shown again? (Every X minutes of play time? Only once per session? Once per install?)
+4. Can it fire directly after a rewarded ad or an interstitial?
+5. What percentage of users currently see it?
+6. Is dismissal blocked for the first few seconds, and is a countdown shown?
+7. When a player links, is the in-game currency reward shown on the pop-up actually granted, and how soon?
+8. Is the pop-up built in your game's own fonts, colours and UI frames, or is it Freecash-branded artwork?
+
+## Step 3: check against these rules
+
+**Timing and placement**
+- Appears within the first 2-5 minutes of play time, inside the very first session.
+- Force-shown: it appears on its own, no tap required.
+- Re-shown at least every 30 minutes of play time to any player who has not linked yet.
+- Rolled out to at least 90% of users.
+- Never fired straight after a rewarded ad or an interstitial.
+- Not capped to "once per session" or "once per install".
+- The surrounding screen is quiet: the pop-up is clearly the only thing on screen.
+
+**Design**
+- Covers at least half the screen, with the gameplay behind it dimmed out. A small card over barely dimmed gameplay fails.
+- Built game native: the game's own fonts, colours, button shapes and art style. Only the Freecash mark and the exact reward values stay as-is.
+- Dismissal blocked for the first 5 seconds, shown as a small countdown next to a greyed-out close button.
+- The $10 sign-up bonus is stated outright in plain text. This is the single most impactful element.
+- The in-game currency reward for linking (coins, gems, tickets) is shown on the banner, and actually granted on linking.
+- Real-world payout options are shown as logos or plain labels (cash, gift cards, PayPal / Visa / Amazon) with no dollar amounts attached, so the value reads as real money.
+- Exactly one reward-led CTA. Shippable wording: "Earn Rewards", "Start earning rewards", "Link Account & Get Rewards".
+- No "Sign Up", "Link & SignUp" or "Link to Freecash" wording. Those describe an action, not a benefit.
+- No second competing button such as "Check Link" next to the main CTA.
+- The Freecash icon is present so the offer is recognisable and trusted.
+- One social-proof or trust-signal line is present. Shippable wording: "Join millions of players already earning daily." or "Join a community of over 80 million players earning real rewards."
+- Uncluttered: a balance of icons and short text, never a wall of copy.
+- No vague rewards ("Coins for playing", "Cash bonus", "Real Rewards"). Every reward is named with its exact in-game amount, for example "500 Coins".
+- Only one dollar figure on the whole pop-up: the $10 sign-up bonus.
+` + MONEY_RULE + SHARED_TAIL;
+
+export const ENTRY_PROMPT = `You are auditing the persistent Freecash Link entry point (the homescreen icon) inside a mobile game against Almedia's Link best practices. Your job is to tell the team exactly what is wrong with their entry point and how to fix it.
+
+## Step 1: get the visual
+
+If no screenshot is attached to this message, ask for it now and wait. Say exactly what you need:
+- A full screenshot of the game homescreen with the entry point visible in place, not the icon file on its own.
+- A close-up of the icon itself.
+- If the entry point also lives in the shop or as a banner, a screenshot of that too.
+
+Do not audit anything until you have it.
+
+## Step 2: ask what a picture cannot answer
+
+Once you have the visual, ask these questions in one short numbered batch and wait for the answers:
+
+1. Where exactly does the entry point sit? (Homescreen corner, shop, banner, menu, somewhere else?)
+2. Is it visible permanently to every player who has not linked yet, or only during certain sessions or after a level gate?
+3. Does it stay visible after the player has linked?
+4. After linking, what does tapping it open: Rewarded Progression, the Earn Tab, or the Freecash app?
+5. Does it carry an attention cue: a red notification badge, an animation, or a colour highlight that separates it from ordinary shop buttons?
+6. Do you fire a reward notification badge when a milestone is reached?
+7. Does the player ever have to open a menu, settings screen or sub-page to reach it?
+8. Is the frame around it built in your game's own art style?
+
+## Step 3: check against these rules
+
+**The icon itself**
+- A persistent, tappable icon that carries the Freecash mark so it is instantly identifiable.
+- The surrounding frame is styled natively to the game's theme, while the Freecash mark stays intact.
+- A reward signal is on it: cash, coins or a gift cue, so the player knows a reward sits behind it.
+- It draws the eye: a red notification badge on the corner, a subtle animation, or a colour highlight.
+- It has a label. A bare Freecash logo or the plain Freecash app icon used alone reads as a random brand icon and fails.
+- It does not look like just another shop button.
+
+**Placement and lifecycle**
+- Permanently on screen for anyone who has not linked yet, not just for one session.
+- Never buried in a settings menu, an overflow menu or a sub-page.
+- Good placements: the homescreen corner first, or inside the shop next to the currency packs, or a wide in-game reward banner carrying the reward value in text.
+- It stays visible after linking as well. This is load bearing: it is the route into Rewarded Progression and the Earn Tab, so hiding it after linking cuts off both the LTV feature and the revenue feature.
+- Badged with a red "1" on every milestone the player achieves, via a reward notification.
+- Any reward cue on the icon or banner names an exact in-game amount, never a vague line like "Real Rewards". The only dollar figure allowed anywhere is the $10 sign-up bonus.
+
+
+**Why it matters**
+- Most players do not link on the first pop-up. The persistent icon carries the long tail of links, which is a large share of total linked users and therefore of the LTV lift.
+` + MONEY_RULE + SHARED_TAIL;
+
+{/* ═══════════════════ PAGE CONTENT ═══════════════════ */}
+
+<section className="bp-hero">
+  <span className="bp-hero-blob bp-hero-blob-a" aria-hidden="true" />
+  <span className="bp-hero-blob bp-hero-blob-b" aria-hidden="true" />
+  <div className="bp-hero-inner">
+    <img className="bp-hero-logo" src="/images/best-practices/link-logo-blue.png" alt="Almedia Link" />
+    <h1 className="bp-hero-title">Best Practices</h1>
+    <p className="bp-hero-sub">
+      These are the patterns behind a high install-to-link rate, and a clear lift in LTV for
+      linked users. Follow them to see better results.
+    </p>
+  </div>
+</section>
+
+<div className="bp-readme">
+  <span className="bp-readme-blob" aria-hidden="true" />
+  <span className="bp-num">How to read this guide</span>
+  <h2>This is a layout guide, you make it game native</h2>
+  <p>
+    Every example is illustrated with Freecash art to show the structure. Rebuild it{" "}
+    <strong>game native</strong>: your fonts, colours, frames, art style. Keep only the Freecash
+    logo at certain touch points, and keep the exact reward values intact.
+  </p>
+</div>
+
+## Outcome 01 · How to maximize your install-to-link ratio
+
+<p className="bp-outcome-intro">
+  Three levers decide how many installs turn into linked accounts: when the pop-up fires, what it
+  says, and whether players can still find the offer later.
+</p>
+
+### Pop-up design
+
+<p className="bp-sub-intro">
+  The design of the pop-up should be native to your game — font, style, frames. The example
+  artwork only illustrates which components it should include.
+</p>
+
+<DoDont
+  ratio="phone"
+  doMedia={{ src: "/images/best-practices/popup-do-tight.webp", caption: "Freecash pop-up covering about three quarters of the screen over dimmed gameplay, with a 5 second countdown next to the greyed-out close button, the in-game coin reward, cash and gift cards, a $10 sign-up bonus, one 'Start earning rewards' CTA and a social-proof line." }}
+  doPoints={[
+    "Covers at least half the screen, gameplay dimmed behind it",
+    "Dismissal blocked for the first 5 seconds",
+    "$10 bonus stated outright",
+    "In-game currency reward on the banner",
+    "One clear CTA focused on Rewards",
+    "Freecash icon used",
+  ]}
+  dontMedia={{ src: "/images/best-practices/popup-dont.png", caption: "Small pop-up card floating over barely dimmed gameplay with vague 'Coins for playing' and 'Cash bonus' rows, a 'Sign Up' button and a competing 'Check Link' button, and no social proof." }}
+  dontPoints={[
+    "Small card over barely dimmed gameplay",
+    "Close button available immediately",
+    "No $10 bonus stated anywhere",
+    "No in-game currency reward shown",
+    "Two competing CTAs, and \"Sign Up\" wording on the main one",
+    "No Freecash icon, so the offer looks unknown",
+  ]}
+/>
+
+<div className="bp-copies">
+  <h4>Copy you can ship as-is</h4>
+  <div className="bp-copies-grid">
+    <div>
+      <h4>Social proof</h4>
+      <ul>
+        <li>“Join millions of players already earning daily.”</li>
+        <li>“Join a community of over 80 million players earning real rewards.”</li>
+      </ul>
+    </div>
+    <div>
+      <h4>CTA</h4>
+      <ul>
+        <li>“Earn Rewards”</li>
+        <li>“Start earning rewards”</li>
+        <li>“Link Account &amp; Get Rewards”</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div className="bp-tip">
+  <span className="bp-num">Bonus tip</span>
+  <p>
+    Make the in-game reward escalating: raise it on every re-show after a dismissal, up to one
+    final best offer.
+  </p>
+</div>
+
+### Where to place the pop-up
+
+<p className="bp-sub-intro">
+  Timing alone separates the strongest integrations from the average ones. The same creative
+  performs very differently depending on when it fires.
+</p>
+
+<DoDont
+  ratio="phone"
+  kind="video"
+  doMedia={{ src: "/images/best-practices/popup-timing-do-trimmed.mp4", caption: "The pop-up surfaces on its own a few minutes into a live session, with no ad before it and no tap from the player." }}
+  doPoints={[
+    "Surfaces within the first 2-5 minutes play time",
+    "Force-shown, no tap required",
+    "Re-shown at least every 30 minutes to unlinked players",
+    "Attention is still fresh, so install-to-link peaks",
+  ]}
+  dontMedia={{ src: "/images/best-practices/popup-timing-dont.mp4", caption: "A rewarded ad finishes and the pop-up fires the instant it closes — two interruptions back to back." }}
+  dontPoints={[
+    "Waits until the player is deep in the session, or fires straight after a rewarded ad",
+    "Waits for the player to tap something",
+    "Capped to \"once per session\", never re-shown",
+    "Player is already fatigued, most never see it twice",
+  ]}
+/>
+
+<PromptCard
+  tag="AI audit"
+  title="Have an AI check your pop-up design"
+  copy="Copy the prompt, paste it into ChatGPT, Claude or Gemini with a screenshot of your pop-up. It asks for what it needs, then scores your pop-up against every rule in this guide."
+  buttonLabel="Copy pop-up prompt"
+  prompt={POPUP_PROMPT}
+/>
+
+### Homescreen icon
+
+<p className="bp-sub-intro">
+  Most players don't link on the first pop-up. This is what brings them back without interrupting
+  them again — and it is the most commonly missed part of an integration.
+</p>
+
+<DoDont
+  ratio="icon"
+  doMedia={[
+    { src: "/images/best-practices/icon-rewards-fab-v2.webp", caption: "Homescreen icon with the Freecash mark surrounded by coins, a gift and gems, labelled Freecash Rewards." },
+    { src: "/images/best-practices/icon-rewards-b.png", caption: "Homescreen icon showing coins and cash reward art with a FreeCash Rewards label.", emphasize: true },
+  ]}
+  doPoints={[
+    "Carries the Freecash icon",
+    "Reward signal on it: cash, coins or gift",
+    "Draws the eye: notification bubble, animation or colour highlight",
+    "Keep it on screen for anyone who hasn't linked",
+    "Good placements: homescreen corner, or in the shop",
+  ]}
+  dontMedia={[
+    { src: "/images/best-practices/icon-dont-a.svg", caption: "Bare green Freecash logo mark used alone as the entry point, with no reward art and no label." },
+    { src: "/images/best-practices/icon-dont-b.svg", caption: "Plain Freecash app logo used as the entry point, with no reward cue and no label." },
+  ]}
+  dontPoints={[
+    "Bare app logo used alone, no Freecash reward context",
+    "No reward signal on it: no cash, no coins, no gift",
+    "No highlighting: no notification badge, no animation, no colour pop",
+    "Buried in a settings menu, so unlinked players never pass it",
+    "No label, so it reads as another shop button and gets ignored",
+  ]}
+/>
+
+### Where to place the entry point
+
+<p className="bp-sub-intro">
+  Three placements work. Ship at least one, and the homescreen corner first.
+</p>
+
+<div className="bp-placements bp-placements-2">
+  <div className="bp-place">
+    <span className="bp-num">Homescreen</span>
+    <Media src="/images/best-practices/placement-homescreen.webp" ratio="phone"
+      caption="Game homescreen with the FreeCash Rewards icon pinned in the corner of the HUD, showing coins and cash art with a label under it." />
+    <h4>Homescreen corner</h4>
+    <p>
+      Always on the main screen: every unlinked player passes it every session, and every linked
+      player uses it to reach Rewarded Progression or the Earn Tab.
+    </p>
+  </div>
+  <div className="bp-place">
+    <span className="bp-num">Banner</span>
+    <Media src="/images/best-practices/placement-banner-rounded.png" ratio="phone"
+      caption="Game homescreen with a Freecash special offer banner docked above the bottom nav, stating 300 coins, a $10 bonus and an Earn Rewards button." />
+    <h4>In-game banner</h4>
+    <p>A wide strip docked above the bottom nav, carrying the reward value in text.</p>
+  </div>
+</div>
+
+<div className="bp-placements">
+  <div className="bp-place">
+    <span className="bp-num">Shop</span>
+    <Media src="/images/best-practices/placement-shop.png" ratio="wide"
+      caption="In-game coin shop screen with the FreeCash Rewards tile placed as a third option next to the coin packs." />
+    <h4>Inside the shop</h4>
+    <p>Sits next to the currency packs, exactly where players already come to get more.</p>
+  </div>
+</div>
+
+<PromptCard
+  tag="AI audit"
+  title="Have an AI check your entry point"
+  copy="Copy the prompt, paste it into ChatGPT, Claude or Gemini with a screenshot of your homescreen. It asks the questions a screenshot can't answer, then scores your entry point against this guide."
+  buttonLabel="Copy entry point prompt"
+  prompt={ENTRY_PROMPT}
+/>
+
+## Outcome 02 · How to maximize LTV with Rewarded Progression
+
+<p className="bp-outcome-intro">
+  <span className="bp-pill">SDK 1.1+ needed</span>
+</p>
+
+<p className="bp-outcome-intro">
+  Rewarded Progression lives inside your game. The player sees their progress and their rewards
+  without ever opening Freecash, which is what keeps them playing and cuts churn.
+</p>
+
+### User flow after linking
+
+<p className="bp-sub-intro">Pay out loud, then show them where the progression lives.</p>
+
+<ChapteredVideo
+  src="/images/best-practices/rewarded-progression.mp4"
+  ariaLabel="Screen recording of the post-link flow"
+  chapters={[
+    { start: 0, end: 4.4, title: "Link the account", note: "The player signs up and links in a few taps." },
+    { start: 4.4, end: 10.5, title: "Pay the reward out loud", note: "The player lands back in the game and immediately sees the in-game currency they earned. This is the moment that proves the player's linking worked." },
+    { start: 10.5, end: 21.5, title: "Show the entry point via a short tutorial", note: "A short tutorial points at the Freecash icon in the HUD. A permanent, reward-signalling entry point is what turns one payout into repeat earning sessions." },
+    { start: 21.5, end: 34.8, title: "End inside Rewarded Progression", note: "The tutorial ends inside Rewarded Progression, so the player sees what the next milestone is worth and gets a concrete reason to come back." },
+  ]}
+/>
+
+### Badge every milestone
+
+<p className="bp-sub-intro">A reward notification is what pulls the player back into progression.</p>
+
+<div className="bp-tip">
+  <span className="bp-num">Bonus tip</span>
+  <p>
+    Badge the icon with a red “1” on every milestone the user achieves, using a reward
+    notification. <a href="https://github.com/almedia-tm/almedia-link-sdk/blob/main/Documentation~/integration-guide.md#reward-notifications">Technical guide for this</a>
+  </p>
+</div>
+
+## Outcome 03 · How to maximize revenue with the Earn Tab
+
+<p className="bp-outcome-intro">
+  <span className="bp-pill">SDK 1.1+ needed</span>
+</p>
+
+<p className="bp-outcome-intro">
+  The Earn Tab pays you a $3 CPA for every completed offer. It is an additional feature for
+  already-linked users.
+</p>
+
+### User flow for the Earn Tab
+
+<p className="bp-sub-intro">
+  Players will not find the Earn Tab on their own, so it gets its own launch moment: a dedicated
+  pop-up, one short tutorial, then the same Freecash homescreen icon as the permanent way back.
+</p>
+
+<ChapteredVideo
+  src="/images/best-practices/earn-tab-flow.mp4"
+  ariaLabel="Screen recording of the Earn Tab flow, from the dedicated pop-up through the Earn Tab offers and back into the game"
+  chapters={[
+    { start: 0, end: 4.2, title: "Fire a dedicated Earn Tab pop-up", note: "The player is in the game when the Earn Tab gets its own pop-up moment. Do not put it onto the linking pop-up. It needs its own dedicated pop-up, to increase conversion and to explain the function to users." },
+    { start: 4.2, end: 13, title: "Land in the Earn Tab", note: "The Earn Tab opens inside your game, featuring offers from other games. Every completed offer is a $3 CPA on your side." },
+    { start: 13, end: 15.5, title: "Back to the game, icon stays", note: "The player closes the Earn Tab and returns to gameplay with the Freecash icon still on the HUD. That icon is the permanent way back in." },
+    { start: 15.5, end: 19.8, title: "One icon, two tabs", note: "The same icon opens Rewarded Progression and the Earn Tab side by side, so players who came for progression discover the offers too." },
+  ]}
+/>
+
+### Earn Tab pop-up
+
+<p className="bp-sub-intro">
+  Same rules as the link pop-up: exact reward stated, one CTA, no wall of text.
+</p>
+
+<DoDont
+  ratio="phone"
+  doMedia={{ src: "/images/best-practices/earn-popup-do.webp", caption: "Earn Tab pop-up covering most of the screen with the Freecash mark, three numbered steps, a milestone progress bar, an exact gem reward and one 'Earn Rewards' CTA." }}
+  doPoints={[
+    "Own dedicated pop-up for the Earn Tab",
+    "State the exact offer reward and the payout up front",
+    "Explain the milestone: what to reach and how short it is",
+    "One clear CTA focused on Rewards, no sign-up wording, Freecash mark present",
+  ]}
+  dontMedia={{ src: "/images/best-practices/earn-popup-dont.png", caption: "Small Earn Tab pop-up floating over live gameplay with no Freecash mark, no reward value, vague steps and a 'Sign Up Now' button." }}
+  dontPoints={[
+    "Small card bolted over undimmed gameplay, no dedicated moment",
+    "No exact reward stated anywhere, the player has to guess",
+    "Vague milestone copy like \"keep playing, see what happens\"",
+    "\"Sign Up Now\" wording and no Freecash mark, although the player is already linked",
+  ]}
+/>
+
+<div className="bp-tip">
+  <span className="bp-num">Launching the Earn Tab</span>
+  <p>
+    Fill in the short Earn Tab survey so we have every asset we need to set it up for you.
+  </p>
+  <p>
+    <a className="al-btn al-btn-primary" href="https://link-asset-hub.lovable.app/earn-tab-survey">
+      Start the Earn Tab survey
+    </a>
+  </p>
+</div>
+
+## Full user flow from start to end
+
+<p className="bp-outcome-intro">
+  The whole journey in one recording: the pop-up firing in the first session, the link and Freecash
+  sign-up, back into the game for the in-game payout, the homescreen icon, and finally Rewarded
+  Progression.
+</p>
+
+<div className="bp-placements">
+  <Media src="/images/best-practices/full-flow.mp4" kind="video" ratio="phone"
+    caption="The complete flow end to end, from the first session and the pop-up firing, through linking and the Freecash sign-up, back into the game for the in-game payout, the homescreen icon, and finally Rewarded Progression." />
+</div>
+
+## Checklist
+
+<p className="bp-outcome-intro">
+  Every box ticked is the strongest setup we know of today for install-to-link rate and LTV per
+  linked player. Each core box is worth 10 Link Coins; the Earn Tab is a bonus stage worth 15 a box.
+</p>
+
+<Checklist />
+
+## Submit your integration
+
+<div className="bp-close">
+  <span className="bp-close-blob" aria-hidden="true" />
+  <p className="bp-close-title">Submit your integration. We will give you feedback.</p>
+  <p>
+    Send us your Link setup and we will review it against everything on this page. Running your own
+    A/B tests? Send those results too.
+  </p>
+  <p>
+    <a className="bp-btn-onblue" href="https://link-asset-hub.lovable.app/survey">
+      Submit your integration
+    </a>
+  </p>
+  <p>Questions: link@almedia.co</p>
+</div>

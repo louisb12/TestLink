@@ -541,3 +541,92 @@ rather than filling it, so the active indicator no longer touches the row border
 
 **Note on specificity:** `.nav-tabs-item` is a **class** in Aspen, not the custom element the
 docs imply. The rules use `a.nav-tabs-item` (0,1,1) to beat Aspen's own `.h-full` (0,1,0).
+
+---
+
+## D-028 — The best-practices guide is now hosted here, not linked out
+
+Lou supplied the Lovable export and asked for the guide to live in Mintlify directly. This
+**reverses** the previous rule (CLAUDE.md §5 used to say "never duplicate the best-practices
+guide; keep it a bridge page"). That rule existed to avoid two copies drifting apart — porting
+it satisfies the same goal from the other direction: there is now exactly one copy, here.
+
+### What the export actually contained
+
+A React + Vite + TanStack Router SPA. Two things mattered:
+
+1. **`src/lib/guide-markdown.ts`** — a complete machine-readable version of the entire guide,
+   maintained alongside the page for JSON-LD. It was the authoritative content source, far
+   better than reverse-engineering 1,493 lines of JSX.
+2. **Most media was not in the export.** 22 of 27 assets were `.asset.json` *pointers* to
+   Lovable's CDN, not files:
+   ```json
+   { "url": "/__l5e/assets-v1/<uuid>/popup-do.png", "content_type": "image/webp" }
+   ```
+   Those resolve only while that Lovable project is live. Self-hosting was impossible until
+   they were downloaded. `scripts/fetch-guide-assets.mjs` does that once — 25 downloaded,
+   5 copied from the export, 0 failures. **Lovable is no longer a runtime dependency.**
+
+   Note `content_type` is authoritative over the filename: several `.png`-named assets are
+   actually WebP. The script maps by content type.
+
+   11 downloaded assets turned out to be unreferenced by the page and were pruned. 19 remain,
+   15 MB total, every file under the 20 MB cap.
+
+### Feasibility was smoke-tested first
+
+The port needs stateful React inside MDX, which the brief's hard limits circumscribe heavily.
+Proven before writing any of it: inline `export const C = () => {}` in a **page** MDX renders,
+`useState`/`useEffect`/`useRef` are pre-injected, object state works, and a dynamic `style`
+prop works — zero page errors. (The "no function declarations / named exports only" limit
+applies to **snippet** files; a page MDX is fine.)
+
+### Ownership — the one carve-out
+
+`publisher/**` is commercial-owned and must stay plain MDX for the web editor. This page
+cannot be: it is an interactive guide. So `publisher/best-practices.mdx` is now an explicit,
+documented exception — engineering-owned, edited in the repo, **not** web-editor editable.
+Everything else under `publisher/**` is unchanged and still safe.
+
+`scripts/verify.sh` enforces the split: it now checks the *other* publisher pages for
+`import` / `export const` / snippets (best-practices excluded), verifies no link-out to the
+old Lovable URL survives, and confirms all 19 referenced assets resolve locally.
+
+The URL `/publisher/best-practices` is unchanged, so the existing `/best-practices` redirect
+and every inbound link still work.
+
+### Four bugs found and fixed during the port
+
+1. **Mintlify draws list bullets with an absolutely-positioned `::before`, not `::marker`.**
+   `list-style: none` does nothing. Measured, then cleared both the pseudo-element and the
+   32px item padding. Affects any custom list anywhere on the site.
+2. **Nested `<a>`.** GFM autolinks a bare email in text — including inside an anchor I had
+   written myself — producing `<a><a>link@almedia.co</a></a>` and a React hydration error
+   (#418). Fixed by letting Mintlify create the link rather than wrapping it.
+3. **`mode: "wide"` hides the table of contents.** It was set for extra width; on a
+   15,000px-tall guide the TOC matters more. Reverted to default mode, which yields a
+   22-entry TOC.
+4. **Markdown headings inside a JSX `<div>` never reach the TOC** — they render as spans. All
+   section headings are therefore top-level markdown, with the CSS variables scoped by
+   `html[data-current-path="/publisher/best-practices"]` instead of a wrapper class.
+
+### Deviations from the original SPA
+
+- **Dark mode.** The original was light-only. Everything runs on the semantic token layer, so
+  the guide works in both modes.
+- **Clipboard copy** has a three-tier fallback (async API → `execCommand` → reveal the prompt
+  for manual selection). The async API is unavailable in plenty of real contexts.
+- **Dropped:** the `UploadSlot` admin uploader, confetti/celebration modals, the "unlock
+  anyway" confirmation dialog, `PointerArrow` overlays, and the scroll-reveal wrapper — all
+  either authoring tooling or decoration that the brand's motion rules would cut anyway.
+- **Kept faithfully:** every section and all prose, both AI audit prompts verbatim, Do/Don't
+  comparisons, chaptered videos with click-to-seek, image lightbox, and the gamified staged
+  checklist with Link Coins (240 core + 90 bonus).
+- The **audit prompts' closing line** now points at `dev.almedia.co/publisher/best-practices`
+  instead of the Lovable URL, since that is where the guide lives.
+
+### Not changed
+
+The two survey links still point at `link-asset-hub.lovable.app` — those are separate Lovable
+apps (the Earn Tab survey and the integration survey), not the guide, and Lou did not ask for
+them to move. Flagged in open-questions.md.

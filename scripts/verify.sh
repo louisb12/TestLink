@@ -58,12 +58,40 @@ fi
 
 # ── 2. Web-editor safety: publisher/** must stay plain MDX ──────────────────
 step "Web-editor safety (publisher/** is commercial-owned)"
-UNSAFE=$(grep -rln -E '^import |<Snippet|/snippets/' publisher 2>/dev/null || true)
+# best-practices.mdx is the documented carve-out: an engineering-owned
+# interactive page that is deliberately NOT web-editor editable (CLAUDE.md §4).
+EDITABLE=$(find publisher -name '*.mdx' ! -name 'best-practices.mdx')
+UNSAFE=$(grep -ln -E '^import |^export const |<Snippet|/snippets/' $EDITABLE 2>/dev/null || true)
 if [ -n "$UNSAFE" ]; then
-  bad "snippet or import found in commercial-owned pages:"
+  bad "snippet, import or inline component in a commercial-owned page:"
   echo "$UNSAFE" | sed 's/^/       /'
 else
-  ok "no snippets or imports in publisher/**"
+  ok "no snippets, imports or components in web-editor-owned publisher pages"
+fi
+
+# The guide must stay self-hosted: no runtime dependency on the old Lovable SPA.
+# Only real links count — the provenance comment in best-practices.mdx names
+# the old URL on purpose and must not trip this.
+LOVABLE=$(grep -rnE '(href="|\]\()https?://almedia-link-best-practices\.lovable\.app' \
+            --include='*.mdx' --include='*.css' overview publisher technical index.mdx 2>/dev/null || true)
+if [ -n "$LOVABLE" ]; then
+  bad "link-out to the old Lovable guide (it is hosted here now — CLAUDE.md §5):"
+  echo "$LOVABLE" | sed 's/^/       /'
+else
+  ok "best-practices guide is self-hosted, no Lovable link-out"
+fi
+
+# Every asset the guide references must exist locally.
+# Scan the stylesheet too — decorative art is referenced from CSS, not markup.
+GUIDE_REFS=$(grep -hoE '/images/best-practices/[A-Za-z0-9._-]+' \
+               publisher/best-practices.mdx styles/60-best-practices.css | sort -u)
+MISSING=$(echo "$GUIDE_REFS" | while read -r a; do [ -n "$a" ] && { [ -f ".$a" ] || echo "$a"; }; done)
+if [ -n "$MISSING" ]; then
+  bad "guide references media that is not in the repo:"
+  echo "$MISSING" | sed 's/^/       /'
+  echo "       run: node scripts/fetch-guide-assets.mjs"
+else
+  ok "every guide asset resolves locally ($(echo "$GUIDE_REFS" | wc -l | tr -d ' ') files)"
 fi
 
 # ── 3. Contrast ─────────────────────────────────────────────────────────────
