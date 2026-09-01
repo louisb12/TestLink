@@ -1,0 +1,199 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   10-base.css — type scale, colour application, links, focus.
+
+   No hex literals. Everything references styles/00-tokens.css.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Page ground ─────────────────────────────────────────────────────────
+   docs.json's background.color sets this natively; these rules make sure the
+   token layer is authoritative and that the Cream/Midnight grounds survive. */
+
+body,
+#background-color {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--tr-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─── Headings ────────────────────────────────────────────────────────────
+   Daimito Expanded SemiBold, tight tracking, tight leading. The var() stack
+   carries the fallback until the licensed .woff2 lands in fonts/. */
+
+h1, h2, h3, h4, h5, h6,
+#page-title,
+#page-title h1,
+.al-display {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  color: var(--text);
+  text-wrap: balance;
+}
+
+/* Doc-page titles use their own step, not --fs-h1. At 64px the title wrapped
+   to two lines in Aspen's content column and collided with the "Copy page"
+   control. Display sizing is reserved for the landing hero, which has the room
+   for it. */
+#page-title,
+#page-title h1,
+article h1 {
+  font-size: var(--fs-page-title);
+  line-height: var(--lh-h1);
+  letter-spacing: var(--tr-display);
+}
+
+article h2 {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--tr-display);
+  margin-top: var(--sp-8);
+  margin-bottom: var(--sp-4);
+}
+
+article h3 {
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  letter-spacing: var(--tr-heading);
+  margin-top: var(--sp-7);
+  margin-bottom: var(--sp-3);
+}
+
+article h4 {
+  font-size: var(--fs-h4);
+  line-height: var(--lh-h4);
+  letter-spacing: var(--tr-heading);
+  margin-top: var(--sp-6);
+  margin-bottom: var(--sp-3);
+}
+
+/* Subheads are DM Sans Medium, per the brand type table — only h1/h2 carry
+   the display face at full weight. */
+article h3,
+article h4,
+article h5,
+article h6 {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+}
+
+/* ─── Long-form body ──────────────────────────────────────────────────────
+   Deliberately looser leading than a typical API reference. The Publisher
+   Guide is read casually by non-technical people. */
+
+article p,
+article li {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--tr-body);
+  color: var(--text);
+}
+
+article p { margin-block: var(--sp-4); }
+
+/* Mintlify renders a markdown paragraph nested inside a JSX block as
+   <span data-as="p"> rather than <p>. Spans are inline, so consecutive
+   paragraphs run together into one wall of text — visible anywhere markdown
+   is written inside a <div>, which is every placeholder block on this site. */
+[data-as="p"] {
+  display: block;
+  margin-block: var(--sp-4);
+}
+[data-as="p"]:first-child { margin-block-start: 0; }
+[data-as="p"]:last-child  { margin-block-end: 0; }
+
+/* No coloured body type — Midnight on light, White on dark. Muted is reserved
+   for genuinely secondary text (captions, metadata), never running prose. */
+article small,
+figcaption,
+.al-muted {
+  color: var(--text-muted);
+  font-size: var(--fs-small);
+}
+
+/* Generous whitespace is a brand rule. Give lists and blockquotes room. */
+article ul,
+article ol { margin-block: var(--sp-4); padding-inline-start: var(--sp-5); }
+article li { margin-block: var(--sp-2); }
+
+article blockquote {
+  border-inline-start: 3px solid var(--accent);
+  padding-inline-start: var(--sp-5);
+  margin-block: var(--sp-6);
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+/* ─── Eyebrows ────────────────────────────────────────────────────────────
+   styling.eyebrows in docs.json turns these on; this brands them. */
+
+.eyebrow,
+[class*="eyebrow"] {
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ─── Links ───────────────────────────────────────────────────────────────
+   Accent-coloured, underline on hover rather than always — the brand reads
+   calmer, and the accent already signals interactivity. */
+
+article a:not([class*="card"]):not([class*="button"]) {
+  color: var(--accent);
+  text-decoration: none;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1.5px;
+  transition: color var(--dur-fast) var(--ease-soft),
+              text-decoration-color var(--dur-fast) var(--ease-soft);
+}
+
+article a:not([class*="card"]):not([class*="button"]):hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* ─── Focus ───────────────────────────────────────────────────────────────
+   Focus indicators are covered by WCAG 1.4.11 and must hit 3:1. Measured at
+   7.28 (light) / 5.31 (dark) — see contrast-audit.md. */
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-xs);
+}
+
+/* Never remove focus for keyboard users; only suppress the mouse-click ring. */
+:where(a, button):focus:not(:focus-visible) { outline: none; }
+
+/* ─── Selection ───────────────────────────────────────────────────────────── */
+
+::selection {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* ─── Rounded corners on everything, nothing square ───────────────────────── */
+
+article img,
+article video,
+frame,
+[class*="frame"] {
+  border-radius: var(--r-lg);
+}
+
+/* ─── Horizontal overflow guard ───────────────────────────────────────────
+   Wide content scrolls inside its own container; the page body never does. */
+
+article table { display: block; overflow-x: auto; max-width: 100%; }
+article pre { overflow-x: auto; max-width: 100%; }
+body { overflow-x: hidden; }

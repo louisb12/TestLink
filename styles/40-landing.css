@@ -1,0 +1,245 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   40-landing.css — the root landing page.
+
+   EVERY rule in this file is scoped under html[data-current-path="/"] so none
+   of it leaks into doc pages. That scoping mechanism is documented by Mintlify
+   and was verified working, including specificity — see decisions.md D-004.
+
+   The page uses mode:"custom", which strips sidebar, TOC and footer and leaves
+   only the navbar (which cannot be removed by any mode). So this file supplies
+   its own container, rhythm and footer.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+html[data-current-path="/"] .al-landing {
+  max-width: var(--landing-max);
+  margin-inline: auto;
+  padding-inline: var(--sp-5);
+  padding-block: var(--sp-7) var(--sp-9);
+}
+
+/* ─── Hero ────────────────────────────────────────────────────────────────
+   Centre-aligned. This is the ONE place the brand permits centring: a hero
+   statement above the fold. Everything below reverts to left-aligned. */
+
+/* No overflow:hidden here. The blobs are heavily blurred, so clipping them at
+   the hero's box cuts the blur off mid-falloff and draws a hard-edged
+   rectangle of tint across the page — far more visible than the blob itself.
+   Letting them bleed is safe: body has overflow-x:hidden, so nothing scrolls. */
+html[data-current-path="/"] .al-hero {
+  position: relative;
+  text-align: center;
+  padding-block: var(--sp-9) var(--sp-8);
+}
+
+/* NOTE: this measure is in rem, not ch, on purpose. `ch` resolves against the
+   element's OWN font-size — 16px here, not the 96px of the h1 inside it — so a
+   ch-based measure collapsed the headline to a 240px column seven lines deep. */
+html[data-current-path="/"] .al-hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: min(100%, 52rem);
+  margin-inline: auto;
+}
+
+html[data-current-path="/"] .al-hero-title {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tr-display);
+  color: var(--text);
+  text-wrap: balance;
+  margin: 0;
+}
+
+/* The sub reads at a comfortable measure, wider than the headline. */
+html[data-current-path="/"] .al-hero-sub {
+  max-width: 60ch;
+  margin: var(--sp-5) auto 0;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  letter-spacing: var(--tr-body);
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+html[data-current-path="/"] .al-hero-tag { margin-bottom: var(--sp-5); }
+
+/* Decorative blobs behind the hero only — never behind running text.
+
+   These are CSS background-images rather than <img> elements on purpose. They
+   carry no information, so the correct alt text is the empty string — but
+   `mint a11y` flags every empty alt as missing. Moving them into CSS removes
+   the markup entirely, which is both more accurate semantically (decoration
+   belongs in the presentation layer) and silences a warning that would
+   otherwise have to be explained away on every audit. */
+
+html[data-current-path="/"] .al-blob {
+  background-repeat: no-repeat;
+  background-size: contain;
+  aspect-ratio: 1;
+  /* Heavily blurred. Unblurred, a flat-filled blob reads as a hard geometric
+     shape clipped by the hero's overflow — the opposite of the brand's organic
+     language. The blur turns it into a soft tonal wash, which is what
+     "textured backdrop" means here. */
+  filter: blur(60px);
+  opacity: 0.5;
+}
+
+/* Pushed out past the content column on both axes. Decoration must never sit
+   behind running text — the hero sub is body copy at --text-muted, which has
+   the least contrast headroom of any pair in the system (4.91). */
+html[data-current-path="/"] .al-hero .al-blob-1 {
+  top: -34%; left: -30%; width: min(46vw, 520px);
+  background-image: url("/images/decor/blob-engage-light.svg");
+}
+html[data-current-path="/"] .al-hero .al-blob-2 {
+  bottom: -46%; right: -28%; width: min(42vw, 470px);
+  background-image: url("/images/decor/blob-expand-light.svg");
+}
+html[data-current-path="/"] .al-route .al-blob-3 {
+  background-image: url("/images/decor/blob-boost-light.svg");
+}
+
+.dark html[data-current-path="/"] .al-hero .al-blob-1,
+html[data-current-path="/"].dark .al-hero .al-blob-1 {
+  background-image: url("/images/decor/blob-engage-dark.svg");
+}
+.dark html[data-current-path="/"] .al-hero .al-blob-2,
+html[data-current-path="/"].dark .al-hero .al-blob-2 {
+  background-image: url("/images/decor/blob-expand-dark.svg");
+}
+
+/* ─── The 15-minutes callout ──────────────────────────────────────────────── */
+
+html[data-current-path="/"] .al-quickclaim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  max-width: 46rem;
+  margin: var(--sp-6) auto 0;
+  padding: var(--sp-4) var(--sp-6);
+  border-radius: var(--r-pill);
+  border: 1px solid var(--callout-border);
+  background-color: var(--callout-bg);
+  color: var(--text);
+  text-align: center;
+  font-size: var(--fs-small);
+  line-height: var(--lh-tight);
+}
+
+html[data-current-path="/"] .al-quickclaim-lead {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  letter-spacing: var(--tr-heading);
+  color: var(--text);
+}
+
+/* ─── The fork — two large route cards ────────────────────────────────────
+   Deliberately the largest, highest-contrast thing below the hero. A visitor
+   should resolve "which one am I?" without reading a paragraph. */
+
+html[data-current-path="/"] .al-routes {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: var(--sp-5);
+  margin-block: var(--sp-8);
+}
+
+html[data-current-path="/"] .al-route { min-height: 15rem; }
+
+html[data-current-path="/"] .al-route-title { font-size: var(--fs-h2); line-height: var(--lh-h2); }
+
+/* Blob accent inside the bold route card, clipped by its radius. Stays the
+   light (Sky) variant in both modes — it sits on the Lead Blue ground, not on
+   the page ground, so it does not follow the theme. */
+html[data-current-path="/"] .al-route .al-blob-3 {
+  top: -40%; right: -18%; width: 62%;
+  opacity: 0.28;
+  filter: blur(44px);
+}
+
+/* ─── Secondary CTAs — visibly subordinate to the route cards ─────────────── */
+
+html[data-current-path="/"] .al-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-3);
+  margin-block: var(--sp-7);
+}
+
+/* ─── Proof stats ─────────────────────────────────────────────────────────
+   Exactly two numbers are approved for this site. Do not add a third here
+   without a real figure from the team — see CLAUDE.md §5. */
+
+html[data-current-path="/"] .al-stats {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  margin-block: var(--sp-8);
+}
+
+html[data-current-path="/"] .al-stat { text-align: left; }
+html[data-current-path="/"] .al-stat-value { font-size: var(--fs-display); }
+
+/* ─── Section rhythm ──────────────────────────────────────────────────────── */
+
+html[data-current-path="/"] .al-landing-section {
+  margin-block: var(--sp-9);
+}
+
+html[data-current-path="/"] .al-landing-section > h2 {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--tr-display);
+  margin-bottom: var(--sp-2);
+}
+
+html[data-current-path="/"] .al-landing-lede {
+  max-width: 60ch;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-6);
+}
+
+/* ─── Landing footer ──────────────────────────────────────────────────────
+   mode:"custom" removes the real footer and the prev/next pagination, so the
+   page needs its own way back into the docs. */
+
+html[data-current-path="/"] .al-landing-footer {
+  margin-top: var(--sp-9);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+
+html[data-current-path="/"] .al-landing-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-5);
+}
+
+html[data-current-path="/"] .al-landing-footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+html[data-current-path="/"] .al-landing-footer a:hover { color: var(--accent); }
+
+/* ─── Mobile ──────────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  html[data-current-path="/"] .al-hero { padding-block: var(--sp-7) var(--sp-6); }
+  html[data-current-path="/"] .al-hero-inner { max-width: 100%; }
+  html[data-current-path="/"] .al-landing { padding-block: var(--sp-5) var(--sp-8); }
+  html[data-current-path="/"] .al-landing-section { margin-block: var(--sp-7); }
+  html[data-current-path="/"] .al-route { min-height: 0; }
+  html[data-current-path="/"] .al-quickclaim { border-radius: var(--r-lg); }
+  /* Blobs are decoration; they cost more than they give on a small screen. */
+  html[data-current-path="/"] .al-blob { display: none; }
+}

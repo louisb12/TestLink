@@ -1,0 +1,80 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   50-motion.css — every @keyframes in the project.
+
+   Custom @keyframes in a content-directory .css file is NOT documented by
+   Mintlify. It was smoke-tested and proven working before any of this was
+   written — computed style + getAnimations() in headless Chrome. See
+   decisions.md D-001. Re-verify on the first production preview deploy
+   (open-questions.md #6).
+
+   Brand motion principles — Growth, Simple, Precise:
+     no bouncing, no spinning, no attention-grabbing. Short, eased, purposeful.
+
+   Rules held throughout this file:
+     · Only transform and opacity are animated. Nothing layout-triggering.
+     · Nothing loops forever near reading content.
+     · The landing page carries the motion. Doc pages carry almost none —
+       someone reading the Publisher Guide for the fifth time is not animated at.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Entrance: a gentle fade-and-rise ────────────────────────────────────
+   `both` + a finite iteration count means it runs once and holds. There is no
+   scroll observer: that would need custom JS, whose load order Mintlify does
+   not guarantee, and the landing page is short enough that a short staggered
+   entrance covers the fold honestly. */
+
+@keyframes al-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Decorative drift ────────────────────────────────────────────────────
+   The one looping animation in the project. It is confined to the hero blobs,
+   which sit behind a heading and never behind body text, and it moves a few
+   pixels over 18 seconds — below the threshold of noticing while reading. */
+
+@keyframes al-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(10px, -12px, 0) scale(1.03); }
+}
+
+/* ═══ Application — landing page only ═══════════════════════════════════════ */
+
+html[data-current-path="/"] .al-animate {
+  animation: al-rise var(--dur-slow) var(--ease-brand) both;
+}
+
+/* A short stagger. Six steps is the whole above-the-fold sequence; beyond that
+   the delay becomes a wait rather than a rhythm. */
+html[data-current-path="/"] .al-animate-1 { animation-delay: 0ms; }
+html[data-current-path="/"] .al-animate-2 { animation-delay: 60ms; }
+html[data-current-path="/"] .al-animate-3 { animation-delay: 120ms; }
+html[data-current-path="/"] .al-animate-4 { animation-delay: 180ms; }
+html[data-current-path="/"] .al-animate-5 { animation-delay: 240ms; }
+html[data-current-path="/"] .al-animate-6 { animation-delay: 300ms; }
+
+html[data-current-path="/"] .al-hero .al-blob-1 {
+  animation: al-drift 18s var(--ease-soft) infinite;
+}
+html[data-current-path="/"] .al-hero .al-blob-2 {
+  animation: al-drift 22s var(--ease-soft) infinite reverse;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Reduced motion — mandatory.
+
+   This is the ONLY place !important is permitted in this project. It has to
+   win against every animation and transition declared anywhere, including
+   Tailwind utilities applied inline in MDX.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

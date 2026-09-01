@@ -1,0 +1,60 @@
+{
+  "tabs": [
+    {
+      "tab": "Overview",
+      "icon": "compass",
+      "groups": [
+        {
+          "group": "Overview",
+          "root": "overview/index",
+          "directory": "card",
+          "pages": [
+            "overview/what-is-almedia-link",
+            "overview/experiences",
+            "overview/how-revenue-works",
+            "overview/get-started"
+          ]
+        }
+      ]
+    },
+    {
+      "tab": "Publisher Guide",
+      "icon": "book-open",
+      "groups": [
+        {
+          "group": "Publisher Guide",
+          "root": "publisher/index",
+          "directory": "card",
+          "pages": [
+            "publisher/prerequisites",
+            "publisher/best-practices"
+          ]
+        },
+        {
+          "group": "Attribution setup",
+          "pages": [
+            "publisher/mmp/adjust",
+            "publisher/mmp/appsflyer",
+            "publisher/mmp/singular"
+          ]
+        }
+      ]
+    },
+    {
+      "tab": "Technical Docs",
+      "icon": "code",
+      "groups": [
+        {
+          "group": "Technical Docs",
+          "root": "technical/index",
+          "directory": "card",
+          "pages": [
+            "technical/readme",
+            "technical/integration-guide",
+            "technical/api-reference"
+          ]
+        }
+      ]
+    }
+  ]
+}

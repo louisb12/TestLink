@@ -1,0 +1,407 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   30-components.css — built-in restyles + the small custom component set.
+
+   Restyling Mintlify's built-ins is strongly preferred over authoring custom
+   components: fewer moving parts, and they keep working in the web editor.
+   The custom classes at the bottom exist only where no built-in fits.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Cards ───────────────────────────────────────────────────────────────
+   Raised White (light) / Midnight (dark) against the Cream / deep-Midnight
+   page. That page-vs-card contrast is what makes the design read as
+   deliberate rather than default. */
+
+card,
+[class*="card"]:not([class*="card-group"]):not([class*="card-icon"]) {
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur-base) var(--ease-brand),
+              box-shadow var(--dur-base) var(--ease-soft),
+              border-color var(--dur-base) var(--ease-soft);
+}
+
+/* Lift on hover — Growth, Simple, Precise. 2px, not a bounce. */
+card:hover,
+a[class*="card"]:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  box-shadow: var(--shadow-md);
+}
+
+card [data-component-part="card-icon"],
+[data-component-part="card-icon"] {
+  color: var(--accent);
+}
+
+card-group { gap: var(--sp-4); }
+
+/* ─── Callouts ────────────────────────────────────────────────────────────
+   Brand rule: a warm tint (light Clay ground in light mode, a Sky-tinted
+   Midnight in dark), Midnight/White text. Explicitly NOT a saturated
+   dark-blue alert box.
+
+   Typed callouts (<Note>, <Warning>, …) accept only children and cannot be
+   recoloured per-instance — this restyles the container for all of them.
+   Use the generic <Callout icon color> for a one-off brand colour. */
+
+callout,
+[class*="callout"] {
+  background-color: var(--callout-bg);
+  border: 1px solid var(--callout-border);
+  border-radius: var(--r-md);
+  color: var(--text);
+  padding: var(--sp-4) var(--sp-5);
+}
+
+callout p { color: var(--text); margin-block: var(--sp-2); }
+callout a { color: var(--accent); }
+
+/* ─── Steps ───────────────────────────────────────────────────────────────
+   Content note carried over from the brief: the numbered Steps component
+   reads as a CLI install wizard, so it is confined to Technical Docs.
+   Overview and Publisher Guide use prose with subheadings instead. */
+
+steps { border-inline-start: 1px solid var(--border); }
+
+step [class*="number"],
+steps [class*="step"] [class*="circle"] {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  border-radius: var(--r-pill);
+}
+
+/* ─── Badges and tags — always pills ──────────────────────────────────────── */
+
+[data-badge],
+badge {
+  border-radius: var(--r-pill);
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--tr-button);
+  padding: 0.25em 0.75em;
+}
+
+/* ─── Accordions ──────────────────────────────────────────────────────────── */
+
+accordion,
+[class*="accordion"] {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background-color: var(--surface-raised);
+  overflow: hidden;
+}
+
+accordion summary,
+accordion button { transition: background-color var(--dur-fast) var(--ease-soft); }
+accordion summary:hover { background-color: var(--surface-sunken); }
+
+/* ─── Tabs ────────────────────────────────────────────────────────────────── */
+
+tabs [role="tab"] {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tr-heading);
+  border-radius: var(--r-pill);
+  color: var(--text-muted);
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+tabs [role="tab"][data-active],
+tabs [role="tab"][aria-selected="true"] {
+  color: var(--accent);
+  font-weight: var(--fw-bold);
+}
+
+/* ─── Frames ──────────────────────────────────────────────────────────────── */
+
+frame {
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background-color: var(--surface-raised);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Custom components — only where no built-in fits.
+   Every one is a plain CSS class so it works from MDX without a React
+   component, which keeps web-editor-owned pages safe.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Pill button ─────────────────────────────────────────────────────────
+   Lead Blue fill, White DM Sans Bold, tracking -2. The brand's button. */
+
+.al-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.8em 1.6em;
+  border-radius: var(--r-pill);
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-small);
+  letter-spacing: var(--tr-button);
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--dur-base) var(--ease-soft),
+              border-color var(--dur-base) var(--ease-soft),
+              transform var(--dur-fast) var(--ease-brand),
+              box-shadow var(--dur-base) var(--ease-soft);
+}
+
+/* Lead Blue in both modes — see --accent-bold in 00-tokens.css. */
+.al-btn-primary {
+  background-color: var(--accent-bold);
+  color: var(--accent-bold-contrast);
+}
+.al-btn-primary:hover {
+  background-color: var(--accent-bold-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.al-btn-secondary {
+  background-color: transparent;
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.al-btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.al-btn:active { transform: translateY(0); }
+
+/* ─── Pill tag ────────────────────────────────────────────────────────────── */
+
+.al-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 0.3em 0.9em;
+  border-radius: var(--r-pill);
+  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+}
+
+/* ─── Stat tile ───────────────────────────────────────────────────────────
+   The two approved proof numbers, as visual tiles rather than prose.
+   ~15% install-to-link · 10%+ LTV lift. No other stat may appear here. */
+
+.al-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-4);
+  margin-block: var(--sp-7);
+  padding: 0;
+  list-style: none;
+}
+
+.al-stat {
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-6);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur-base) var(--ease-brand),
+              box-shadow var(--dur-base) var(--ease-soft);
+}
+
+.al-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.al-stat-value {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: var(--tr-display);
+  color: var(--accent);
+}
+
+.al-stat-label {
+  display: block;
+  margin-top: var(--sp-3);
+  font-size: var(--fs-small);
+  line-height: var(--lh-tight);
+  color: var(--text);
+}
+
+.al-stat-note {
+  display: block;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-eyebrow);
+  color: var(--text-muted);
+}
+
+/* ─── Route card — the two-path fork ──────────────────────────────────────
+   The single most important element on the landing page. Unmistakably the
+   primary action; everything else is secondary. */
+
+.al-routes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--sp-5);
+  margin-block: var(--sp-7);
+}
+
+.al-route {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-7) var(--sp-6) var(--sp-6);
+  border-radius: var(--r-2xl);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  background-color: var(--surface-raised);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform var(--dur-base) var(--ease-brand),
+              box-shadow var(--dur-base) var(--ease-soft),
+              border-color var(--dur-base) var(--ease-soft);
+}
+
+.al-route:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: var(--shadow-lg);
+}
+
+/* The engineering route is the bold one — Lead Blue ground, white text.
+   Brand "Strong" pairing. White on Lead Blue is 8.36 AAA, in both modes. */
+.al-route-primary {
+  background-color: var(--accent-bold);
+  border-color: transparent;
+  color: var(--accent-bold-contrast);
+}
+.al-route-primary .al-route-title,
+.al-route-primary .al-route-body,
+.al-route-primary .al-route-more { color: var(--accent-bold-contrast); }
+.al-route-primary .al-route-body { opacity: 0.88; }
+
+.al-route-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.al-route-title {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  letter-spacing: var(--tr-heading);
+  color: var(--text);
+}
+
+.al-route-body {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.al-route-more {
+  margin-top: auto;
+  padding-top: var(--sp-4);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-small);
+  letter-spacing: var(--tr-button);
+  color: var(--accent);
+}
+
+.al-route-more::after {
+  content: " →";
+  display: inline-block;
+  transition: transform var(--dur-base) var(--ease-brand);
+}
+.al-route:hover .al-route-more::after { transform: translateX(4px); }
+
+/* ─── Section header with optional blob accent ────────────────────────────── */
+
+.al-section {
+  position: relative;
+  margin-block: var(--sp-8);
+}
+
+.al-section-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--sp-2);
+}
+
+/* Organic blob accents. Low-opacity, decorative only, never behind body text.
+   aria-hidden in the markup; pointer-events off here. */
+.al-blob {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.5;
+}
+
+.al-blob img,
+.al-blob svg { display: block; width: 100%; height: auto; }
+
+/* ─── Copy placeholder ────────────────────────────────────────────────────
+   Deliberately conspicuous. No approved prose existed for these pages
+   (decisions.md D-007), and a subtle placeholder is one that ships.
+
+   Every one of these is a `TODO(copy)` in the MDX. Find them all with:
+     grep -rn "TODO(copy)" --include=*.mdx . */
+
+.al-todo {
+  display: block;
+  margin-block: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-md);
+  border: 1px dashed var(--border-strong);
+  background-color: var(--surface-sunken);
+  color: var(--text-muted);
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+}
+
+.al-todo::before {
+  content: "Placeholder — copy needed";
+  display: block;
+  margin-bottom: var(--sp-2);
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Technical Docs need sync configuration, not prose. Same treatment, accurate
+   label — "copy needed" would send someone off to write SDK documentation by
+   hand, which is the one thing that must never happen on those pages. */
+.al-todo-sync::before {
+  content: "Placeholder — syncs from the SDK repository";
+}
+
+/* ─── Utility ─────────────────────────────────────────────────────────────── */
+
+.al-center { text-align: center; }
+.al-measure { max-width: var(--measure); }
+.al-stack-lg > * + * { margin-top: var(--sp-6); }

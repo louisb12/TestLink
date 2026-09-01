@@ -1,0 +1,13 @@
+# Build artifacts from scripts/screenshot.mjs — regenerate with:
+#   node scripts/screenshot.mjs
+.claude/screenshots/
+
+# Machine-local Claude Code settings
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+*.log

@@ -1,0 +1,290 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   20-mintlify.css — overrides against Mintlify's documented selector surface.
+
+   This is the most fragile layer in the project: there is no documented
+   CSS-variable/design-token API, so these selectors are an implementation
+   surface that can shift between Mintlify releases.
+
+   Mitigation: every value here is a token from 00-tokens.css. If Mintlify
+   changes its markup, this file needs new SELECTORS — never new VALUES.
+
+   Selector reference: https://www.mintlify.com/docs/customize/custom-scripts.md
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── The gradient ground ─────────────────────────────────────────────────
+   Two layers. docs.json's background.decoration:"gradient" is the native,
+   performant base; this adds a very subtle brand wash on top.
+
+   Subtle means subtle: depth and warmth, not a feature. It must never reduce
+   body-text contrast — the audit is re-run after any change here. Fixed
+   attachment so it reads as page depth rather than a scrolling object. */
+
+#background-color,
+body {
+  background-image:
+    radial-gradient(ellipse 90% 55% at 12% -8%,  var(--wash-1), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 92% 6%,   var(--wash-2), transparent 68%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* ─── Navbar ──────────────────────────────────────────────────────────────── */
+
+/* Only #navbar. In Aspen, #header is the PAGE header (title + description
+   block), not the site navbar — styling it painted a translucent Cream box
+   behind every page title. */
+#navbar {
+  background-color: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* The primary CTA.
+   Do NOT match on [class*="primary"]. Aspen's ACTIVE nav tab carries
+   `hover:text-primary` in its class list, so that selector silently captured
+   the tab and painted it as a full-height, zero-padding Lead Blue pill — the
+   "weird bubble". Substring matching on utility classes is a trap here.
+
+   Mintlify already renders this CTA correctly (Lead Blue fill via
+   `span.bg-primary-dark`, `rounded-xl`, white label), so this only adds the
+   hover lift, matched precisely via :has() on that fill span. */
+#navbar a:has(> span[class*="bg-primary-dark"]) {
+  border-radius: var(--r-md);
+  transition: transform var(--dur-fast) var(--ease-brand);
+}
+#navbar a:has(> span[class*="bg-primary-dark"]):hover {
+  transform: translateY(-1px);
+}
+
+.al-pill-cta {
+  background-color: var(--accent-bold);
+  color: var(--accent-bold-contrast);
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-button);
+  border-radius: var(--r-pill);
+  transition: background-color var(--dur-base) var(--ease-soft),
+              transform var(--dur-fast) var(--ease-brand);
+}
+.al-pill-cta:hover {
+  background-color: var(--accent-bold-hover);
+  transform: translateY(-1px);
+}
+
+/* GitHub link: icon-only and de-emphasised, site-wide.
+   Per-tab navbar variation is not achievable — see decisions.md D-017. */
+#navbar a[href*="github.com"] {
+  color: var(--text-muted);
+  opacity: 0.75;
+  transition: opacity var(--dur-fast) var(--ease-soft),
+              color var(--dur-fast) var(--ease-soft);
+}
+#navbar a[href*="github.com"]:hover { opacity: 1; color: var(--text); }
+
+/* ─── Tab row — the audience fork. Aspen renders this under the navbar. ─────
+   Note `.nav-tabs-item` is a CLASS in Aspen, not the custom element the docs
+   imply. The `a.` prefix also buys the specificity needed to beat Aspen's own
+   `h-full` utility (0,1,1 > 0,1,0).
+
+   Aspen sizes these to fill the 40px row with zero padding, which is fine for
+   its default underline indicator but leaves a filled indicator touching the
+   row edges. So: inset vertically, real horizontal padding, and a 10px rounded
+   rectangle rather than a 999px pill — at this height a pill reads as a
+   bubble. */
+
+.nav-tabs { gap: var(--sp-1); }
+
+a.nav-tabs-item {
+  height: auto;
+  align-self: center;
+  padding-block: var(--sp-2);
+  padding-inline: var(--sp-3);
+  border-radius: var(--r-sm);
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tr-heading);
+  transition: color var(--dur-fast) var(--ease-soft),
+              background-color var(--dur-fast) var(--ease-soft);
+}
+
+a.nav-tabs-item:not([data-active]):hover {
+  background-color: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+
+/* Lead Blue in both modes, like the route cards — see --accent-bold. */
+a.nav-tabs-item[data-active] {
+  background-color: var(--accent-bold);
+  color: var(--accent-bold-contrast);
+  font-weight: var(--fw-bold);
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+
+#sidebar {
+  background-color: transparent;
+  border-right: 1px solid var(--border);
+}
+
+sidebar-group,
+#sidebar [class*="group"] > div:first-child {
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Rounded rectangles, not pills. A 999px radius on a wide, short sidebar row
+   produces a lozenge with semicircular ends — the same "bubble" problem as the
+   tabs, just stretched. */
+#sidebar a,
+#sidebar button,
+#sidebar [class*="group"] > div:first-child {
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+  letter-spacing: var(--tr-body);
+  transition: color var(--dur-fast) var(--ease-soft),
+              background-color var(--dur-fast) var(--ease-soft);
+}
+
+#sidebar a:hover {
+  color: var(--text);
+  background-color: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+#sidebar a[data-active="true"],
+#sidebar a[data-active] {
+  color: var(--accent);
+  font-weight: var(--fw-medium);
+  background-color: color-mix(in srgb, var(--accent) 11%, transparent);
+}
+
+/* ─── Table of contents ───────────────────────────────────────────────────── */
+
+#table-of-contents { border-left: 1px solid var(--border); }
+
+toc-item,
+#table-of-contents a {
+  color: var(--text-muted);
+  font-size: var(--fs-small);
+  letter-spacing: var(--tr-body);
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+toc-item:hover { color: var(--text); }
+
+toc-item[data-active="true"],
+#table-of-contents a[data-active] {
+  color: var(--accent);
+  font-weight: var(--fw-medium);
+}
+
+/* ─── Search ──────────────────────────────────────────────────────────────── */
+
+#search-bar-entry {
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  color: var(--text-muted);
+  transition: border-color var(--dur-fast) var(--ease-soft),
+              box-shadow var(--dur-fast) var(--ease-soft);
+}
+
+#search-bar-entry:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── Theme control — transitions rather than snapping ────────────────────
+   Mintlify documents [data-component-name="theme-toggle"], but Aspen actually
+   renders a MENU: [data-component-name="theme-preference-menu"], trigger id
+   #theme-preference-menu-trigger, offering System / Light / Dark. Both
+   selectors are kept so this survives a theme change or a Mintlify rename —
+   exactly the fragility that 20-mintlify.css exists to absorb. */
+
+[data-component-name="theme-toggle"],
+[data-component-name="theme-preference-menu"],
+#theme-preference-menu-trigger {
+  border-radius: var(--r-pill);
+  color: var(--text-muted);
+  transition: color var(--dur-base) var(--ease-soft),
+              background-color var(--dur-base) var(--ease-soft),
+              transform var(--dur-fast) var(--ease-brand);
+}
+
+[data-component-name="theme-toggle"]:hover,
+[data-component-name="theme-preference-menu"]:hover,
+#theme-preference-menu-trigger:hover {
+  color: var(--accent);
+  background-color: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+[data-component-name="theme-toggle"]:active,
+#theme-preference-menu-trigger:active { transform: scale(0.94); }
+
+/* ─── Code blocks ─────────────────────────────────────────────────────────
+   Shiki themes are set per-mode in docs.json (styling.codeblocks). This is
+   the container treatment only — rounded, bordered, on a sunken ground. */
+
+code-block,
+article pre {
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+article :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  padding: 0.12em 0.38em;
+  color: var(--text);
+}
+
+/* ─── Pagination ──────────────────────────────────────────────────────────── */
+
+pagination-prev,
+pagination-next {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background-color: var(--surface-raised);
+  transition: border-color var(--dur-base) var(--ease-soft),
+              transform var(--dur-base) var(--ease-brand),
+              box-shadow var(--dur-base) var(--ease-soft);
+}
+
+pagination-prev:hover,
+pagination-next:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+
+#footer {
+  background-color: var(--surface-sunken);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+#footer a {
+  color: var(--text-muted);
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+#footer a:hover { color: var(--accent); }
+
+/* ─── Content width ───────────────────────────────────────────────────────
+   Long-form prose gets a real measure. Cards, tables and code are allowed to
+   use the full column — only running text is constrained. */
+
+#content-area article > p,
+#content-area article > ul,
+#content-area article > ol,
+#content-area article > blockquote {
+  max-width: var(--measure);
+}

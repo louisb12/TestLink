@@ -1,80 +1,162 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Almedia Link",
+  "name": "Almedia Launchpad",
+  "description": "Documentation for Almedia Link — the rewarded link that turns players into earners. Integration guides for publishers, product teams and engineers.",
+  "theme": "aspen",
+
   "colors": {
     "primary": "#0021F3",
     "light": "#739AC1",
-    "dark": "#0D2A4C"
+    "dark": "#0021F3"
   },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart",
-          "webgl-test"
-        ]
-      },
-      {
-        "group": "Design showcase",
-        "pages": [
-          "almedia-link-showcase",
-          "best-practices-2"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
+
+  "fonts": {
+    "heading": {
+      "family": "Daimito Expanded",
+      "weight": 600,
+      "source": "/fonts/DaimitoExpanded-Semibold.woff2",
+      "format": "woff2"
+    },
+    "body": {
+      "family": "DM Sans",
+      "weight": 400
     }
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+
+  "appearance": {
+    "default": "system",
+    "strict": false
   },
+
+  "background": {
+    "decoration": "gradient",
+    "color": {
+      "light": "#F1EFEA",
+      "dark": "#0D2440"
+    }
+  },
+
+  "styling": {
+    "eyebrows": "section",
+    "codeblocks": {
+      "theme": {
+        "light": "github-light",
+        "dark": "night-owl"
+      }
+    }
+  },
+
+  "logo": {
+    "light": "/logos/symbol-lead-blue.svg",
+    "dark": "/logos/symbol-white.svg",
+    "href": "/"
+  },
+
+  "favicon": "/favicon.svg",
+
+  "icons": {
+    "library": "lucide"
+  },
+
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "GitHub",
+        "href": "https://github.com/almedia-tm/almedia-link-sdk",
+        "icon": "github"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Get started",
+      "href": "/overview/get-started"
     }
   },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
-  },
+
+  "navigation": { "$ref": "./config/navigation.json" },
+
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/almedia-tm/almedia-link-sdk",
+      "linkedin": "https://www.linkedin.com/company/almedia"
+    },
+    "links": [
+      {
+        "header": "Overview",
+        "items": [
+          { "label": "What is Almedia Link", "href": "/overview/what-is-almedia-link" },
+          { "label": "Experiences", "href": "/overview/experiences" },
+          { "label": "How revenue works", "href": "/overview/how-revenue-works" },
+          { "label": "Get started", "href": "/overview/get-started" }
+        ]
+      },
+      {
+        "header": "Publisher Guide",
+        "items": [
+          { "label": "Prerequisites", "href": "/publisher/prerequisites" },
+          { "label": "Best practices", "href": "/publisher/best-practices" },
+          { "label": "Adjust", "href": "/publisher/mmp/adjust" },
+          { "label": "AppsFlyer", "href": "/publisher/mmp/appsflyer" }
+        ]
+      },
+      {
+        "header": "Technical Docs",
+        "items": [
+          { "label": "Overview", "href": "/technical" },
+          { "label": "Integration guide", "href": "/technical/integration-guide" },
+          { "label": "API reference", "href": "/technical/api-reference" },
+          { "label": "SDK on GitHub", "href": "https://github.com/almedia-tm/almedia-link-sdk" }
+        ]
+      },
+      {
+        "header": "For agents",
+        "items": [
+          { "label": "llms.txt", "href": "/llms.txt" },
+          { "label": "llms-full.txt", "href": "/llms-full.txt" },
+          { "label": "MCP server", "href": "/mcp" }
+        ]
+      }
+    ]
+  },
+
+  "contextual": {
+    "options": ["copy", "view", "claude", "chatgpt", "cursor", "vscode", "mcp"]
+  },
+
+  "seo": {
+    "indexing": "navigable",
+    "metatags": {
+      "og:site_name": "Almedia Launchpad",
+      "og:type": "website",
+      "twitter:card": "summary_large_image"
+    },
+    "organization": {
+      "name": "Almedia",
+      "url": "https://almedia.co"
     }
-  }
+  },
+
+  "thumbnails": {
+    "appearance": "light",
+    "fonts": {
+      "family": "DM Sans"
+    }
+  },
+
+  "errors": {
+    "404": {
+      "redirect": false,
+      "title": "That page moved, or never existed",
+      "description": "Pick a path instead — the [Publisher Guide](/publisher) for commercial, product and design, or the [Technical Docs](/technical) for engineering. Or start from the [top](/)."
+    }
+  },
+
+  "redirects": [
+    { "source": "/quickstart", "destination": "/overview/get-started", "permanent": true },
+    { "source": "/introduction", "destination": "/", "permanent": true },
+    { "source": "/best-practices", "destination": "/publisher/best-practices", "permanent": true },
+    { "source": "/almedia-link-showcase", "destination": "/", "permanent": true },
+    { "source": "/best-practices-2", "destination": "/publisher/best-practices", "permanent": true },
+    { "source": "/webgl-test", "destination": "/", "permanent": true }
+  ]
 }
