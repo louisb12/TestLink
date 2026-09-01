@@ -630,3 +630,75 @@ and every inbound link still work.
 The two survey links still point at `link-asset-hub.lovable.app` — those are separate Lovable
 apps (the Earn Tab survey and the integration survey), not the guide, and Lou did not ask for
 them to move. Flagged in open-questions.md.
+
+---
+
+## D-029 — Hotspot annotations ported; overlays must use the top layer
+
+The port in D-028 missed the guide's most substantive interaction: clicking an image opens it
+with **annotation markers** pointing at individual UI elements, each revealing an explanation
+on hover. That is where the guide does most of its actual teaching — "why is this pop-up
+good" is answered element by element, not in the prose.
+
+Recovered from the export's `src/lib/hotspots.ts`: **34 annotations across 8 images**, each
+with an `x`/`y` percentage, `good`/`bad` type, a two-word chip label, a headline and a note.
+Extracted programmatically rather than retyped, and re-keyed from Lovable's slot ids
+(`the-pop-up-itself-do`) to image filenames (`popup-do-tight.webp`), so swapping a screenshot
+only means editing coordinates.
+
+Replicated one-to-one: dot → connector → chip, the connector flipping outward when `x < 50`
+so the note never covers what it points at, and the full label + note on hover, focus or click.
+
+### The blocker: Mintlify's content column traps fixed overlays
+
+A plain `position: fixed; z-index: 200` overlay was **painted underneath the z-30 navbar**.
+The overlay measured a correct full-viewport box, so it was not a sizing problem —
+`elementFromPoint` at the top of the screen still returned the navbar's search button.
+
+Cause: Mintlify's `#content` carries Tailwind's `@container/columns-container`, i.e.
+`container-type: inline-size`. That **implies `contain: layout`, which creates a stacking
+context**. Everything inside it is confined to that context, so a z-index of 200 competes only
+with its siblings, never with the navbar.
+
+Fix: a native **`<dialog>` opened with `showModal()`**, which renders in the browser's **top
+layer** — above every stacking context on the page, by definition. It also brings
+Escape-to-close and a focus trap for free. This is strictly better than the original SPA's
+`createPortal`, which is not available in Mintlify MDX anyway.
+
+**Generalise this:** any modal, popover or overlay anywhere on this site has the same problem.
+Use `<dialog>` + `showModal()`, not a fixed div with a high z-index.
+
+Two related details:
+- The **scrim sits on the dialog itself, not `::backdrop`**. `::backdrop` inheriting custom
+  properties from its originating element is a recent spec change and unevenly implemented, so
+  tokens are unreliable there — and hard-coding the colour would break the one-token-file rule.
+  The dialog already fills the viewport, so it scrims just as well.
+- `showModal()` makes the page inert but does **not** stop it scrolling behind the dialog in
+  every browser, so the body scroll lock is still applied explicitly.
+
+### Coordinates must map to the image box, not the container
+
+Hotspots are percentages **of the image**. A first pass positioned them against a
+`width: fit-content` stage, which drifted ~1.8% vertically. The marker layer now sits on a
+wrapper given the *same explicit pixel dimensions* as the image, so every marker lands exactly:
+declared `19 / 73.9` measures `19 / 73.9`.
+
+The image itself is sized from its natural dimensions, capped by viewport and device pixel
+ratio, so a raster is never upscaled past what the display can resolve.
+
+### Touch gets a different treatment, deliberately
+
+On a 390px screen the floating chips were unusable — **4 of 7 rendered off-screen** — and
+tapping opened nothing, because `mouseenter` fires before `click` on touch and the two
+cancelled each other out.
+
+Detected with `matchMedia("(hover: hover) and (pointer: fine)")` rather than a width
+breakpoint, since a narrow window on a laptop should still get the chips. Without hover, the
+image carries **numbered pins** only and the notes are listed underneath keyed by the same
+number, selectable from either side. Verified: 7 pins, 0 off-screen, tapping pin 2 activates
+note 2.
+
+### Discoverability
+
+An annotated image is worthless if nobody realises it is annotated. Each thumbnail now carries
+a count badge — "7 · what to look at" — and the button's accessible name says the same.

@@ -343,33 +343,346 @@ html[data-current-path="/publisher/best-practices"],
   .bp-dodont .bp-caption { min-height: 5.8em; }
 }
 
-/* ─── Lightbox ────────────────────────────────────────────────────────────── */
+/* ─── Thumbnail affordance ────────────────────────────────────────────────
+   An annotated image is worthless if nobody realises it is annotated. The
+   thumbnail advertises how many notes are behind it. */
 
-.bp-lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
+.bp-frame-hint {
+  position: absolute;
+  right: var(--sp-2);
+  bottom: var(--sp-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  border-radius: var(--r-pill);
+  padding: 0.3em 0.7em;
+  background-color: color-mix(in srgb, var(--brand-midnight) 78%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--brand-white);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-button);
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0.9;
+  transition: opacity var(--dur-fast) var(--ease-soft),
+              transform var(--dur-fast) var(--ease-brand);
+}
+.bp-frame:hover .bp-frame-hint { opacity: 1; transform: translateY(-2px); }
+.bp-frame-icon .bp-frame-hint { display: none; }   /* too small to carry it */
+
+.bp-frame-hint-n {
   display: grid;
   place-items: center;
-  padding: var(--sp-5);
-  background-color: color-mix(in srgb, var(--brand-midnight) 82%, transparent);
-  backdrop-filter: blur(4px);
-  border: 0;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding-inline: 0.25em;
+  border-radius: var(--r-pill);
+  background-color: var(--accent-bold);
+  color: var(--accent-bold-contrast);
+}
+
+/* ─── Lightbox ────────────────────────────────────────────────────────────── */
+
+/* Native <dialog> opened with showModal(): renders in the top layer, above
+   every stacking context. Its UA defaults (border, padding, background,
+   auto margins, max-width/height) all have to be cleared. */
+dialog.bp-lightbox {
   width: 100%;
-  cursor: zoom-out;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: var(--sp-7) var(--sp-5);
+  border: 0;
+  color: inherit;
+  overflow: auto;
+  overscroll-behavior: contain;
+  /* The scrim lives on the dialog, not on ::backdrop. ::backdrop's inheritance
+     from its originating element is a recent spec change and not uniformly
+     implemented, so custom properties are unreliable there — and putting a raw
+     hex in this file would break the one-token-file rule. The dialog already
+     fills the viewport, so it scrims just as well. */
+  background-color: color-mix(in srgb, var(--brand-midnight) 84%, transparent);
+  backdrop-filter: blur(6px);
 }
-.bp-lightbox img {
-  max-width: min(100%, 900px);
-  max-height: 88vh;
-  border-radius: var(--r-lg);
+
+dialog.bp-lightbox:not([open]) { display: none; }
+
+dialog.bp-lightbox[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  animation: bp-lb-in var(--dur-base) var(--ease-brand) both;
+}
+
+dialog.bp-lightbox::backdrop { background: transparent; }
+
+@keyframes bp-lb-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* The marker layer is positioned against THIS box, which is exactly the image
+   box — hotspot coordinates are percentages of the image. */
+.bp-lb-stage {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: auto;
+  animation: bp-lb-pop var(--dur-base) var(--ease-brand) both;
+}
+
+@keyframes bp-lb-pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.bp-lb-frame {
+  position: relative;
+  max-width: 100%;
+}
+
+.bp-lb-frame > img {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
 }
-.bp-lightbox-cap {
-  margin-top: var(--sp-3);
-  max-width: 46rem;
+
+.bp-lb-close {
+  position: absolute;
+  top: calc(var(--sp-3) * -1);
+  right: calc(var(--sp-3) * -1);
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background-color: var(--brand-white);
+  color: var(--brand-midnight);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--dur-fast) var(--ease-brand);
+}
+.bp-lb-close:hover { transform: scale(1.06); }
+.bp-lb-close svg { width: 0.9rem; height: 0.9rem; }
+
+.bp-lb-help {
+  margin: 0;
+  max-width: 44rem;
   text-align: center;
-  color: var(--brand-white);
+  color: color-mix(in srgb, var(--brand-white) 78%, transparent);
   font-size: var(--fs-small);
+}
+
+/* ─── Hotspot markers ─────────────────────────────────────────────────────
+   dot → connector → chip. The chip reveals the full note on hover, focus or
+   tap, so the default view stays a scannable set of two-word labels rather
+   than a wall of text over the screenshot. */
+
+.bp-hs {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+}
+.bp-hs-active { z-index: 50; }
+
+/* Points on the left half run their connector leftward, so the note never
+   covers the element it describes. */
+.bp-hs-flip {
+  transform: translate(-100%, -50%);
+  flex-direction: row-reverse;
+}
+
+.bp-hs-dot {
+  flex-shrink: 0;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: var(--r-pill);
+  background-color: var(--brand-sky);
+  box-shadow: 0 0 0 2px var(--brand-white);
+}
+.bp-hs-dot-good { background-color: var(--accent-bold); }
+
+/* Connectors are white in both variants. On the dark scrim a Lead Blue hairline
+   is effectively invisible (1.73:1), and the good/bad signal is carried by the
+   dot and the chip's tick/cross, which are the parts you actually read. */
+.bp-hs-line {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 1px;
+  background-color: color-mix(in srgb, var(--brand-white) 72%, transparent);
+}
+@media (min-width: 640px) { .bp-hs-line { width: 3rem; } }
+
+.bp-hs-anchor { position: relative; }
+
+.bp-hs-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+  border-radius: var(--r-pill);
+  border: 1px solid color-mix(in srgb, var(--brand-midnight) 12%, transparent);
+  background-color: var(--brand-white);
+  color: var(--brand-midnight);
+  padding: 0.3em 0.7em 0.3em 0.3em;
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--dur-fast) var(--ease-brand),
+              border-color var(--dur-fast) var(--ease-soft);
+}
+.bp-hs-chip:hover,
+.bp-hs-active .bp-hs-chip { transform: scale(1.04); border-color: var(--accent-bold); }
+.bp-hs-chip:focus-visible { outline: 2px solid var(--brand-white); outline-offset: 2px; }
+
+.bp-hs-mark {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: var(--r-pill);
+  background-color: var(--brand-sky);
+  color: var(--brand-midnight);
+}
+.bp-hs-mark-good { background-color: var(--accent-bold); color: var(--accent-bold-contrast); }
+.bp-hs-mark svg { width: 0.6rem; height: 0.6rem; }
+
+.bp-hs-pop {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 60;
+  width: 15rem;
+  border-radius: var(--r-lg);
+  border: 1px solid color-mix(in srgb, var(--brand-midnight) 12%, transparent);
+  background-color: var(--brand-white);
+  padding: var(--sp-3);
+  text-align: left;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--dur-fast) var(--ease-soft),
+              transform var(--dur-fast) var(--ease-brand);
+}
+.bp-hs-flip .bp-hs-pop { left: auto; right: 0; }
+.bp-hs-active .bp-hs-pop { opacity: 1; transform: translateY(0); }
+
+.bp-hs-pop-label {
+  display: block;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--brand-midnight) 62%, transparent);
+}
+.bp-hs-pop-label-good { color: var(--accent-bold); }
+
+.bp-hs-pop p {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-eyebrow);
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--brand-midnight) 84%, transparent);
+}
+
+/* ─── Touch: numbered pins + a notes list under the image ─────────────────
+   Floating chips push off a narrow screen (4 of 7 did at 390px) and a hover
+   popover has nowhere to land. On a touch device the image carries numbered
+   pins only, and the notes are listed underneath keyed by the same number.
+   Selection is two-way: tap a pin or tap a note. */
+
+.bp-hs-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--r-pill);
+  border: 2px solid var(--brand-white);
+  background-color: var(--brand-sky);
+  color: var(--brand-midnight);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--dur-fast) var(--ease-brand);
+}
+.bp-hs-pin-good { background-color: var(--accent-bold); color: var(--accent-bold-contrast); }
+.bp-hs-pin-active { transform: translate(-50%, -50%) scale(1.25); z-index: 20; }
+
+.bp-lb-notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-2);
+  width: 100%;
+  max-width: 32rem;
+}
+.bp-lb-note { margin: 0; padding: 0; list-style: none; }
+.bp-lb-note::before { display: none; content: none; }
+
+.bp-lb-note > button {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  width: 100%;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--brand-white) 16%, transparent);
+  border-radius: var(--r-md);
+  background-color: color-mix(in srgb, var(--brand-white) 8%, transparent);
+  color: var(--brand-white);
+  padding: var(--sp-3);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-soft),
+              border-color var(--dur-fast) var(--ease-soft);
+}
+.bp-lb-note-active > button {
+  background-color: color-mix(in srgb, var(--brand-white) 15%, transparent);
+  border-color: var(--brand-white);
+}
+
+.bp-lb-note-n {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: var(--r-pill);
+  background-color: var(--brand-sky);
+  color: var(--brand-midnight);
+  font-size: 0.7rem;
+  font-weight: var(--fw-bold);
+}
+.bp-lb-note-n-good { background-color: var(--accent-bold); color: var(--accent-bold-contrast); }
+
+.bp-lb-note strong {
+  display: block;
+  font-size: var(--fs-small);
+  font-weight: var(--fw-bold);
+}
+.bp-lb-note-text {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--fs-eyebrow);
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--brand-white) 76%, transparent);
 }
 
 /* ─── Chaptered video ─────────────────────────────────────────────────────── */

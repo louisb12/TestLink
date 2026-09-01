@@ -36,12 +36,233 @@ export const ICON_CROSS = (
   </svg>
 );
 
-{/* ── Media: image or video, images open in a lightbox ────────────────────── */}
+{/* ── Hotspot annotations ─────────────────────────────────────────────────────
+    Ported 1:1 from the Lovable guide's src/lib/hotspots.ts. Coordinates are a
+    PERCENTAGE OF THE IMAGE, so the lightbox must size the image explicitly and
+    overlay the marker layer on exactly that box — a letterboxed container would
+    put every marker in the wrong place.
+
+    Keyed by filename so swapping a screenshot only means editing coordinates
+    here. An image with no entry just opens as a plain lightbox.
+    ─────────────────────────────────────────────────────────────────────────── */}
+
+export const HOTSPOTS = {
+  "popup-do-tight.webp": [
+    { x: 19, y: 73.9, type: "good", len: 90, short: "Freecash icon", label: "Freecash branding used",
+      note: "The Freecash mark sits next to the sign-up bonus, so players recognise the offer instead of guessing what they are linking to." },
+    { x: 92, y: 38.9, type: "good", short: "Currency reward", label: "In-game currency reward listed first",
+      note: "The in-game coin reward is spelled out at the top of the list, so the value is visible before the player decides." },
+    { x: 92, y: 73.3, type: "good", short: "$10 bonus", label: "$10 bonus stated outright",
+      note: "The $10 sign-up bonus is stated outright rather than hidden behind the flow, which is the single most impactful element of the pop-up." },
+    { x: 20, y: 86.7, type: "good", len: 90, short: "One CTA", label: "One clear CTA focused on Rewards",
+      note: "One reward-led button, no competing 'Sign Up' or 'Check Link' action. A single clear CTA outperforms a cluttered pair." },
+    { x: 87, y: 93.0, type: "good", short: "Social proof", label: "Social proof line",
+      note: "A short trust line under the button reassures the player that other people already earn with this." },
+    { x: 90, y: 9.7, type: "good", len: 26, short: "5s delay", label: "Dismissal blocked for 5 seconds",
+      note: "A 5 second countdown sits next to a greyed-out close button, so the player reads the reward before they can reflex-close the pop-up." },
+    { x: 14, y: 43.7, type: "good", len: 90, short: "Owns the screen", label: "Covers most of the screen, gameplay dimmed behind it",
+      note: "The pop-up does not have to be full screen. Half to three quarters of the screen is enough, as long as it clearly owns the moment and the game behind it is dimmed out." },
+  ],
+  "popup-dont.png": [
+    { x: 16, y: 27, type: "bad", len: 100, short: "Too small", label: "Small card over barely dimmed gameplay",
+      note: "It does not have to be full screen, but this card is tiny and the level behind it is barely dimmed, so the game keeps competing for attention and the offer reads as an ad the player swipes away." },
+    { x: 88, y: 26.5, type: "bad", short: "Instant close", label: "Close button available immediately",
+      note: "Nothing holds the pop-up open, so most players tap the X before they read a single reward." },
+    { x: 92, y: 49, type: "bad", short: "No value", label: "No reward value stated",
+      note: "'Coins for playing' and 'Cash bonus' say nothing concrete. No coin amount, no $10 sign-up bonus, so the player has to guess what linking is worth." },
+    { x: 20, y: 64, type: "bad", len: 90, short: "Sign Up", label: "'Sign Up' wording on the CTA",
+      note: "'Sign Up' reads as account admin, not reward. Reward-led wording like 'Earn Rewards' converts far better." },
+    { x: 20, y: 71.5, type: "bad", len: 90, short: "Two CTAs", label: "Competing 'Check Link' button",
+      note: "A second action splits the decision. One clear reward CTA outperforms a pair every time." },
+    { x: 88, y: 77.5, type: "bad", short: "No proof", label: "No social proof line",
+      note: "Nothing reassures the player that others already earn with this, so an unfamiliar brand gets dismissed." },
+  ],
+  "icon-rewards-fab-v2.webp": [
+    { x: 92, y: 40, type: "good", short: "Reward signal", label: "Reward signal on the icon",
+      note: "Coins on the icon signal a reward sits behind it, so it does not read as another shop button." },
+    { x: 92, y: 85, type: "good", short: "Rewards label", label: "Rewards label",
+      note: "A short 'Rewards' label keeps the purpose obvious for anyone who has not linked yet." },
+  ],
+  "icon-rewards-b.png": [
+    { x: 90, y: 14, type: "good", len: 40, short: "Notification dot", label: "Red '1' notification badge",
+      note: "The red badge pulls the eye to the icon the same way an unread message does, so players who have not linked yet keep noticing the entry point." },
+    { x: 92, y: 45, type: "good", short: "Cash art", label: "Cash and coins reward art",
+      note: "Cash and coins carry the reward cue instantly, so the icon never reads as another shop button." },
+    { x: 92, y: 85, type: "good", short: "Rewards label", label: "Rewards label",
+      note: "The label keeps the entry point readable at icon size, where art alone can be ambiguous." },
+  ],
+  "icon-dont-a.svg": [
+    { x: 92, y: 35, type: "bad", short: "Logo only", label: "Bare logo, no reward art",
+      note: "The plain mark carries no cash, coin or gift cue, so nothing tells the player a reward sits behind the icon." },
+    { x: 92, y: 80, type: "bad", short: "No label", label: "No label under the icon",
+      note: "Without a short 'Rewards' label, a player who has not linked yet has no idea what the button does, so they never tap it." },
+  ],
+  "icon-dont-b.svg": [
+    { x: 92, y: 35, type: "bad", short: "App logo", label: "App logo used as the entry point",
+      note: "A bare brand logo reads as a partner badge or another shop button, not as an earning opportunity." },
+    { x: 92, y: 80, type: "bad", short: "No signal", label: "No reward signal or attention cue",
+      note: "No badge, no notification dot, no colour highlight. It blends into the HUD and gets ignored, so the long tail of links never happens." },
+  ],
+  "earn-popup-do.webp": [
+    { x: 20.2, y: 21.9, type: "good", len: 90, short: "Freecash mark", label: "Freecash logo present",
+      note: "The Freecash mark sits at the top, so the player recognises where the offers come from and trusts the payout." },
+    { x: 78, y: 29.4, type: "good", len: 60, short: "Clear promise", label: "One clear headline promise",
+      note: "'More ways to earn more' states the point of the Earn Tab in one line, before any explanation." },
+    { x: 72, y: 52.8, type: "good", len: 50, short: "Milestone step", label: "The milestone is explained",
+      note: "A progress bar and 'reach the goal, usually just a level or two' show how short the path to the reward is." },
+    { x: 34, y: 60.5, type: "good", len: 80, short: "Exact reward", label: "Exact reward stated",
+      note: "'Get 300 gems instantly' names the in-game payout and says it lands automatically. Set the real per-game value here." },
+    { x: 22, y: 74.5, type: "good", len: 90, short: "One CTA", label: "One reward-led CTA",
+      note: "'Earn Rewards' is the only button, and there is no sign-up wording: the player is already linked, so there is no friction to imply." },
+    { x: 80, y: 78.8, type: "good", len: 40, short: "Social proof", label: "Trust line under the CTA",
+      note: "One short social-proof line closes the decision without adding a wall of copy." },
+  ],
+  "earn-popup-dont.png": [
+    { x: 88, y: 13.5, type: "bad", len: 40, short: "Not dimmed", label: "Gameplay behind the pop-up is not dimmed",
+      note: "The level, the HUD and the boosters stay at full brightness, so the background keeps competing with the offer and the pop-up reads as a banner the player swipes away." },
+    { x: 8, y: 33, type: "bad", len: 60, short: "Too small", label: "Small card, no dedicated moment",
+      note: "Half to three quarters of the screen is enough, but this card barely owns a third of it, so the Earn Tab never gets a launch moment of its own." },
+    { x: 30, y: 37, type: "bad", len: 70, short: "No logo", label: "Freecash logo missing",
+      note: "Without the Freecash mark the offer looks like an unknown third party, so the player has no reason to trust the payout." },
+    { x: 80, y: 50.8, type: "bad", len: 95, short: "Vague step", label: "No milestone info",
+      note: "'Play the game and see what happens' tells the player nothing about what to reach or how long it takes." },
+    { x: 26, y: 57.6, type: "bad", len: 110, short: "No reward", label: "No exact reward stated anywhere",
+      note: "'Earn some gems for your effort' makes the player guess the value, and a guessed reward gets dismissed." },
+    { x: 24, y: 62.8, type: "bad", len: 90, short: "Sign up", label: "\"Sign Up Now\" wording",
+      note: "The player is already linked, so sign-up wording invents friction that does not exist and kills the tap." },
+  ],
+};
+
+export const spotsFor = (src) => HOTSPOTS[String(src).split("/").pop()] || [];
+
+{/* ── Media: image or video. Annotated images open an explorable lightbox ──── */}
+
+export const Marker = ({ spot, n, active, canHover, onActivate, onDismiss }) => {
+  const isGood = spot.type === "good";
+  // Run the connector outward from the point, so the note never covers the
+  // thing it describes.
+  const flip = spot.x < 50;
+
+  // Touch: a numbered dot only. Floating chips push off a 390px screen (4 of 7
+  // did), and hover has nowhere to go — the notes are listed under the image
+  // instead, keyed by the same number.
+  if (!canHover) {
+    return (
+      <button
+        type="button"
+        className={"bp-hs-pin" + (isGood ? " bp-hs-pin-good" : "") + (active ? " bp-hs-pin-active" : "")}
+        style={{ left: spot.x + "%", top: spot.y + "%" }}
+        aria-label={"Note " + n + ": " + spot.label}
+        onClick={(e) => { e.stopPropagation(); active ? onDismiss() : onActivate(); }}
+      >
+        {n}
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className={"bp-hs" + (flip ? " bp-hs-flip" : "") + (active ? " bp-hs-active" : "")}
+      style={{ left: spot.x + "%", top: spot.y + "%" }}
+    >
+      <span className={"bp-hs-dot" + (isGood ? " bp-hs-dot-good" : "")} aria-hidden="true" />
+      <span className="bp-hs-line" aria-hidden="true"
+            style={spot.len ? { width: spot.len + "px" } : undefined} />
+      <div className="bp-hs-anchor">
+        <button
+          type="button"
+          className="bp-hs-chip"
+          aria-expanded={active}
+          aria-label={spot.label + ": " + spot.note}
+          onMouseEnter={onActivate}
+          onMouseLeave={onDismiss}
+          onFocus={onActivate}
+          onBlur={onDismiss}
+          onClick={(e) => { e.stopPropagation(); active ? onDismiss() : onActivate(); }}
+        >
+          <span className={"bp-hs-mark" + (isGood ? " bp-hs-mark-good" : "")}>
+            {isGood ? ICON_CHECK : ICON_CROSS}
+          </span>
+          {spot.short}
+        </button>
+        <div className="bp-hs-pop" role="tooltip">
+          <span className={"bp-hs-pop-label" + (isGood ? " bp-hs-pop-label-good" : "")}>
+            {spot.label}
+          </span>
+          <p>{spot.note}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize = false, showCaption = true }) => {
   const [open, setOpen] = useState(false);
-  const frameClass =
-    "bp-frame bp-frame-" + ratio + (emphasize ? " bp-frame-emphasize" : "");
+  const [active, setActive] = useState(null);
+  const [nat, setNat] = useState(null);
+  const [vp, setVp] = useState({ w: 1280, h: 800, dpr: 1 });
+  const dialogRef = useRef(null);
+  const [canHover, setCanHover] = useState(true);
+  const spots = kind === "image" ? spotsFor(src) : [];
+
+  // A real hover capability, not a width guess — a small window on a laptop
+  // still wants the chips.
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const read = () => setCanHover(mq.matches);
+    read();
+    mq.addEventListener ? mq.addEventListener("change", read) : mq.addListener(read);
+    return () => {
+      mq.removeEventListener ? mq.removeEventListener("change", read) : mq.removeListener(read);
+    };
+  }, []);
+
+  // A native <dialog> opened with showModal() renders in the browser's TOP
+  // LAYER, which sits above every stacking context on the page. That matters
+  // here: Mintlify's #content carries Tailwind's `@container`
+  // (container-type: inline-size), which implies `contain: layout` and so
+  // creates a stacking context — a plain fixed overlay with z-index 200 was
+  // still painted under the z-30 navbar. The top layer sidesteps it entirely,
+  // and brings Escape-to-close and a focus trap for free.
+  useEffect(() => {
+    const d = dialogRef.current;
+    if (!d) return;
+    if (open && !d.open) {
+      if (d.showModal) d.showModal(); else d.setAttribute("open", "");
+    } else if (!open && d.open) {
+      if (d.close) d.close();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const read = () => setVp({ w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 });
+    read();
+    window.addEventListener("resize", read);
+    // showModal() makes the page inert but does not stop it scrolling behind
+    // the dialog in every browser.
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("resize", read);
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  // Size the image explicitly: the marker layer is positioned against this box,
+  // and never upscale a raster past what the display can resolve.
+  const sized = (() => {
+    if (!nat || !nat.w || !nat.h) return undefined;
+    const r = nat.w / nat.h;
+    const narrow = vp.w < 640;
+    const availW = vp.w * (narrow ? 0.86 : 0.58);
+    const availH = vp.h * (narrow ? 0.62 : 0.78);
+    const vector = /\.svg($|\?|#)/i.test(src);
+    const maxScale = vector ? Infinity : Math.max(1, Math.min(1.5, vp.dpr));
+    const w = Math.max(1, Math.round(Math.min(nat.w * maxScale, availW, availH * r)));
+    return { width: w + "px", height: Math.round(w / r) + "px" };
+  })();
 
   if (kind === "video") {
     return (
@@ -57,20 +278,81 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
 
   return (
     <figure className="bp-media">
-      <button type="button" className={frameClass} onClick={() => setOpen(true)}
-              aria-label={"Enlarge: " + caption}>
+      <button type="button"
+              className={"bp-frame bp-frame-" + ratio + (emphasize ? " bp-frame-emphasize" : "")}
+              onClick={() => { setOpen(true); setActive(null); }}
+              aria-label={spots.length
+                ? "Open annotated view: " + caption + " (" + spots.length + " notes)"
+                : "Enlarge: " + caption}>
         <img src={src} alt={caption} loading="lazy" />
+        <span className="bp-frame-hint" aria-hidden="true">
+          {spots.length ? (
+            <>
+              <span className="bp-frame-hint-n">{spots.length}</span>
+              what to look at
+            </>
+          ) : "Enlarge"}
+        </span>
       </button>
+
       {showCaption ? <figcaption className="bp-caption">{caption}</figcaption> : null}
-      {open ? (
-        <button type="button" className="bp-lightbox" onClick={() => setOpen(false)}
-                aria-label="Close enlarged image">
-          <span>
-            <img src={src} alt={caption} />
-            <span className="bp-lightbox-cap">{caption}</span>
-          </span>
-        </button>
-      ) : null}
+
+      <dialog
+        ref={dialogRef}
+        className="bp-lightbox"
+        aria-label={caption}
+        onClose={() => setOpen(false)}
+        onCancel={() => setOpen(false)}
+        onClick={(e) => { if (e.target === dialogRef.current) setOpen(false); }}
+      >
+        {open ? (
+          <div className="bp-lb-stage" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="bp-lb-close" onClick={() => setOpen(false)}
+                    aria-label="Close image" autoFocus>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
+                   strokeLinecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg>
+            </button>
+            {/* The marker layer must sit on a box that is EXACTLY the image box —
+                hotspot coordinates are percentages of the image. Giving this
+                wrapper the same explicit dimensions makes that exact, rather than
+                relying on fit-content, which drifts. */}
+            <div className="bp-lb-frame" style={sized}>
+              <img src={src} alt={caption}
+                   onLoad={(e) => setNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })} />
+              {spots.map((spot, i) => (
+                <Marker key={i} spot={spot} n={i + 1} active={active === i} canHover={canHover}
+                        onActivate={() => setActive(i)}
+                        onDismiss={() => setActive((c) => (c === i ? null : c))} />
+              ))}
+            </div>
+
+            {!canHover && spots.length ? (
+              <ol className="bp-lb-notes">
+                {spots.map((spot, i) => (
+                  <li key={i} className={active === i ? "bp-lb-note bp-lb-note-active" : "bp-lb-note"}>
+                    <button type="button" onClick={() => setActive(active === i ? null : i)}>
+                      <span className={"bp-lb-note-n" + (spot.type === "good" ? " bp-lb-note-n-good" : "")}>
+                        {i + 1}
+                      </span>
+                      <span>
+                        <strong>{spot.label}</strong>
+                        <span className="bp-lb-note-text">{spot.note}</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
+            <p className="bp-lb-help">
+              {spots.length
+                ? (canHover
+                    ? "Hover or tap a label to read why it matters. Esc to close."
+                    : "Tap a number to jump to its note.")
+                : caption}
+            </p>
+          </div>
+        ) : null}
+      </dialog>
     </figure>
   );
 };

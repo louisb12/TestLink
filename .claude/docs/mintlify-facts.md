@@ -86,6 +86,28 @@ Source: `customize/custom-scripts`.
 - **`@keyframes` is not mentioned anywhere in the docs.** It was smoke-tested here and **works**
   (decisions.md D-001).
 
+### Overlays: use `<dialog>` + `showModal()`, never a fixed div
+
+**Mintlify's `#content` creates a stacking context.** It carries Tailwind's
+`@container/columns-container` (`container-type: inline-size`), which implies `contain: layout`
+— and that creates a stacking context and a containing block. A `position: fixed` overlay with
+`z-index: 200` inside the content column is therefore still painted **under the z-30 navbar**.
+
+The reliable escape is the browser's **top layer**:
+
+```jsx
+const ref = useRef(null);
+useEffect(() => { if (open) ref.current?.showModal(); else ref.current?.close(); }, [open]);
+<dialog ref={ref} onClose={...} onCancel={...}>…</dialog>
+```
+
+`showModal()` renders above every stacking context, and brings Escape-to-close and a focus trap.
+`createPortal` is not available in MDX. Measured — see decisions.md D-029.
+
+Two gotchas: clear the UA defaults (`border`, `padding`, `margin`, `max-width/height`), and
+put the scrim on the dialog rather than `::backdrop`, whose inheritance of custom properties is
+unevenly implemented.
+
 ### Page-scoped CSS — the documented mechanism
 
 > "Use `data-current-path` to style custom CSS on specific pages or subpaths"
