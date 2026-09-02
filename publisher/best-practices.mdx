@@ -19,7 +19,62 @@ icon: "lightbulb"
   `node scripts/fetch-guide-assets.mjs`. Lovable is no longer a dependency.
 
   Styles: styles/60-best-practices.css (bp- prefix).
-  ─────────────────────────────────────────────────────────────────────────────
+
+  ═══════════════════════════════════════════════════════════════════════════
+  DO NOT PUT COMMENTS INSIDE THE `export const` BLOCKS BELOW.
+
+  Any JS or JSX comment inside an export block breaks Mintlify's PRODUCTION
+  MDX compiler — the whole page is replaced with "A parsing error occured".
+  `mint dev` and `mint validate` both accept them, so this is invisible
+  locally; it only shows up on a real build. Verified against `mint export`:
+  line comments, block comments, JSX comments inside returned markup, comments
+  inside a data array, and trailing comments on a code line ALL fail.
+  See decisions.md D-031.
+
+  NOTE: this comment block must never contain the two-character sequence that
+  closes an MDX comment. It terminates the block early — everything after it
+  spills into the page as content and the build fails the same way. That is
+  why the forms above are described in words rather than shown as syntax.
+
+  Page-level MDX comments like this one — outside every export — are fine.
+  `scripts/verify.sh` fails the build if a comment appears inside an export.
+
+  So the notes that used to live inline are here instead:
+
+  · Marker — the connector runs OUTWARD from the point (flipped when x < 50)
+    so the note never covers the element it describes.
+
+  · Marker, touch branch — floating chips push off a 390px screen (4 of 7 did)
+    and hover has nowhere to go, so without hover the image gets numbered pins
+    and the notes are listed under it, keyed by the same number. Detected with
+    matchMedia hover/pointer, not a width breakpoint, because a narrow window
+    on a laptop should still get chips.
+
+  · Media, dialog — a native <dialog> opened with showModal() renders in the
+    browser's TOP LAYER, above every stacking context. Necessary because
+    Mintlify's #content carries Tailwind's `@container`
+    (container-type: inline-size), which implies `contain: layout` and creates
+    a stacking context: a plain fixed overlay at z-index 200 was still painted
+    under the z-30 navbar. Also brings Escape-to-close and a focus trap.
+    showModal() does not stop the page scrolling behind it in every browser,
+    hence the explicit body scroll lock.
+
+  · Media, `sized` — the image is sized explicitly so the marker layer maps to
+    exactly the image box (hotspot coordinates are percentages OF THE IMAGE),
+    and so a raster is never upscaled past what the display can resolve.
+
+  · PromptCard, doCopy — three tiers, because the async Clipboard API is
+    unavailable in plenty of real contexts (non-secure origins, embedded
+    webviews, permission denied): navigator.clipboard, then an execCommand
+    fallback, then reveal the prompt for manual selection.
+
+  · Progress — the `--bp-pct` style prop is a genuinely dynamic value set after
+    hydration by user interaction, which is the one case where the style prop
+    is safe: there is no server-rendered value for it to mismatch.
+
+  · Checklist useEffect — auto-advances as soon as the current stage is fully
+    ticked.
+  ═══════════════════════════════════════════════════════════════════════════
 */}
 
 export const ICON_CHECK = (
@@ -139,13 +194,8 @@ export const spotsFor = (src) => HOTSPOTS[String(src).split("/").pop()] || [];
 
 export const Marker = ({ spot, n, active, canHover, onActivate, onDismiss }) => {
   const isGood = spot.type === "good";
-  // Run the connector outward from the point, so the note never covers the
-  // thing it describes.
   const flip = spot.x < 50;
 
-  // Touch: a numbered dot only. Floating chips push off a 390px screen (4 of 7
-  // did), and hover has nowhere to go — the notes are listed under the image
-  // instead, keyed by the same number.
   if (!canHover) {
     return (
       <button
@@ -205,8 +255,6 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
   const [canHover, setCanHover] = useState(true);
   const spots = kind === "image" ? spotsFor(src) : [];
 
-  // A real hover capability, not a width guess — a small window on a laptop
-  // still wants the chips.
   useEffect(() => {
     if (!window.matchMedia) return;
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -218,13 +266,6 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
     };
   }, []);
 
-  // A native <dialog> opened with showModal() renders in the browser's TOP
-  // LAYER, which sits above every stacking context on the page. That matters
-  // here: Mintlify's #content carries Tailwind's `@container`
-  // (container-type: inline-size), which implies `contain: layout` and so
-  // creates a stacking context — a plain fixed overlay with z-index 200 was
-  // still painted under the z-30 navbar. The top layer sidesteps it entirely,
-  // and brings Escape-to-close and a focus trap for free.
   useEffect(() => {
     const d = dialogRef.current;
     if (!d) return;
@@ -240,8 +281,6 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
     const read = () => setVp({ w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 });
     read();
     window.addEventListener("resize", read);
-    // showModal() makes the page inert but does not stop it scrolling behind
-    // the dialog in every browser.
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -250,8 +289,6 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
     };
   }, [open]);
 
-  // Size the image explicitly: the marker layer is positioned against this box,
-  // and never upscale a raster past what the display can resolve.
   const sized = (() => {
     if (!nat || !nat.w || !nat.h) return undefined;
     const r = nat.w / nat.h;
@@ -313,10 +350,6 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
                    strokeLinecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg>
             </button>
-            {/* The marker layer must sit on a box that is EXACTLY the image box —
-                hotspot coordinates are percentages of the image. Giving this
-                wrapper the same explicit dimensions makes that exact, rather than
-                relying on fit-content, which drifts. */}
             <div className="bp-lb-frame" style={sized}>
               <img src={src} alt={caption}
                    onLoad={(e) => setNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })} />
@@ -481,10 +514,6 @@ export const PromptCard = ({ tag, title, copy, buttonLabel, prompt }) => {
   const [copied, setCopied] = useState(false);
   const [shown, setShown] = useState(false);
 
-  // Three tiers, because the async Clipboard API is unavailable in plenty of
-  // real contexts (non-secure origins, embedded webviews, permission denied):
-  // 1. navigator.clipboard  2. execCommand fallback  3. reveal the prompt so
-  // it can be selected by hand. The reader always ends up able to copy it.
   const doCopy = () => {
     const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2400); };
 
@@ -500,7 +529,7 @@ export const PromptCard = ({ tag, title, copy, buttonLabel, prompt }) => {
         const ok = document.execCommand("copy");
         document.body.removeChild(ta);
         if (ok) { done(); return true; }
-      } catch (e) { /* fall through */ }
+      } catch (ignored) { }
       return false;
     };
 
@@ -595,9 +624,6 @@ export const CheckRow = ({ label, checked, onToggle }) => (
 
 export const Progress = ({ pct }) => (
   <div className="bp-progress">
-    {/* --bp-pct is a genuinely dynamic value driven by user interaction, set
-        after hydration. That is the one case where the style prop is safe —
-        there is no server-rendered value for it to mismatch. */}
     <span className="bp-progress-track" aria-hidden="true">
       <span className="bp-progress-fill" style={{ "--bp-pct": pct }} />
     </span>
@@ -618,7 +644,6 @@ export const Checklist = () => {
   const coins = coreDone * 10 + bonusDone * 15;
   const allDone = coreDone === CORE_TOTAL;
 
-  // Auto-advance as soon as the current stage is fully ticked.
   useEffect(() => {
     const cur = CORE_STAGES[unlocked];
     if (cur && cur.items.every((i) => checked[i]) && unlocked < CORE_STAGES.length - 1) {
@@ -767,7 +792,6 @@ export const SHARED_TAIL = `
 - Never propose a second dollar figure. The $10 sign-up bonus is the only monetary number allowed.
 - Write for a design or product manager: plain language, no code, no SDK details.
 
-
 ## Output format
 
 1. **Scorecard**: a table with three columns, Rule | Pass / Fail / Cannot tell | What you can see.
@@ -869,7 +893,6 @@ Once you have the visual, ask these questions in one short numbered batch and wa
 - It stays visible after linking as well. This is load bearing: it is the route into Rewarded Progression and the Earn Tab, so hiding it after linking cuts off both the LTV feature and the revenue feature.
 - Badged with a red "1" on every milestone the player achieves, via a reward notification.
 - Any reward cue on the icon or banner names an exact in-game amount, never a vague line like "Real Rewards". The only dollar figure allowed anywhere is the $10 sign-up bonus.
-
 
 **Why it matters**
 - Most players do not link on the first pop-up. The persistent icon carries the long tail of links, which is a large share of total linked users and therefore of the LTV lift.

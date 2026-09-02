@@ -69,6 +69,18 @@ else
   ok "no snippets, imports or components in web-editor-owned publisher pages"
 fi
 
+# ── Comments inside export blocks break the PRODUCTION MDX compiler ────────
+# `mint dev` and `mint validate` both accept them; a real build replaces the
+# entire page with "A parsing error occured". Invisible locally, so lint it.
+step "MDX export-block hygiene"
+if BAD=$(python3 scripts/lint-mdx.py); then
+  ok "no comments inside MDX export blocks"
+else
+  bad "comment inside an export block — this breaks the production build:"
+  echo "$BAD" | sed 's/^/       /'
+  echo "       Move it to a page-level {/* ... */} comment outside the export."
+fi
+
 # The guide must stay self-hosted: no runtime dependency on the old Lovable SPA.
 # Only real links count — the provenance comment in best-practices.mdx names
 # the old URL on purpose and must not trip this.

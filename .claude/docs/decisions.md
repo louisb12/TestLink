@@ -800,3 +800,84 @@ comment tripped the check, which is the check working.
 
 Capped to 330px wide. At full column width it was enormous, and more so now the content column
 grows to ~1230px on a wide screen. It is a portrait phone recording; it should look like one.
+
+---
+
+## D-031 — Comments inside `export const` blocks break the PRODUCTION build
+
+**The bug Lou reported:** everything worked locally, the deployed site did not.
+
+`publisher/best-practices.mdx` failed to compile in a real build. Mintlify replaced the entire
+page with:
+
+> 🚧 A parsing error occured. Please contact the owner of this website. They can use the
+> Mintlify CLI to test this website locally and see the errors that occur.
+
+The last sentence is the trap: **`mint dev` renders the page perfectly and `mint validate`
+reports success.** There is no local signal whatsoever.
+
+### Reproducing it locally
+
+`mint export` produces a real production build. Serving that export reproduced the failure
+exactly, which made bisection possible. **`mint export` is the only local check that catches
+this class of bug** — hence the new `scripts/verify-build.sh`.
+
+### Cause 1 — any comment inside an export block
+
+Bisected by splitting the file into its definition sections, then testing candidate constructs
+as one-page-each in a throwaway project. Results:
+
+| Construct | Production build |
+|---|---|
+| `//` line comment inside a component body | **PARSING ERROR** |
+| `/* … */` block comment inside a body | **PARSING ERROR** |
+| `{/* … */}` JSX comment inside returned markup | **PARSING ERROR** |
+| Comment inside a data array or object | **PARSING ERROR** |
+| Trailing `// …` on a line of code | **PARSING ERROR** |
+| `{/* … */}` at page level, outside every export | ✅ ok |
+| Early `return` of JSX, multiple returns | ✅ ok |
+| IIFE assigned to a const | ✅ ok |
+| `useEffect` with a cleanup return | ✅ ok |
+| `.map()` with an early return | ✅ ok |
+| Long multi-line template literals | ✅ ok |
+| `export const` holding JSX | ✅ ok |
+| Native `<dialog>` with `onCancel` / `autoFocus` | ✅ ok |
+| Typographic quotes in JSX text | ✅ ok |
+| CSS custom property in a `style` object | ✅ ok |
+| Escaped quotes in data strings | ✅ ok |
+
+So it is comments specifically — not any of the structures I had assumed were riskier. **26
+comments** across that one file were the cause; every other page was already clean.
+
+### Cause 2 — an MDX comment that closes itself early
+
+After removing all 26, the page *still* failed. The relocated documentation block contained the
+comment-terminator sequence as an example of the syntax being banned. **An MDX comment ends at
+the first terminator it meets**, so the block closed 42 lines early, the remaining prose spilled
+into the page as content, and the trailing terminator was left stray. Self-inflicted, and the
+tell is a terminator with no comment open.
+
+### What now guards it
+
+- **`scripts/lint-mdx.py`** — fails on (1) any comment inside an `export const` block and
+  (2) an unbalanced MDX comment terminator. Template-literal-aware, so `https://` inside the
+  audit prompts is not mistaken for a comment. Wired into `scripts/verify.sh`, so the
+  pre-commit hook catches it.
+- **`scripts/verify-build.sh`** — runs `mint export`, serves it, and asserts every page in
+  `config/navigation.json` actually renders. Too slow (~1–2 min) for the commit hook; run it
+  before any push that touches MDX with export blocks.
+
+### Where the reasoning went
+
+The inline comments carried real reasoning (why `<dialog>`, why the marker layer needs exact
+dimensions, why the clipboard has three tiers). It is now a single page-level comment block at
+the top of the file — verified safe — with the long versions in D-028/D-029/D-030.
+
+### Verified after the fix
+
+Production build: all 16 pages render; the guide's panels are styled; the checklist increments
+0 → 10 Link Coins; the lightbox opens with 7 markers; the navbar hides on scroll down and
+returns on scroll up; the sidebar is sticky. `mint dev` unchanged.
+
+**Standing rule: never put a comment inside an `export const` block in MDX.** Explain the code
+in a page-level comment block, or in `.claude/docs/`.

@@ -49,6 +49,12 @@ mint score           # agent-readiness grade (first-class requirement, check bef
 mint format          # canonical MDX formatting
 
 mint dev --port 3000 # local preview (--port IS supported; see decisions.md D-011)
+
+./scripts/verify-build.sh         # ⚠️ RUN BEFORE PUSHING any MDX with export blocks.
+                                  # Builds a real production export and asserts every page
+                                  # renders. `mint validate` and `mint dev` both MISS
+                                  # production-only parse failures — see D-031.
+python3 scripts/lint-mdx.py       # no comments inside export blocks (also in verify.sh)
 node scripts/contrast-audit.mjs   # regenerate .claude/docs/contrast-audit.md
 node scripts/screenshot.mjs       # both modes, desktop + mobile → .claude/screenshots/
 ```
@@ -76,6 +82,13 @@ stops you trying to `npm install framer-motion`.**
    only** — `export const Thing = () => {}`. No default exports, no function declarations in
    snippets, no `React.lazy`, no dynamic `import()`, no JSON imports, and **a snippet file
    cannot import another snippet file.**
+   - ⛔ **NEVER put a comment inside an `export const` block.** Line, block, JSX, in a data
+     array, or trailing — all of them break the **production** MDX compiler and replace the
+     whole page with "A parsing error occured". `mint dev` and `mint validate` accept them, so
+     it is invisible locally. Put explanations in a page-level comment outside the exports.
+     Enforced by `scripts/lint-mdx.py`. See **D-031**.
+   - ⛔ An **MDX comment ends at the first terminator it meets** — never write that sequence
+     inside a comment block, or it closes early and the rest spills into the page.
 5. **`<MDX>` limits: 8 levels of nesting, 500 fragments per page.** Exceeding either fails
    the build.
 6. **The navbar cannot be removed** by any page mode. Sidebar, navbar and footer *markup*

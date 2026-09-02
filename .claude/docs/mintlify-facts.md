@@ -86,6 +86,24 @@ Source: `customize/custom-scripts`.
 - **`@keyframes` is not mentioned anywhere in the docs.** It was smoke-tested here and **works**
   (decisions.md D-001).
 
+### ⛔ Comments inside `export const` blocks break the production build
+
+**Undocumented, and invisible locally.** Any JS or JSX comment inside an `export const` block
+makes the **production** MDX compiler fail, replacing the page with *"A parsing error
+occured"*. `mint dev` renders it fine and `mint validate` reports success.
+
+Fails: `//` line comments, `/* */` blocks, `{/* */}` inside returned JSX, comments inside a
+data array, trailing comments on a code line.
+Fine: MDX comments at page level, outside every export.
+
+Also: **an MDX comment ends at the first terminator it meets.** Writing that sequence inside a
+comment closes it early and spills the remainder into the page.
+
+`mint export` is the **only** local reproduction — it builds a real production bundle. Hence
+`scripts/verify-build.sh` and `scripts/lint-mdx.py`. Full bisection in decisions.md D-031,
+including the list of constructs that turned out to be fine (early returns, IIFEs, useEffect
+cleanups, long template literals, `<dialog>`, CSS custom properties in style objects).
+
 ### Layout facts that are not in the docs (all measured)
 
 | Fact | Consequence |
