@@ -196,7 +196,7 @@ export const Marker = ({ spot, n, active, canHover, onActivate, onDismiss }) => 
   );
 };
 
-export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize = false, showCaption = true }) => {
+export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize = false, showCaption = true, overlay = null }) => {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(null);
   const [nat, setNat] = useState(null);
@@ -285,6 +285,7 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
                 ? "Open annotated view: " + caption + " (" + spots.length + " notes)"
                 : "Enlarge: " + caption}>
         <img src={src} alt={caption} loading="lazy" />
+        {overlay}
         <span className="bp-frame-hint" aria-hidden="true">
           {spots.length ? (
             <>
@@ -356,6 +357,34 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
     </figure>
   );
 };
+
+{/* ── Pointer arrow ────────────────────────────────────────────────────────
+    A red arrow drawn on a screenshot. `left`/`top` are the position of the
+    arrow TIP as a percentage of the image; `angle` is the direction it points
+    (0 = right, 90 = down, 180 = left). Ported from the source guide, which used
+    these to make clear which element in a busy game screen to look at.
+    ─────────────────────────────────────────────────────────────────────────── */}
+
+export const PointerArrow = ({ left, top, angle = 0, length = 110, label }) => (
+  <span
+    className="bp-arrow"
+    aria-hidden="true"
+    style={{
+      left: left + "%",
+      top: top + "%",
+      width: length + "px",
+      transform: "translate(-100%, -50%) rotate(" + angle + "deg)",
+    }}
+  >
+    <svg viewBox={"0 0 " + length + " 26"} width={length} height="26" focusable="false">
+      <g fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
+        <path d={"M4 13 H " + (length - 6)} />
+        <path d={"M " + (length - 20) + " 4 L " + (length - 5) + " 13 L " + (length - 20) + " 22"} />
+      </g>
+    </svg>
+    {label ? <span className="bp-sr">{label}</span> : null}
+  </span>
+);
 
 {/* ── Do / Don't ──────────────────────────────────────────────────────────── */}
 
@@ -1014,6 +1043,8 @@ Once you have the visual, ask these questions in one short numbered batch and wa
   <div className="bp-place">
     <span className="bp-num">Homescreen</span>
     <Media src="/images/best-practices/placement-homescreen.webp" ratio="phone"
+      overlay={<PointerArrow left={31} top={25.5} angle={180} length={96}
+                 label="Arrow pointing at the FreeCash Rewards icon in the homescreen corner" />}
       caption="Game homescreen with the FreeCash Rewards icon pinned in the corner of the HUD, showing coins and cash art with a label under it." />
     <h4>Homescreen corner</h4>
     <p>
@@ -1024,16 +1055,20 @@ Once you have the visual, ask these questions in one short numbered batch and wa
   <div className="bp-place">
     <span className="bp-num">Banner</span>
     <Media src="/images/best-practices/placement-banner-rounded.png" ratio="phone"
-      caption="Game homescreen with a Freecash special offer banner docked above the bottom nav, stating 300 coins, a $10 bonus and an Earn Rewards button." />
+      overlay={<PointerArrow left={50} top={93.5} angle={90} length={52}
+                 label="Arrow pointing at the Freecash offer banner at the bottom of the screen" />}
+      caption="Game homescreen with a Freecash special offer banner docked below the bottom nav, stating 300 coins, a $10 bonus and an Earn Rewards button." />
     <h4>In-game banner</h4>
-    <p>A wide strip docked above the bottom nav, carrying the reward value in text.</p>
+    <p>A wide strip docked against the bottom nav, carrying the reward value in text.</p>
   </div>
 </div>
 
 <div className="bp-placements">
   <div className="bp-place">
     <span className="bp-num">Shop</span>
-    <Media src="/images/best-practices/placement-shop.png" ratio="wide"
+    <Media src="/images/best-practices/placement-shop.png" ratio="shop"
+      overlay={<PointerArrow left={66} top={56} angle={0} length={90}
+                 label="Arrow pointing at the FreeCash Rewards tile beside the coin packs" />}
       caption="In-game coin shop screen with the FreeCash Rewards tile placed as a third option next to the coin packs." />
     <h4>Inside the shop</h4>
     <p>Sits next to the currency packs, exactly where players already come to get more.</p>
@@ -1159,7 +1194,7 @@ Once you have the visual, ask these questions in one short numbered batch and wa
   Progression.
 </p>
 
-<div className="bp-placements">
+<div className="bp-fullflow">
   <Media src="/images/best-practices/full-flow.mp4" kind="video" ratio="phone"
     caption="The complete flow end to end, from the first session and the pop-up firing, through linking and the Freecash sign-up, back into the game for the in-game payout, the homescreen icon, and finally Rewarded Progression." />
 </div>

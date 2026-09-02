@@ -66,6 +66,18 @@
   --accent-bold-hover:    color-mix(in srgb, var(--brand-lead-blue) 88%, var(--brand-white));
   --accent-bold-contrast: var(--brand-white);
 
+  /* Annotation red — for pointer arrows drawn ON screenshots only.
+     This is a functional annotation colour, the conventional "look here" cue,
+     not brand chrome: it never appears in site UI, only overlaid on product
+     screenshots inside the best-practices guide.
+
+     Carried over verbatim from the source guide. It is a DIFFERENT value from
+     China Red, which remains undefined and banned sitewide — do not consolidate
+     the two, and do not reintroduce China Red's hex anywhere, including in a
+     comment: "no China Red in this codebase" is enforced by scripts/verify.sh
+     as a plain grep. */
+  --annotate-red: #E5322D;
+
   /* Callout ground. Brand rule: warm tint, not a saturated alert box. */
   --callout-bg:      color-mix(in srgb, var(--brand-clay) 26%, var(--brand-white));
   --callout-border:  color-mix(in srgb, var(--brand-clay) 62%, transparent);

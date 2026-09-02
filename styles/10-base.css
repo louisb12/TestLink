@@ -196,4 +196,11 @@ frame,
 
 article table { display: block; overflow-x: auto; max-width: 100%; }
 article pre { overflow-x: auto; max-width: 100%; }
-body { overflow-x: hidden; }
+
+/* `clip`, NOT `hidden`.
+   `overflow-x: hidden` makes body a scroll container, which silently defeats
+   `position: sticky` for every descendant — the navbar, the sidebar and the
+   table of contents all scrolled away because of this one line. `clip` gives
+   the same overflow guard without creating a scroll container. Mintlify's own
+   wrapper uses `clip` for exactly this reason. */
+body { overflow-x: clip; }

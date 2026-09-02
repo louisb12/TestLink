@@ -86,6 +86,17 @@ Source: `customize/custom-scripts`.
 - **`@keyframes` is not mentioned anywhere in the docs.** It was smoke-tested here and **works**
   (decisions.md D-001).
 
+### Layout facts that are not in the docs (all measured)
+
+| Fact | Consequence |
+|---|---|
+| `#sidebar` **does not exist** in Aspen — it is `nav#sidebar-content` | Rules written against `#sidebar` are dead code. Aspen also uses `#content-side-layout` (sticky) wrapping `#table-of-contents`. |
+| `#header` is the **page** header (title + description), not the navbar | The navbar is `#navbar`. Styling `#header` paints a box behind every page title. |
+| The navbar, `#sidebar-content` and `#content-side-layout` are **already `position: sticky`** | They need no help — but **any `overflow: hidden` on `body` breaks all three**, because it makes body a scroll container. Use `overflow-x: clip`, which guards overflow without creating one. Mintlify's own wrapper uses `clip`. |
+| `#body-content` caps at `max-w-8xl` (1536px), `#content-container` at `max-w-6xl` (1152px) | On a 2560px display the content column is only ~664px. Raise both caps by ID (specificity beats the Tailwind class) to use wide screens. |
+| Prose styles put **`margin: 2em 0` on `img`** | Inside any element that establishes a block formatting context (e.g. a `<button>` wrapper) those margins do not collapse out — they add 64px of height, and inside a fixed `aspect-ratio` box they push the picture down and clip it. Zero the margins on images inside custom frames. |
+| List bullets are an absolutely-positioned **`::before`**, not `::marker`, plus 32px item padding | `list-style: none` does nothing. Clear the pseudo-element and the padding. |
+
 ### Overlays: use `<dialog>` + `showModal()`, never a fixed div
 
 **Mintlify's `#content` creates a stacking context.** It carries Tailwind's

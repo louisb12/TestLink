@@ -216,6 +216,7 @@ images/                    # root-relative URLs, case-sensitive
   decor/                   # organic blob accents, light + dark variants
 logos/                     # brand symbol; Almedia Link lockups pending from Lou
 fonts/                     # Daimito Expanded SemiBold .woff2 (pending from Lou)
+scroll-navbar.js           # the ONE custom JS file (auto-injected sitewide)
 scripts/                   # contrast audit, screenshots, verify, hook installer
 .claude/docs/              # the reference files below
 ```
@@ -239,6 +240,15 @@ scripts/                   # contrast audit, screenshots, verify, hook installer
   outside `styles/00-tokens.css`. No `!important` except in the reduced-motion block. No
   colour defined only inside a dark-mode block. No assets in `node_modules`/`build`/`dist`.
   No `foreignObject` SVGs. No animation that loops forever near reading content.
+- **Exactly one custom `.js` file** — `scroll-navbar.js`, for the auto-hiding navbar. Scroll
+  *direction* cannot be detected in CSS. Keep it to one file: Mintlify does not guarantee
+  execution order across multiple `.js` files. It is progressive enhancement — if it never
+  runs, the navbar just stays visible.
+- **Overlays must use `<dialog>` + `showModal()`**, never a fixed div with a high z-index.
+  Mintlify's `#content` creates a stacking context (Tailwind `@container` → `contain: layout`),
+  so a fixed overlay inside it renders *under* the navbar. See D-029.
+- **Never use `overflow: hidden` on `body`** — it makes body a scroll container and silently
+  kills `position: sticky` for the navbar, sidebar and TOC. Use `overflow-x: clip`. See D-030.
 - **China Red `#E9223D` is for China events only — it must never appear on this site.**
 - **Clay + Lead Blue and Sky + Lead Blue both FAIL contrast. They appear nowhere.**
 - No DNS changes, no GitHub App installation, no branch-protection changes, no plan upgrades,

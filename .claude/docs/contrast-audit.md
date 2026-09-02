@@ -3,7 +3,7 @@
 **Generated** by `node scripts/contrast-audit.mjs` from `styles/00-tokens.css`.
 Do not edit by hand — regenerate whenever a colour changes.
 
-Generated: 2026-09-01
+Generated: 2026-09-02
 
 Thresholds: body text **4.5** (AAA 7.0) · large text **3.0** (AAA 4.5) · UI/borders **3.0**.
 Translucent tokens are composited over their backdrop before measuring.

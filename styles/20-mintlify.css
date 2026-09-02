@@ -82,6 +82,32 @@ body {
 }
 #navbar a[href*="github.com"]:hover { opacity: 1; color: var(--text); }
 
+/* Auto-hide on scroll down, reveal on scroll up.
+   State comes from scroll-navbar.js, which only sets data attributes on <html>.
+   If that script never runs the navbar just stays visible — see the file header.
+
+   `will-change` is deliberately omitted: the bar is composited only while the
+   transform is mid-flight, and pinning a layer for the whole session costs more
+   than it saves. */
+#navbar {
+  transition: transform var(--dur-base) var(--ease-soft),
+              box-shadow var(--dur-base) var(--ease-soft);
+}
+
+html[data-nav-hidden="true"] #navbar {
+  transform: translateY(-100%);
+}
+
+/* A hint of elevation once the page has moved, so the bar reads as floating
+   above the content rather than sitting in it. */
+html[data-nav-scrolled="true"] #navbar {
+  box-shadow: var(--shadow-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-nav-hidden="true"] #navbar { transform: none; }
+}
+
 /* ─── Tab row — the audience fork. Aspen renders this under the navbar. ─────
    Note `.nav-tabs-item` is a CLASS in Aspen, not the custom element the docs
    imply. The `a.` prefix also buys the specificity needed to beat Aspen's own
@@ -121,13 +147,17 @@ a.nav-tabs-item[data-active] {
 
 /* ─── Sidebar ─────────────────────────────────────────────────────────────── */
 
-#sidebar {
+/* Aspen renders `nav#sidebar-content`. `#sidebar` DOES NOT EXIST — every rule
+   written against it was dead code, the same trap as the theme toggle (D-022).
+   Both are kept so this survives a theme change. */
+#sidebar,
+#sidebar-content {
   background-color: transparent;
-  border-right: 1px solid var(--border);
 }
 
 sidebar-group,
-#sidebar [class*="group"] > div:first-child {
+#sidebar [class*="group"] > div:first-child,
+#sidebar-content [class*="group"] > div:first-child {
   font-family: var(--font-body);
   font-size: var(--fs-eyebrow);
   font-weight: var(--fw-bold);
@@ -141,6 +171,8 @@ sidebar-group,
    tabs, just stretched. */
 #sidebar a,
 #sidebar button,
+#sidebar-content a,
+#sidebar-content button,
 #sidebar [class*="group"] > div:first-child {
   border-radius: var(--r-sm);
   color: var(--text-muted);
@@ -149,13 +181,14 @@ sidebar-group,
               background-color var(--dur-fast) var(--ease-soft);
 }
 
-#sidebar a:hover {
+#sidebar a:hover,
+#sidebar-content a:hover {
   color: var(--text);
   background-color: color-mix(in srgb, var(--accent) 7%, transparent);
 }
 
-#sidebar a[data-active="true"],
-#sidebar a[data-active] {
+#sidebar a[data-active],
+#sidebar-content a[data-active] {
   color: var(--accent);
   font-weight: var(--fw-medium);
   background-color: color-mix(in srgb, var(--accent) 11%, transparent);
@@ -277,6 +310,49 @@ pagination-next:hover {
   transition: color var(--dur-fast) var(--ease-soft);
 }
 #footer a:hover { color: var(--accent); }
+
+/* ─── Wide screens ────────────────────────────────────────────────────────
+   Aspen caps #body-content at max-w-8xl (1536px) and #content-container at
+   max-w-6xl (1152px), so on a 2560px display the content column measures just
+   664px with ~1400px of dead margin either side.
+
+   Raising both caps lets the middle column grow and pushes the sidebar and
+   table of contents out toward the edges. Prose stays readable because
+   running text is separately capped at --measure below — so the extra width
+   goes to cards, tables, media and diagrams, which is where it is useful. */
+
+@media (min-width: 1536px) {
+  #body-content      { max-width: min(96vw, 1840px); }
+  #content-container { max-width: min(94vw, 1560px); }
+}
+
+@media (min-width: 1920px) {
+  #body-content      { max-width: min(94vw, 2040px); }
+  #content-container { max-width: min(92vw, 1720px); }
+}
+
+/* ─── Sticky rails ────────────────────────────────────────────────────────
+   The navbar, sidebar and TOC wrapper are all `position: sticky` in Aspen and
+   work once body no longer creates a scroll container (see 10-base.css).
+
+   These two additions stop a long list being cut off: cap each rail to the
+   viewport minus the navbar, and let it scroll internally. `overscroll-behavior`
+   keeps a rail's own scroll from chaining to the page. */
+
+#sidebar-content,
+#sidebar {
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+#content-side-layout {
+  max-height: calc(100vh - 10rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
 
 /* ─── Content width ───────────────────────────────────────────────────────
    Long-form prose gets a real measure. Cards, tables and code are allowed to

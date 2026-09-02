@@ -702,3 +702,101 @@ note 2.
 
 An annotated image is worthless if nobody realises it is annotated. Each thumbnail now carries
 a count badge — "7 · what to look at" — and the button's accessible name says the same.
+
+---
+
+## D-030 — Layout: sticky rails, wide screens, an auto-hiding navbar, and the img-margin bug
+
+Four issues Lou reported, all on the guide/layout rather than content.
+
+### 1. `overflow: hidden` on body was killing every sticky element
+
+The navbar, sidebar and table of contents all scrolled away. Measured: after scrolling
+1063px the navbar's `y` was **−1063** — it had moved exactly with the page, despite
+`position: sticky; top: 0`.
+
+Cause was **mine**: `10-base.css` had `body { overflow-x: hidden }` as a horizontal-overflow
+guard. **`overflow-x: hidden` makes body a scroll container, which silently defeats
+`position: sticky` for every descendant.** Mintlify's own wrapper uses `overflow-x: clip` —
+which guards overflow *without* creating a scroll container. One-word fix.
+
+Aspen already ships all three as sticky (`#navbar`, `nav#sidebar-content`,
+`#content-side-layout`); nothing needed adding, only un-breaking. Verified at 0/3000/9000px
+scroll: navbar `y=0`, sidebar `y=96`, TOC wrapper `y=152`, all constant.
+
+Also added: each rail is capped to the viewport height minus the navbar with
+`overflow-y: auto`, so a long sidebar or TOC scrolls internally instead of being cut off.
+
+### 2. Wide screens wasted most of the viewport
+
+Aspen caps `#body-content` at 1536px and `#content-container` at 1152px, so at 2560px the
+content column was **664px with ~1400px of dead margin**. Raised both caps at ≥1536px and
+≥1920px, by ID so specificity beats the Tailwind class.
+
+| Viewport | Content column before | after |
+|---|---|---|
+| 1440px | 632px | 632px (unchanged, below breakpoint) |
+| 1920px | 664px | **997px** |
+| 2560px | 664px | **1232px** |
+
+The rails move outward with it (TOC from x=1692 → x=1976 at 2560px). Prose stays readable
+because running text is separately capped at `--measure`, so the extra width goes to cards,
+tables and media.
+
+### 3. Auto-hiding navbar — the one custom JS file
+
+Hide on scroll down, reveal on scroll up. **Scroll *direction* cannot be detected in CSS** —
+scroll-driven animations expose position, not direction — so this needs a listener.
+`scroll-navbar.js` is now the only custom JS in the project (D-005 verified custom JS runs).
+
+It is deliberately minimal and pure progressive enhancement: it only ever toggles
+`data-nav-hidden` / `data-nav-scrolled` on `<html>`, and all the visual work is CSS. **If it
+never runs the navbar simply stays visible and sticky**, which is a perfectly good outcome —
+nothing structural depends on it. That matters because the brief's rule is one JS file only
+(Mintlify does not guarantee order across several) and because production behaviour is
+unverified until first deploy.
+
+Handled: never hides within 120px of the top, never while a modal `<dialog>` is open, reveals
+on focus entering the navbar (so keyboard focus can't land off-screen), reveals on
+`hashchange`, ignores sub-threshold jitter and rubber-banding, and **does nothing at all under
+`prefers-reduced-motion`** — sliding chrome is motion.
+
+Verified: top → visible; scroll to 2000 → hidden (`y=-97`); scroll up to 1400 → visible; near
+top → visible.
+
+### 4. The real cause of the clipped placement screenshots
+
+Lou reported the entry-point images "cut off at the bottom too strong" and wanting them the
+same size. The frames had a fixed `aspect-ratio` with `object-fit: contain`, which should be
+incapable of clipping — and computed styles confirmed `object-fit: contain`. It still clipped.
+
+**Cause: Mintlify's prose styles put `margin: 2em 0` on `img`.** A `<button>` (which the frame
+is, for the lightbox) establishes a block formatting context, so those margins do not collapse
+out — they added 64px to the frame's height (593 + 32 + 32 = 657, measured exactly). Inside a
+fixed aspect-ratio box the top margin pushed the picture down 32px and an equal amount was
+clipped off the bottom: precisely the Freecash offer banner, which is the bottom ~6% of that
+screenshot and the entire point of the card.
+
+Fixed by zeroing image margins inside frames. The placement frames additionally now size to
+their image (`aspect-ratio: auto`, `height: auto`) rather than to a fixed box, which removes
+the whole class of problem — there is no box left to overflow — and makes the pointer arrows
+exact, since a percentage now refers to the picture rather than to a box the picture floats
+inside. Both cards render 274×598 and 274×593: a matched pair with nothing cropped.
+
+### 5. Pointer arrows restored
+
+`PointerArrow` was dropped in the D-028 port. Restored from the source guide: a red arrow with
+its **tip** at a percentage position, rotated to point in any direction. Lovable had two
+(homescreen, banner); a third was added for the shop tile, since the same "which element am I
+looking at" problem applies there and Lou's note was about clarity.
+
+The red is `--annotate-red`, a new token, documented as a **functional annotation colour** used
+only on product screenshots, never in site UI. It is a different value from China Red, which
+stays undefined and banned. Note the ban is enforced by `scripts/verify.sh` as a plain grep, so
+China Red's hex must not appear even inside a comment — the first version of that token's
+comment tripped the check, which is the check working.
+
+### 6. Full user flow video
+
+Capped to 330px wide. At full column width it was enormous, and more so now the content column
+grows to ~1230px on a wide screen. It is a portrait phone recording; it should look like one.

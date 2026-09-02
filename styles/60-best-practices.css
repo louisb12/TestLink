@@ -321,10 +321,28 @@ html[data-current-path="/publisher/best-practices"],
   cursor: zoom-in;
 }
 .bp-frame img,
-.bp-frame video { display: block; width: 100%; height: 100%; object-fit: contain; }
-.bp-frame-phone { aspect-ratio: 880 / 1600; }
+.bp-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Mintlify's prose styles put `margin: 2em 0` on images. A <button>
+     establishes a block formatting context, so those margins do NOT collapse
+     out — they were adding 64px to every frame's height. Inside a fixed
+     aspect-ratio frame that pushed the picture down 32px and clipped an equal
+     amount off the bottom, which is what was cutting the Freecash banner. */
+  margin: 0;
+}
+
+.bp-lb-frame > img,
+.bp-media img,
+.bp-media video { margin: 0; }
+.bp-frame-phone { aspect-ratio: 880 / 1920; }
 .bp-frame-icon  { aspect-ratio: 1 / 1; background-color: transparent; }
 .bp-frame-wide  { aspect-ratio: 16 / 10; }
+/* The shop screenshot is 1920x660. Its own ratio, so it is not letterboxed
+   into a 16/10 box. */
+.bp-frame-shop  { aspect-ratio: 1920 / 660; }
 .bp-frame-auto  { aspect-ratio: auto; cursor: default; }
 
 .bp-frame-emphasize { outline: 2px solid var(--bp-do); outline-offset: 3px; }
@@ -341,6 +359,32 @@ html[data-current-path="/publisher/best-practices"],
    harder to read across. Reserve a consistent block so the rows line up. */
 @media (min-width: 720px) {
   .bp-dodont .bp-caption { min-height: 5.8em; }
+}
+
+/* ─── Pointer arrow ───────────────────────────────────────────────────────
+   Drawn over a screenshot to say "look at this element". The colour is a
+   functional annotation red from the token layer, never brand chrome. */
+
+.bp-arrow {
+  position: absolute;
+  z-index: 3;
+  height: 26px;
+  pointer-events: none;
+  transform-origin: 100% 50%;
+  color: var(--annotate-red);
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--brand-black) 45%, transparent));
+}
+.bp-arrow svg { display: block; }
+
+/* Screen-reader-only text for the arrow's meaning. */
+.bp-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ─── Thumbnail affordance ────────────────────────────────────────────────
@@ -370,6 +414,12 @@ html[data-current-path="/publisher/best-practices"],
 }
 .bp-frame:hover .bp-frame-hint { opacity: 1; transform: translateY(-2px); }
 .bp-frame-icon .bp-frame-hint { display: none; }   /* too small to carry it */
+
+/* A frame with no annotations has nothing to advertise, so its plain "Enlarge"
+   badge is pure obstruction — reveal it on hover only. Annotated frames keep
+   their count visible, because that is the discoverability cue. */
+.bp-frame:not(:has(.bp-frame-hint-n)) .bp-frame-hint { opacity: 0; }
+.bp-frame:not(:has(.bp-frame-hint-n)):hover .bp-frame-hint { opacity: 1; }
 
 .bp-frame-hint-n {
   display: grid;
@@ -844,6 +894,53 @@ dialog.bp-lightbox::backdrop { background: transparent; }
 }
 .bp-place p { margin: 0; font-size: var(--fs-small); line-height: var(--lh-body); color: var(--text-muted); }
 .bp-place .bp-media { margin-top: var(--sp-4); }
+
+/* Placement frames size to their image instead of to a fixed aspect box.
+
+   A fixed `aspect-ratio` + `object-fit: contain` frame kept clipping the
+   bottom of the banner screenshot — which is precisely the Freecash offer bar
+   the card exists to show. Letting the image set the height removes the whole
+   class of problem: there is no box for it to overflow, so nothing can be cut,
+   at any width.
+
+   It also makes the pointer arrows exact. With `height: auto` the frame is
+   the image, so an arrow at `top: 93%` is at 93% of the picture rather than
+   93% of a box the picture is floating inside.
+
+   Both cards are the same width and both screenshots are ~0.46 aspect, so the
+   two render within a few pixels of each other — a matched pair without a
+   crop. */
+.bp-place .bp-frame,
+.bp-fullflow .bp-frame {
+  aspect-ratio: auto;
+  overflow: visible;
+  background-color: transparent;
+}
+
+.bp-place .bp-frame > img,
+.bp-fullflow .bp-frame > video {
+  height: auto;
+  object-fit: fill;
+  border-radius: var(--r-lg);
+}
+
+/* Captions vary in length; reserve a common block so the headline and body of
+   the two side-by-side cards stay aligned. */
+@media (min-width: 720px) {
+  .bp-placements-2 .bp-caption { min-height: 4.4em; }
+}
+
+/* ─── Full user flow ──────────────────────────────────────────────────────
+   A portrait phone recording at full column width is enormous on a wide
+   screen — and now that the content column grows to ~1230px, more so. Cap it
+   to something closer to the size of the device it was recorded on. */
+
+.bp-fullflow {
+  margin-top: var(--sp-6);
+  max-width: 330px;
+}
+
+.bp-fullflow .bp-frame { background-color: transparent; }
 
 /* ─── Checklist ───────────────────────────────────────────────────────────── */
 
