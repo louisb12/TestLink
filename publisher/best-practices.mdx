@@ -246,14 +246,51 @@ export const Marker = ({ spot, n, active, canHover, onActivate, onDismiss }) => 
   );
 };
 
-export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize = false, showCaption = true, overlay = null }) => {
+export const HINT_KEY = "almedia-link-lightbox-hint-seen-v2";
+
+export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize = false, showCaption = false, overlay = null, hint = false, crop = null }) => {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(null);
   const [nat, setNat] = useState(null);
   const [vp, setVp] = useState({ w: 1280, h: 800, dpr: 1 });
   const dialogRef = useRef(null);
+  const frameRef = useRef(null);
   const [canHover, setCanHover] = useState(true);
+  const [showHint, setShowHint] = useState(false);
   const spots = kind === "image" ? spotsFor(src) : [];
+  const hintKey = HINT_KEY + ":" + String(src).split("/").pop();
+
+  useEffect(() => {
+    if (!hint || open) return;
+    let seen = false;
+    try {
+      seen = window.localStorage.getItem(hintKey) === "1";
+    } catch (ignored) {
+      seen = false;
+    }
+    if (seen) return;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reduce && reduce.matches) return;
+    const el = frameRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        io.disconnect();
+        setShowHint(true);
+      }
+    }, { threshold: 0.5 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hint, hintKey, open]);
+
+  const dismissHint = () => {
+    setShowHint(false);
+    try {
+      window.localStorage.setItem(hintKey, "1");
+    } catch (ignored) {
+      return;
+    }
+  };
 
   useEffect(() => {
     if (!window.matchMedia) return;
@@ -293,8 +330,8 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
     if (!nat || !nat.w || !nat.h) return undefined;
     const r = nat.w / nat.h;
     const narrow = vp.w < 640;
-    const availW = vp.w * (narrow ? 0.86 : 0.58);
-    const availH = vp.h * (narrow ? 0.62 : 0.78);
+    const availW = vp.w * (narrow ? 0.86 : 0.5);
+    const availH = vp.h * (narrow ? 0.62 : 0.74);
     const vector = /\.svg($|\?|#)/i.test(src);
     const maxScale = vector ? Infinity : Math.max(1, Math.min(1.5, vp.dpr));
     const w = Math.max(1, Math.round(Math.min(nat.w * maxScale, availW, availH * r)));
@@ -313,24 +350,43 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
     );
   }
 
+  const frameClass = crop
+    ? "bp-frame bp-crop bp-crop-" + crop
+    : "bp-frame bp-frame-" + ratio + (emphasize ? " bp-frame-emphasize" : "");
+
   return (
     <figure className="bp-media">
       <button type="button"
-              className={"bp-frame bp-frame-" + ratio + (emphasize ? " bp-frame-emphasize" : "")}
-              onClick={() => { setOpen(true); setActive(null); }}
+              ref={frameRef}
+              className={frameClass}
+              onClick={() => { if (showHint) dismissHint(); setOpen(true); setActive(null); }}
               aria-label={spots.length
                 ? "Open annotated view: " + caption + " (" + spots.length + " notes)"
                 : "Enlarge: " + caption}>
-        <img src={src} alt={caption} loading="lazy" />
-        {overlay}
-        <span className="bp-frame-hint" aria-hidden="true">
-          {spots.length ? (
-            <>
-              <span className="bp-frame-hint-n">{spots.length}</span>
-              what to look at
-            </>
-          ) : "Enlarge"}
-        </span>
+        {crop ? (
+          <span className="bp-crop-inner">
+            <img src={src} alt={caption} loading="lazy" />
+            {overlay}
+          </span>
+        ) : (
+          <>
+            <img src={src} alt={caption} loading="lazy" />
+            {overlay}
+          </>
+        )}
+        {showHint ? (
+          <span className="bp-hint" aria-hidden="true">
+            <span className="bp-hint-halo" />
+            <span className="bp-hint-scrim" />
+            <span className="bp-hint-tap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                   strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5M11 8v6M8 11h6" />
+              </svg>
+            </span>
+          </span>
+        ) : null}
       </button>
 
       {showCaption ? <figcaption className="bp-caption">{caption}</figcaption> : null}
@@ -398,21 +454,21 @@ export const Media = ({ src, caption, ratio = "phone", kind = "image", emphasize
     these to make clear which element in a busy game screen to look at.
     ─────────────────────────────────────────────────────────────────────────── */}
 
-export const PointerArrow = ({ left, top, angle = 0, length = 110, label }) => (
+export const PointerArrow = ({ left, top, angle = 0, length = 40, label }) => (
   <span
     className="bp-arrow"
     aria-hidden="true"
     style={{
       left: left + "%",
       top: top + "%",
-      width: length + "px",
+      width: length + "%",
       transform: "translate(-100%, -50%) rotate(" + angle + "deg)",
     }}
   >
-    <svg viewBox={"0 0 " + length + " 26"} width={length} height="26" focusable="false">
+    <svg viewBox="0 0 110 26" focusable="false">
       <g fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
-        <path d={"M4 13 H " + (length - 6)} />
-        <path d={"M " + (length - 20) + " 4 L " + (length - 5) + " 13 L " + (length - 20) + " 22"} />
+        <path d="M4 13 H 104" />
+        <path d="M 90 4 L 105 13 L 90 22" />
       </g>
     </svg>
     {label ? <span className="bp-sr">{label}</span> : null}
@@ -421,7 +477,7 @@ export const PointerArrow = ({ left, top, angle = 0, length = 110, label }) => (
 
 {/* ── Do / Don't ──────────────────────────────────────────────────────────── */}
 
-export const Panel = ({ variant, points, media, ratio, kind }) => {
+export const Panel = ({ variant, points, media, ratio, kind, hint = false }) => {
   const isDo = variant === "do";
   const list = Array.isArray(media) ? media : [media];
   return (
@@ -441,7 +497,7 @@ export const Panel = ({ variant, points, media, ratio, kind }) => {
           ))}
         </div>
       ) : (
-        <Media src={list[0].src} caption={list[0].caption} ratio={ratio} kind={kind} />
+        <Media src={list[0].src} caption={list[0].caption} ratio={ratio} kind={kind} hint={hint} />
       )}
 
       <ul className="bp-points">
@@ -458,10 +514,10 @@ export const Panel = ({ variant, points, media, ratio, kind }) => {
   );
 };
 
-export const DoDont = ({ doPoints, dontPoints, doMedia, dontMedia, ratio = "phone", kind = "image" }) => (
+export const DoDont = ({ doPoints, dontPoints, doMedia, dontMedia, ratio = "phone", kind = "image", hint = false }) => (
   <div className="bp-dodont">
-    <Panel variant="do" points={doPoints} media={doMedia} ratio={ratio} kind={kind} />
-    <Panel variant="dont" points={dontPoints} media={dontMedia} ratio={ratio} kind={kind} />
+    <Panel variant="do" points={doPoints} media={doMedia} ratio={ratio} kind={kind} hint={hint} />
+    <Panel variant="dont" points={dontPoints} media={dontMedia} ratio={ratio} kind={kind} hint={hint} />
   </div>
 );
 
@@ -510,34 +566,50 @@ export const ChapteredVideo = ({ src, chapters, ariaLabel }) => {
 
 {/* ── Copy-to-clipboard prompt card ───────────────────────────────────────── */}
 
+export const copyToClipboard = (text, done, fail) => {
+  const legacy = () => {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (ok) { done(); return true; }
+    } catch (ignored) { }
+    return false;
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, () => { if (!legacy()) fail(); });
+  } else if (!legacy()) {
+    fail();
+  }
+};
+
+export const CopyButton = ({ label, prompt, variant = "primary" }) => {
+  const [copied, setCopied] = useState(false);
+  const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2400); };
+  return (
+    <button
+      type="button"
+      className={"al-btn al-btn-" + variant}
+      onClick={() => copyToClipboard(prompt, done, done)}
+    >
+      {copied ? "Copied to your clipboard" : label}
+    </button>
+  );
+};
+
 export const PromptCard = ({ tag, title, copy, buttonLabel, prompt }) => {
   const [copied, setCopied] = useState(false);
   const [shown, setShown] = useState(false);
 
   const doCopy = () => {
     const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2400); };
-
-    const legacy = () => {
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = prompt;
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.top = "-1000px";
-        document.body.appendChild(ta);
-        ta.select();
-        const ok = document.execCommand("copy");
-        document.body.removeChild(ta);
-        if (ok) { done(); return true; }
-      } catch (ignored) { }
-      return false;
-    };
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(prompt).then(done, () => { if (!legacy()) setShown(true); });
-    } else if (!legacy()) {
-      setShown(true);
-    }
+    copyToClipboard(prompt, done, () => setShown(true));
   };
 
   return (
@@ -564,7 +636,7 @@ export const CORE_STAGES = [
   { group: "Pop-up placement", items: [
     "Surfaces within the first 2-5 minutes of play time",
     "Force-shown, no tap required",
-    "Re-shown at least every 30 minutes to unlinked players",
+    "Reshow every few levels, max every 30 minutes",
     "Never fired straight after a rewarded ad",
     "Not capped to once per session",
     "Rolled out to at least 90% of users",
@@ -817,7 +889,7 @@ Once you have the visual, ask these questions in one short numbered batch and wa
 
 1. How many minutes into the player's very first session does the pop-up first appear?
 2. Does it appear on its own, or does the player have to tap an icon, menu or shop tab?
-3. If the player dismisses it, how often is it shown again? (Every X minutes of play time? Only once per session? Once per install?)
+3. If the player dismisses it, what brings it back? (Every few levels? Every X minutes of play time? Only once per session? Once per install?)
 4. Can it fire directly after a rewarded ad or an interstitial?
 5. What percentage of users currently see it?
 6. Is dismissal blocked for the first few seconds, and is a countdown shown?
@@ -829,7 +901,7 @@ Once you have the visual, ask these questions in one short numbered batch and wa
 **Timing and placement**
 - Appears within the first 2-5 minutes of play time, inside the very first session.
 - Force-shown: it appears on its own, no tap required.
-- Re-shown at least every 30 minutes of play time to any player who has not linked yet.
+- Reshown every few levels, and at most once every 30 minutes of play time, to any player who has not linked yet.
 - Rolled out to at least 90% of users.
 - Never fired straight after a rewarded ad or an interstitial.
 - Not capped to "once per session" or "once per install".
@@ -910,6 +982,10 @@ Once you have the visual, ask these questions in one short numbered batch and wa
       These are the patterns behind a high install-to-link rate, and a clear lift in LTV for
       linked users. Follow them to see better results.
     </p>
+    <div className="bp-hero-actions">
+      <CopyButton label="Copy AI prompt: audit my pop-up" prompt={POPUP_PROMPT} />
+      <CopyButton label="Copy AI prompt: audit my entry point" prompt={ENTRY_PROMPT} variant="secondary" />
+    </div>
   </div>
 </section>
 
@@ -940,6 +1016,7 @@ Once you have the visual, ask these questions in one short numbered batch and wa
 
 <DoDont
   ratio="phone"
+  hint
   doMedia={{ src: "/images/best-practices/popup-do-tight.webp", caption: "Freecash pop-up covering about three quarters of the screen over dimmed gameplay, with a 5 second countdown next to the greyed-out close button, the in-game coin reward, cash and gift cards, a $10 sign-up bonus, one 'Start earning rewards' CTA and a social-proof line." }}
   doPoints={[
     "Covers at least half the screen, gameplay dimmed behind it",
@@ -1003,15 +1080,13 @@ Once you have the visual, ask these questions in one short numbered batch and wa
   doPoints={[
     "Surfaces within the first 2-5 minutes play time",
     "Force-shown, no tap required",
-    "Re-shown at least every 30 minutes to unlinked players",
-    "Attention is still fresh, so install-to-link peaks",
+    "Reshow every few levels, max every 30 minutes",
   ]}
   dontMedia={{ src: "/images/best-practices/popup-timing-dont.mp4", caption: "A rewarded ad finishes and the pop-up fires the instant it closes — two interruptions back to back." }}
   dontPoints={[
     "Waits until the player is deep in the session, or fires straight after a rewarded ad",
     "Waits for the player to tap something",
     "Capped to \"once per session\", never re-shown",
-    "Player is already fatigued, most never see it twice",
   ]}
 />
 
@@ -1062,41 +1137,57 @@ Once you have the visual, ask these questions in one short numbered batch and wa
   Three placements work. Ship at least one, and the homescreen corner first.
 </p>
 
-<div className="bp-placements bp-placements-2">
-  <div className="bp-place">
-    <span className="bp-num">Homescreen</span>
-    <Media src="/images/best-practices/placement-homescreen.webp" ratio="phone"
-      overlay={<PointerArrow left={31} top={25.5} angle={180} length={96}
+<ol className="bp-placements">
+
+  <li className="bp-place">
+    <Media src="/images/best-practices/placement-homescreen.webp" crop="top"
+      overlay={<PointerArrow left={31} top={25.5} angle={180} length={50}
                  label="Arrow pointing at the FreeCash Rewards icon in the homescreen corner" />}
       caption="Game homescreen with the FreeCash Rewards icon pinned in the corner of the HUD, showing coins and cash art with a label under it." />
-    <h4>Homescreen corner</h4>
-    <p>
-      Always on the main screen: every unlinked player passes it every session, and every linked
-      player uses it to reach Rewarded Progression or the Earn Tab.
-    </p>
-  </div>
-  <div className="bp-place">
-    <span className="bp-num">Banner</span>
-    <Media src="/images/best-practices/placement-banner-rounded.png" ratio="phone"
-      overlay={<PointerArrow left={50} top={93.5} angle={90} length={52}
+    <div className="bp-place-body">
+      <span className="bp-place-head">
+        <span className="bp-place-n" aria-hidden="true">1</span>
+        <span className="bp-num">Homescreen · start here</span>
+      </span>
+      <h4>Homescreen corner</h4>
+      <p>
+        Every unlinked player passes it every session, and every linked player uses it to reach
+        Rewarded Progression or the Earn Tab.
+      </p>
+    </div>
+  </li>
+
+  <li className="bp-place">
+    <Media src="/images/best-practices/placement-banner-rounded.png" crop="bottom"
+      overlay={<PointerArrow left={64} top={91} angle={90} length={13}
                  label="Arrow pointing at the Freecash offer banner at the bottom of the screen" />}
       caption="Game homescreen with a Freecash special offer banner docked below the bottom nav, stating 300 coins, a $10 bonus and an Earn Rewards button." />
-    <h4>In-game banner</h4>
-    <p>A wide strip docked against the bottom nav, carrying the reward value in text.</p>
-  </div>
-</div>
+    <div className="bp-place-body">
+      <span className="bp-place-head">
+        <span className="bp-place-n" aria-hidden="true">2</span>
+        <span className="bp-num">Banner</span>
+      </span>
+      <h4>In-game banner</h4>
+      <p>A wide strip docked against the bottom nav, carrying the reward value in text.</p>
+    </div>
+  </li>
 
-<div className="bp-placements">
-  <div className="bp-place">
-    <span className="bp-num">Shop</span>
+  <li className="bp-place bp-place-wide">
     <Media src="/images/best-practices/placement-shop.png" ratio="shop"
-      overlay={<PointerArrow left={66} top={56} angle={0} length={90}
+      overlay={<PointerArrow left={82} top={32} angle={90} length={15}
                  label="Arrow pointing at the FreeCash Rewards tile beside the coin packs" />}
       caption="In-game coin shop screen with the FreeCash Rewards tile placed as a third option next to the coin packs." />
-    <h4>Inside the shop</h4>
-    <p>Sits next to the currency packs, exactly where players already come to get more.</p>
-  </div>
-</div>
+    <div className="bp-place-body">
+      <span className="bp-place-head">
+        <span className="bp-place-n" aria-hidden="true">3</span>
+        <span className="bp-num">Shop</span>
+      </span>
+      <h4>Inside the shop</h4>
+      <p>Sits next to the currency packs, exactly where players already come to get more.</p>
+    </div>
+  </li>
+
+</ol>
 
 <PromptCard
   tag="AI audit"

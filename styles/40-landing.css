@@ -37,20 +37,24 @@ html[data-current-path="/"] .al-hero {
 html[data-current-path="/"] .al-hero-inner {
   position: relative;
   z-index: 1;
-  max-width: min(100%, 52rem);
+  max-width: min(100%, 62rem);
   margin-inline: auto;
 }
 
+/* The headline is two sentences, so it breaks as two lines on purpose — each
+   clause on its own line reads as a deliberate pair rather than four ragged
+   balanced lines. Sized so each clause fits on one line at this measure. */
 html[data-current-path="/"] .al-hero-title {
   font-family: var(--font-heading);
   font-weight: var(--fw-heading);
-  font-size: var(--fs-display);
+  font-size: clamp(2.25rem, 1rem + 4.2vw, 4.25rem);
   line-height: var(--lh-display);
   letter-spacing: var(--tr-display);
   color: var(--text);
-  text-wrap: balance;
   margin: 0;
 }
+
+html[data-current-path="/"] .al-hero-title span { display: block; }
 
 /* The sub reads at a comfortable measure, wider than the headline. */
 html[data-current-path="/"] .al-hero-sub {

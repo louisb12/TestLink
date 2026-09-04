@@ -1,15 +1,13 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Almedia Launchpad",
-  "description": "Documentation for Almedia Link — the rewarded link that turns players into earners. Integration guides for publishers, product teams and engineers.",
+  "description": "Documentation for Almedia Link \u2014 the rewarded link that turns players into earners. Integration guides for publishers, product teams and engineers.",
   "theme": "aspen",
-
   "colors": {
     "primary": "#0021F3",
     "light": "#739AC1",
     "dark": "#0021F3"
   },
-
   "fonts": {
     "heading": {
       "family": "Daimito Expanded",
@@ -22,20 +20,17 @@
       "weight": 400
     }
   },
-
   "appearance": {
     "default": "system",
     "strict": false
   },
-
   "background": {
     "decoration": "gradient",
     "color": {
-      "light": "#F1EFEA",
+      "light": "#FFFFFF",
       "dark": "#0D2440"
     }
   },
-
   "styling": {
     "eyebrows": "section",
     "codeblocks": {
@@ -45,19 +40,15 @@
       }
     }
   },
-
   "logo": {
     "light": "/logos/symbol-lead-blue.svg",
     "dark": "/logos/symbol-white.svg",
     "href": "/"
   },
-
   "favicon": "/favicon.svg",
-
   "icons": {
     "library": "lucide"
   },
-
   "navbar": {
     "links": [
       {
@@ -65,16 +56,11 @@
         "href": "https://github.com/almedia-tm/almedia-link-sdk",
         "icon": "github"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Get started",
-      "href": "/overview/get-started"
-    }
+    ]
   },
-
-  "navigation": { "$ref": "./config/navigation.json" },
-
+  "navigation": {
+    "$ref": "./config/navigation.json"
+  },
   "footer": {
     "socials": {
       "github": "https://github.com/almedia-tm/almedia-link-sdk",
@@ -84,45 +70,96 @@
       {
         "header": "Overview",
         "items": [
-          { "label": "What is Almedia Link", "href": "/overview/what-is-almedia-link" },
-          { "label": "Experiences", "href": "/overview/experiences" },
-          { "label": "How revenue works", "href": "/overview/how-revenue-works" },
-          { "label": "Get started", "href": "/overview/get-started" }
+          {
+            "label": "What is Almedia Link",
+            "href": "/overview/what-is-almedia-link"
+          },
+          {
+            "label": "Experiences",
+            "href": "/overview/experiences"
+          },
+          {
+            "label": "How revenue works",
+            "href": "/overview/how-revenue-works"
+          },
+          {
+            "label": "Get started",
+            "href": "/overview/get-started"
+          }
         ]
       },
       {
         "header": "Publisher Guide",
         "items": [
-          { "label": "Prerequisites", "href": "/publisher/prerequisites" },
-          { "label": "Best practices", "href": "/publisher/best-practices" },
-          { "label": "Adjust", "href": "/publisher/mmp/adjust" },
-          { "label": "AppsFlyer", "href": "/publisher/mmp/appsflyer" }
+          {
+            "label": "Prerequisites",
+            "href": "/publisher/prerequisites"
+          },
+          {
+            "label": "Best practices",
+            "href": "/publisher/best-practices"
+          },
+          {
+            "label": "Adjust",
+            "href": "/publisher/mmp/adjust"
+          },
+          {
+            "label": "AppsFlyer",
+            "href": "/publisher/mmp/appsflyer"
+          }
         ]
       },
       {
         "header": "Technical Docs",
         "items": [
-          { "label": "Overview", "href": "/technical" },
-          { "label": "Integration guide", "href": "/technical/integration-guide" },
-          { "label": "API reference", "href": "/technical/api-reference" },
-          { "label": "SDK on GitHub", "href": "https://github.com/almedia-tm/almedia-link-sdk" }
+          {
+            "label": "Overview",
+            "href": "/technical"
+          },
+          {
+            "label": "Integration guide",
+            "href": "/technical/integration-guide"
+          },
+          {
+            "label": "API reference",
+            "href": "/technical/api-reference"
+          },
+          {
+            "label": "SDK on GitHub",
+            "href": "https://github.com/almedia-tm/almedia-link-sdk"
+          }
         ]
       },
       {
         "header": "For agents",
         "items": [
-          { "label": "llms.txt", "href": "/llms.txt" },
-          { "label": "llms-full.txt", "href": "/llms-full.txt" },
-          { "label": "MCP server", "href": "/mcp" }
+          {
+            "label": "llms.txt",
+            "href": "/llms.txt"
+          },
+          {
+            "label": "llms-full.txt",
+            "href": "/llms-full.txt"
+          },
+          {
+            "label": "MCP server",
+            "href": "/mcp"
+          }
         ]
       }
     ]
   },
-
   "contextual": {
-    "options": ["copy", "view", "claude", "chatgpt", "cursor", "vscode", "mcp"]
+    "options": [
+      "copy",
+      "view",
+      "claude",
+      "chatgpt",
+      "cursor",
+      "vscode",
+      "mcp"
+    ]
   },
-
   "seo": {
     "indexing": "navigable",
     "metatags": {
@@ -135,28 +172,49 @@
       "url": "https://almedia.co"
     }
   },
-
   "thumbnails": {
     "appearance": "light",
     "fonts": {
       "family": "DM Sans"
     }
   },
-
   "errors": {
     "404": {
       "redirect": false,
       "title": "That page moved, or never existed",
-      "description": "Pick a path instead — the [Publisher Guide](/publisher) for commercial, product and design, or the [Technical Docs](/technical) for engineering. Or start from the [top](/)."
+      "description": "Pick a path instead \u2014 the [Publisher Guide](/publisher) for commercial, product and design, or the [Technical Docs](/technical) for engineering. Or start from the [top](/)."
     }
   },
-
   "redirects": [
-    { "source": "/quickstart", "destination": "/overview/get-started", "permanent": true },
-    { "source": "/introduction", "destination": "/", "permanent": true },
-    { "source": "/best-practices", "destination": "/publisher/best-practices", "permanent": true },
-    { "source": "/almedia-link-showcase", "destination": "/", "permanent": true },
-    { "source": "/best-practices-2", "destination": "/publisher/best-practices", "permanent": true },
-    { "source": "/webgl-test", "destination": "/", "permanent": true }
+    {
+      "source": "/quickstart",
+      "destination": "/overview/get-started",
+      "permanent": true
+    },
+    {
+      "source": "/introduction",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/best-practices",
+      "destination": "/publisher/best-practices",
+      "permanent": true
+    },
+    {
+      "source": "/almedia-link-showcase",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/best-practices-2",
+      "destination": "/publisher/best-practices",
+      "permanent": true
+    },
+    {
+      "source": "/webgl-test",
+      "destination": "/",
+      "permanent": true
+    }
   ]
 }

@@ -207,8 +207,10 @@ rules — is in **`.claude/docs/brand-tokens.md`**.
 - **Define the complete light palette on bare `:root`.** Redefine **only** the semantic layer
   (`--surface`, `--text`, `--accent`, …) for dark mode. **Never let a colour's only
   definition live inside a dark-mode block.**
-- Light mode is **Cream-based** (`#F1EFEA` page, white raised cards) — not white. Dark mode is
-  **Midnight-based** — not black.
+- Light mode is **white-based** (`#FFFFFF` page). This overrides the brand book's Cream page on
+  Lou's instruction — see decisions.md **D-033**. Cream survives as `--surface-sunken` (wells,
+  code blocks, callouts, footer), and cards are separated by a hairline border plus a soft
+  shadow rather than by a fill difference. Dark mode is **Midnight-based** — not black.
 - **Lead Blue does not survive on Midnight.** Dark mode's accent is Sky. Contrast-checked.
 - **Check every page in both modes.** A page that only works in light mode is not done.
 

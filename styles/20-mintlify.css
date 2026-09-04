@@ -19,11 +19,30 @@
    body-text contrast — the audit is re-run after any change here. Fixed
    attachment so it reads as page depth rather than a scrolling object. */
 
+/* The wash previously sat in two blooms near the TOP of the viewport, on a
+   position:fixed layer — so wherever you scrolled, the colour was always up in
+   the header area and the rest of the screen was flat. That is what read as
+   "only at the top".
+
+   Distributing them across the full viewport height instead means there is
+   always some ambient colour low on screen as well as high, at any scroll
+   depth. Kept viewport-fixed on purpose: document-positioned gradients resolve
+   against the viewport-sized root element, not the scroll height, so they
+   collapse back to the top of the page.
+
+   Small, faint ellipses — depth, not decoration. Re-run the contrast audit
+   after changing these. */
+
 #background-color,
 body {
+  background-color: var(--surface);
   background-image:
-    radial-gradient(ellipse 90% 55% at 12% -8%,  var(--wash-1), transparent 70%),
-    radial-gradient(ellipse 70% 50% at 92% 6%,   var(--wash-2), transparent 68%);
+    radial-gradient(ellipse 62% 34% at 6% -6%,   var(--wash-1), transparent 72%),
+    radial-gradient(ellipse 48% 26% at 96% 12%,  var(--wash-2), transparent 70%),
+    radial-gradient(ellipse 42% 24% at 99% 52%,  var(--wash-1), transparent 74%),
+    radial-gradient(ellipse 46% 26% at 2% 62%,   var(--wash-2), transparent 74%),
+    radial-gradient(ellipse 54% 28% at 82% 104%, var(--wash-1), transparent 74%),
+    radial-gradient(ellipse 40% 22% at 14% 108%, var(--wash-2), transparent 74%);
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -145,6 +164,18 @@ a.nav-tabs-item[data-active] {
   font-weight: var(--fw-bold);
 }
 
+/* Aspen also marks the active tab with a 1px underline, rendered as an
+   absolutely-positioned <div> inside the link. With the pill doing that job the
+   underline is redundant — and it sat outside the pill, which read as a stray
+   rule under the button.
+
+   Targeted as `> div` rather than by Tailwind class: the tab's only element
+   children are the icon <svg> and this underline, and the label is a bare text
+   node, so this hides exactly the underline and nothing else. */
+a.nav-tabs-item > div {
+  display: none;
+}
+
 /* ─── Sidebar ─────────────────────────────────────────────────────────────── */
 
 /* Aspen renders `nav#sidebar-content`. `#sidebar` DOES NOT EXIST — every rule
@@ -230,32 +261,51 @@ toc-item[data-active="true"],
   box-shadow: var(--shadow-sm);
 }
 
-/* ─── Theme control — transitions rather than snapping ────────────────────
-   Mintlify documents [data-component-name="theme-toggle"], but Aspen actually
-   renders a MENU: [data-component-name="theme-preference-menu"], trigger id
-   #theme-preference-menu-trigger, offering System / Light / Dark. Both
-   selectors are kept so this survives a theme change or a Mintlify rename —
-   exactly the fragility that 20-mintlify.css exists to absorb. */
+/* ─── Theme control ──────────────────────────────────────────────────────
+   A rounded square instead of a circle, at the same radius as the nav pills
+   and sidebar rows.
+
+   Deliberately COSMETIC ONLY — radius, border, colour, padding. Two earlier
+   attempts broke this control:
+
+     1. Styling through [data-component-name="theme-preference-menu"], which is
+        on the trigger AND on the dropdown panel, crushed the open menu to
+        128x36 so the three options had nowhere to render.
+     2. Forcing display/width/height/place-items on the trigger overrides
+        Mintlify's own internal layout for the button's contents, which sits
+        inside an overflow-hidden box.
+
+   So: never touch this control's display or box sizing, and never select it by
+   the shared component-name. Grow it with padding, target the trigger's own id
+   or component-part, and leave everything else to Mintlify. */
 
 [data-component-name="theme-toggle"],
-[data-component-name="theme-preference-menu"],
+[data-component-part="theme-preference-menu-trigger"],
 #theme-preference-menu-trigger {
-  border-radius: var(--r-pill);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
   color: var(--text-muted);
+  /* min-* rather than width/height: this grows the control from Mintlify's
+     30px without replacing its own display mode or internal centring. */
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  /* Alignment only. Mintlify already makes this a flex container, so centring
+     its contents is additive — unlike replacing `display`, which is what broke
+     it before. */
+  justify-content: center;
+  align-items: center;
   transition: color var(--dur-base) var(--ease-soft),
               background-color var(--dur-base) var(--ease-soft),
-              transform var(--dur-fast) var(--ease-brand);
+              border-color var(--dur-base) var(--ease-soft);
 }
 
 [data-component-name="theme-toggle"]:hover,
-[data-component-name="theme-preference-menu"]:hover,
+[data-component-part="theme-preference-menu-trigger"]:hover,
 #theme-preference-menu-trigger:hover {
   color: var(--accent);
+  border-color: var(--accent);
   background-color: color-mix(in srgb, var(--accent) 10%, transparent);
 }
-
-[data-component-name="theme-toggle"]:active,
-#theme-preference-menu-trigger:active { transform: scale(0.94); }
 
 /* ─── Code blocks ─────────────────────────────────────────────────────────
    Shiki themes are set per-mode in docs.json (styling.codeblocks). This is
@@ -297,12 +347,42 @@ pagination-next:hover {
   box-shadow: var(--shadow-md);
 }
 
-/* ─── Footer ──────────────────────────────────────────────────────────────── */
+/* ─── Footer ──────────────────────────────────────────────────────────────
+   #footer is a sibling of the content column inside #body-content, so it spans
+   the content column AND the table-of-contents column — it ran ~480px further
+   right than the article it belongs to, which looked broken once the content
+   container was widened.
 
+   Align it to the article: the same left inset Mintlify gives #content-container
+   (lg:pl-[5.5rem]) and the same right reserve it gives #content-area
+   (xl:w-[calc(100%-28rem)]). The inner container's own px-8 is subtracted so
+   the footer's text lines up with the body text, not 2rem inside it. */
+
+/* Transparent rather than an explicit --surface fill. The page ground carries a
+   fixed radial gradient wash (see #background-color above), so painting the
+   footer a flat --surface would match the base colour but still show a seam
+   where the wash falls. Letting the page show through is what actually reads as
+   "the same background", in both modes. The top border is then the only thing
+   delineating the footer, which is enough. */
 #footer {
-  background-color: var(--surface-sunken);
+  background-color: transparent;
   border-top: 1px solid var(--border);
   color: var(--text-muted);
+}
+
+/* Constrain the FOOTER BOX, not just its padding — the tinted band itself was
+   what ran past the article. margin-start matches #content-container's
+   lg:pl-[5.5rem]; max-width additionally reserves the 28rem table-of-contents
+   column, so the band stops short of where "On this page" ends. The inner
+   container's own px-8 is zeroed so footer text lines up with body text. */
+
+@media (min-width: 1024px) {
+  #footer { margin-inline-start: 5.5rem; }
+  #footer > div { padding-inline: 0; }
+}
+
+@media (min-width: 1280px) {
+  #footer { max-width: calc(100% - 5.5rem - 28rem); }
 }
 
 #footer a {
@@ -321,8 +401,17 @@ pagination-next:hover {
    running text is separately capped at --measure below — so the extra width
    goes to cards, tables, media and diagrams, which is where it is useful. */
 
+/* margin-inline: auto is REQUIRED here, not cosmetic. Mintlify only gives
+   #body-content `mx-auto` on non-custom pages, so on the landing page
+   (mode: "custom") capping its width without auto margins pinned the whole
+   page to the left — at 1600px the content centred on 768 against a viewport
+   centre of 800. Doc pages already centre, so this is a no-op for them. */
+
 @media (min-width: 1536px) {
-  #body-content      { max-width: min(96vw, 1840px); }
+  #body-content {
+    max-width: min(96vw, 1840px);
+    margin-inline: auto;
+  }
   #content-container { max-width: min(94vw, 1560px); }
 }
 
@@ -352,6 +441,53 @@ pagination-next:hover {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
+}
+
+/* ─── Scroll-entry reveal ─────────────────────────────────────────────────
+   A subtle fade-and-rise the first time a block scrolls into view, like the
+   source guide had.
+
+   CSS scroll-driven animations, NOT JavaScript. `animation-timeline: view()`
+   ties progress to the element's position in the viewport, so there is no
+   observer, no state and nothing to re-fire — an element already on screen at
+   load sits at 100% progress and simply appears.
+
+   Gated three ways so it can never hide content:
+     · @supports — Firefox has no support yet; without it there is no animation
+       and therefore no initial hidden state.
+     · prefers-reduced-motion: no-preference.
+     · scoped to the guide page, so doc pages stay still.
+
+   Only block-level sections are targeted, not every leaf, so a long page does
+   not animate hundreds of nodes. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html[data-current-path="/publisher/best-practices"] :is(
+      .bp-readme,
+      .bp-outcome-head,
+      .bp-sub-title,
+      .bp-dodont,
+      .bp-copies,
+      .bp-tip,
+      .bp-prompt,
+      .bp-placements,
+      .bp-chaptered,
+      .bp-coinbar,
+      .bp-stage,
+      .bp-fullflow,
+      .bp-close
+    ) {
+      animation: bp-reveal 520ms var(--ease-brand) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 42%;
+    }
+  }
+}
+
+@keyframes bp-reveal {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Content width ───────────────────────────────────────────────────────

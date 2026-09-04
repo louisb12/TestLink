@@ -881,3 +881,83 @@ returns on scroll up; the sidebar is sticky. `mint dev` unchanged.
 
 **Standing rule: never put a comment inside an `export const` block in MDX.** Explain the code
 in a page-level comment block, or in `.claude/docs/`.
+
+---
+
+## D-032 — Design polish pass: four more undocumented Mintlify behaviours
+
+A round of adjustments from Lou surfaced four platform behaviours that are not in the docs.
+All were found by measurement, and each had already caused a visible bug.
+
+### 1. Headings are FLEX containers — `text-align` is inert on them
+
+Mintlify renders a heading with `display: flex` (the class list literally includes `flex`), the
+text inside a `<span>`, and an anchor-link `<div>` beside it. So `text-align: center` does
+nothing: the span sits at flex-start.
+
+This silently left-aligned the guide's hero title while the logo above and sub-head below it
+centred correctly — which read as "the title isn't centred" without any obvious cause.
+**Use `justify-content`.** Keep `text-align` as well, for when the text wraps to two lines.
+
+A second, compounding cause on the same element: `--fs-display` caps at 96px, but "Best
+Practices" in an expanded face needs ~750px at that size while the column is 470–730px. The
+line **overflowed its box**, and no alignment can centre a line wider than its container. The
+hero title now has its own step capped at 68px.
+
+### 2. `mode: "custom"` pages get no `mx-auto`
+
+Mintlify only applies `mx-auto` to `#body-content` on **non-custom** pages. The wide-screen
+`max-width` override from D-030 therefore pinned the landing page to the left — at 1600px its
+content centred on 768 against a viewport centre of 800.
+
+**Any width cap on `#body-content` must ship with `margin-inline: auto`.** It is a no-op for
+doc pages, which already centre.
+
+### 3. The theme control's `data-component-name` is shared with its dropdown panel
+
+`[data-component-name="theme-preference-menu"]` matches the trigger **and** the open menu's
+content panel. Sizing through it crushed the menu to 128×36 with `inline-grid`, so the three
+options had nowhere to render and the control looked completely broken.
+
+Two rules for that control:
+- Select it by `#theme-preference-menu-trigger` or
+  `[data-component-part="theme-preference-menu-trigger"]`, never the shared name.
+- Style it **cosmetically only**. Overriding `display` / `width` / `height` replaces Mintlify's
+  internal layout for the button's contents, which live in an `overflow: hidden` box. Grow it
+  with `min-width` / `min-height`, and centre with `justify-content` / `align-items` — those
+  are additive on the flex container it already is.
+
+Note for future debugging: the dropdown is portaled and **does not composite into headless
+screenshots**, even when it is present, positioned and hit-testable. Verifying it visually in
+headless is unreliable — drive it functionally instead.
+
+### 4. `#background-color` is a `position: fixed` layer
+
+It sits on top of body's background, so whatever gradient it carries is locked to the screen.
+The page wash was two blooms near the top of the *viewport*, which meant that at every scroll
+depth the colour was up in the header area and the rest of the screen was flat — reading as
+"the gradient is only at the top".
+
+Distributing the blooms across the **full viewport height** fixes it. Document-positioned
+gradients were tried first and collapsed back to the top: body's background resolves against
+the **viewport-sized root element**, not the document scroll height.
+
+---
+
+## D-033 — Light mode is now white-based, not Cream (brand deviation)
+
+`--surface` is `#FFFFFF`, on Lou's instruction. This **contradicts a stated brand rule** —
+CLAUDE.md §6 says light mode is Cream-based, `#F1EFEA` page with white raised cards — so it is
+recorded here rather than left to look like drift.
+
+Two consequences handled:
+
+- Cards were white on Cream; they are now white on white, so their edges come from a hairline
+  border plus a soft shadow instead of a fill difference. `--border` went from 12% to 15% to
+  carry that weight.
+- **Cream is retained as `--surface-sunken`** — wells, code blocks, callouts, the footer — so
+  the palette still reads warm rather than clinical, and the brand colour is not simply
+  dropped.
+
+Contrast re-audited on the new ground: body text 14.46 AAA, muted 5.64 AA, links 8.36 AAA.
+`docs.json`'s `background.color.light` was updated to match, since JSON cannot read the tokens.

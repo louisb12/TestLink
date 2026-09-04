@@ -3,7 +3,7 @@
 **Generated** by `node scripts/contrast-audit.mjs` from `styles/00-tokens.css`.
 Do not edit by hand — regenerate whenever a colour changes.
 
-Generated: 2026-09-02
+Generated: 2026-09-04
 
 Thresholds: body text **4.5** (AAA 7.0) · large text **3.0** (AAA 4.5) · UI/borders **3.0**.
 Translucent tokens are composited over their backdrop before measuring.
@@ -12,21 +12,21 @@ Translucent tokens are composited over their backdrop before measuring.
 
 | Pair | Foreground | Background | Ratio | Required | Rating |
 |---|---|---|---|---|---|
-| Body text on page | `--text` #0D2A4C | `--surface` #F1EFEA | **12.58** | 4.5 | AAA |
+| Body text on page | `--text` #0D2A4C | `--surface` #FFFFFF | **14.46** | 4.5 | AAA |
 | Body text on raised card | `--text` #0D2A4C | `--surface-raised` #FFFFFF | **14.46** | 4.5 | AAA |
-| Muted text on page | `--text-muted` #56697F | `--surface` #F1EFEA | **4.91** | 4.5 | AA |
+| Muted text on page | `--text-muted` #56697F | `--surface` #FFFFFF | **5.64** | 4.5 | AA |
 | Muted text on raised card | `--text-muted` #56697F | `--surface-raised` #FFFFFF | **5.64** | 4.5 | AA |
-| Link / accent on page | `--accent` #0021F3 | `--surface` #F1EFEA | **7.28** | 4.5 | AAA |
+| Link / accent on page | `--accent` #0021F3 | `--surface` #FFFFFF | **8.36** | 4.5 | AAA |
 | Link / accent on raised card | `--accent` #0021F3 | `--surface-raised` #FFFFFF | **8.36** | 4.5 | AAA |
 | Button label on accent fill | `--accent-contrast` #FFFFFF | `--accent` #0021F3 | **8.36** | 4.5 | AAA |
 | Label on bold (Lead Blue) fill | `--accent-bold-contrast` #FFFFFF | `--accent-bold` #0021F3 | **8.36** | 4.5 | AAA |
 | Text on callout ground | `--text` #0D2A4C | `--callout-bg` #F1EFEA | **12.56** | 4.5 | AAA |
 | Text on inverse panel | `--text-inverse` #FFFFFF | `--surface-inverse` #0D2A4C | **14.46** | 4.5 | AAA |
-| Heading on sunken well | `--text` #0D2A4C | `--surface-sunken` #E3E3E1 | **11.27** | 3.0 | AAA |
-| Focus ring on page | `--accent` #0021F3 | `--surface` #F1EFEA | **7.28** | 3.0 | AAA |
+| Heading on sunken well | `--text` #0D2A4C | `--surface-sunken` #F6F5F2 | **13.27** | 3.0 | AAA |
+| Focus ring on page | `--accent` #0021F3 | `--surface` #FFFFFF | **8.36** | 3.0 | AAA |
 | Focus ring on raised card | `--accent` #0021F3 | `--surface-raised` #FFFFFF | **8.36** | 3.0 | AAA |
-| Decorative border on page | `--border-strong` #B6BCC1 | `--surface` #F1EFEA | **1.67** | n/a | decorative — exempt |
-| Decorative border on card | `--border-strong` #C0C8D0 | `--surface-raised` #FFFFFF | **1.70** | n/a | decorative — exempt |
+| Decorative border on page | `--border-strong` #BBC3CD | `--surface` #FFFFFF | **1.77** | n/a | decorative — exempt |
+| Decorative border on card | `--border-strong` #BBC3CD | `--surface-raised` #FFFFFF | **1.77** | n/a | decorative — exempt |
 
 ## Dark mode
 

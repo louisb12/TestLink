@@ -32,11 +32,14 @@
      Only this layer is redefined for dark mode. No colour's sole definition
      may live inside a dark-mode block. */
 
-  /* Surfaces. Light mode is Cream-based, not white: the page is Cream and
-     raised cards are White. That contrast is what makes it read as designed. */
-  --surface:         var(--brand-cream);
+  /* Surfaces. NOTE: the brand book specifies a Cream page with white cards;
+     Lou asked for a straight-white page instead, so the page is #FFFFFF and
+     cards are separated by a hairline border plus a soft shadow rather than by
+     a fill difference. Cream is retained as the sunken tone (wells, code
+     blocks, footer) so the palette still reads warm rather than clinical. */
+  --surface:         var(--brand-white);
   --surface-raised:  var(--brand-white);
-  --surface-sunken:  color-mix(in srgb, var(--brand-cream) 94%, var(--brand-midnight));
+  --surface-sunken:  color-mix(in srgb, var(--brand-cream) 62%, var(--brand-white));
   --surface-inverse: var(--brand-midnight);
 
   /* Text. No coloured body type — Midnight on light, White on dark. */
@@ -45,8 +48,10 @@
   --text-inverse:    var(--brand-white);
 
   /* Borders */
-  --border:          color-mix(in srgb, var(--brand-midnight) 12%, transparent);
-  --border-strong:   color-mix(in srgb, var(--brand-midnight) 26%, transparent);
+  /* Slightly stronger than before: with a white page and white cards, the
+     border is what separates them, so it has to carry a little more weight. */
+  --border:          color-mix(in srgb, var(--brand-midnight) 15%, transparent);
+  --border-strong:   color-mix(in srgb, var(--brand-midnight) 28%, transparent);
 
   /* Accent. Lead Blue is the hero colour in light mode — be bold with it. */
   --accent:          var(--brand-lead-blue);
@@ -88,8 +93,10 @@
   --decor-c:         color-mix(in srgb, var(--brand-lead-blue) 12%, transparent);
 
   /* Page gradient wash. Subtle means subtle: depth and warmth, not a feature. */
-  --wash-1:          color-mix(in srgb, var(--brand-sky) 12%, transparent);
-  --wash-2:          color-mix(in srgb, var(--brand-clay) 14%, transparent);
+  /* Slightly softer than on the old Cream ground — the same tint reads stronger
+     against white. */
+  --wash-1:          color-mix(in srgb, var(--brand-sky) 15%, transparent);
+  --wash-2:          color-mix(in srgb, var(--brand-clay) 16%, transparent);
 
   /* Elevation. Midnight-tinted rather than neutral grey. */
   --shadow-sm: 0 1px 2px color-mix(in srgb, var(--brand-midnight) 6%, transparent);

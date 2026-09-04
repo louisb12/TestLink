@@ -21,6 +21,14 @@ html[data-current-path="/publisher/best-practices"],
   --bp-dont-tint: color-mix(in srgb, var(--text) 6%, var(--surface-raised));
   --bp-dont-line: color-mix(in srgb, var(--text) 16%, transparent);
   --bp-dont-mark: color-mix(in srgb, var(--text) 62%, transparent);
+
+  /* One media scale for the whole guide, so every screenshot reads as part of
+     the same set. Inline media is a thumbnail — detail lives in the lightbox,
+     which is what the click hint points at. */
+  --bp-phone-h: 570px;
+  --bp-icon-w: 150px;
+  --bp-wide-w: 540px;
+  --bp-place-h: 290px;
 }
 
 /* ─── List reset ──────────────────────────────────────────────────────────
@@ -31,7 +39,7 @@ html[data-current-path="/publisher/best-practices"],
    Every list in this guide is a layout construct — check rows, chapters,
    ship-ready copy — so both the pseudo-element and the padding must go. */
 
-.bp-points, .bp-checks, .bp-chapters, .bp-copies ul {
+.bp-points, .bp-checks, .bp-chapters, .bp-copies ul, .bp-placements {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -39,7 +47,8 @@ html[data-current-path="/publisher/best-practices"],
 .bp-points > li,
 .bp-checks > li,
 .bp-chapters > li,
-.bp-copies ul > li {
+.bp-copies ul > li,
+.bp-placements > li {
   list-style: none;
   margin: 0;
   padding-inline-start: 0;
@@ -47,11 +56,29 @@ html[data-current-path="/publisher/best-practices"],
 .bp-points > li::before,
 .bp-checks > li::before,
 .bp-chapters > li::before,
-.bp-copies ul > li::before { display: none; content: none; }
+.bp-copies ul > li::before,
+.bp-placements > li::before { display: none; content: none; }
 .bp-points > li::marker,
 .bp-checks > li::marker,
 .bp-chapters > li::marker,
-.bp-copies ul > li::marker { content: none; }
+.bp-copies ul > li::marker,
+.bp-placements > li::marker { content: none; }
+
+/* ─── One hero, not two ───────────────────────────────────────────────────
+   Mintlify renders its own page header (eyebrow + title + description) from
+   frontmatter, which said almost exactly what the branded hero below says.
+   Hide the text half on this page only and keep #page-context-menu, so the
+   "Copy page" control survives. Selector is by exclusion rather than by
+   Tailwind class, which would be brittle. */
+
+html[data-current-path="/publisher/best-practices"] #header > div:not(#page-context-menu) {
+  display: none;
+}
+
+html[data-current-path="/publisher/best-practices"] #header {
+  min-height: 0;
+  margin-bottom: 0;
+}
 
 /* ─── Hero ────────────────────────────────────────────────────────────────── */
 
@@ -90,23 +117,49 @@ html[data-current-path="/publisher/best-practices"],
 
 .bp-hero-inner { position: relative; z-index: 1; }
 
-.bp-hero-logo {
+/* The page-wide `img { margin: 0 }` reset further down (needed because
+   Mintlify's prose puts 2em margins on every image) also wiped this logo's
+   auto side-margins, which left it hard against the left edge of the column.
+   Restated here with enough specificity to win. */
+html[data-current-path="/publisher/best-practices"] .bp-hero-logo {
   height: 44px;
   width: auto;
-  margin: 0 auto var(--sp-5);
   display: block;
+  margin-block: 0 var(--sp-5);
+  margin-inline: auto;
 }
 /* The lockup is a flat blue PNG; invert it so it survives the Midnight ground. */
 .dark .bp-hero-logo { filter: brightness(0) invert(1); }
 
+/* Its own step, not --fs-display.
+
+   --fs-display caps at 96px, but "Best Practices" in an expanded face needs
+   ~750px at that size while this column is only 470-730px wide. The line
+   overflowed its box, and `text-align: center` cannot centre a line wider than
+   its container — the text anchored left and spilled right, which is what read
+   as "not centred".
+
+   Capped at 68px it fits on one centred line on a wide column and breaks to two
+   centred lines on a narrow one. Both are correct; neither overflows. */
+/* Mintlify renders headings as FLEX containers (their class list literally
+   includes `flex`) with the text in a <span> and an anchor-link <div> beside
+   it. `text-align: center` is therefore inert — the span sat at flex-start,
+   which is why the title read left while the logo and sub-head above and below
+   it were centred. justify-content is what actually centres it; text-align is
+   kept so the text still centres once it wraps to two lines. */
 .bp-hero-title {
+  display: flex;
+  justify-content: center;
+  text-align: center;
   font-family: var(--font-heading);
   font-weight: var(--fw-heading);
-  font-size: var(--fs-display);
+  font-size: clamp(2.25rem, 1rem + 4.6vw, 4.25rem);
   line-height: var(--lh-display);
   letter-spacing: var(--tr-display);
   color: var(--text);
   margin: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .bp-hero-sub {
@@ -337,13 +390,84 @@ html[data-current-path="/publisher/best-practices"],
 .bp-lb-frame > img,
 .bp-media img,
 .bp-media video { margin: 0; }
-.bp-frame-phone { aspect-ratio: 880 / 1920; }
-.bp-frame-icon  { aspect-ratio: 1 / 1; background-color: transparent; }
-.bp-frame-wide  { aspect-ratio: 16 / 10; }
+
+/* Mintlify's prose gives every <img> `margin: 2em 0`. On this page no image is
+   ever a standalone prose figure — they are all inside a frame or are UI
+   chrome (the Link Coin icons) — so the margin is always wrong here. It was
+   inflating the coin chips to nearly three times their intended height. */
+html[data-current-path="/publisher/best-practices"] img,
+html[data-current-path="/publisher/best-practices"] video {
+  margin: 0;
+}
+/* Capped by HEIGHT and sized to the image, not to a fixed ratio.
+
+   The screenshots are not all the same aspect — the pop-up pair is 0.554, the
+   Earn Tab pair 0.4583 — so a single fixed frame ratio letterboxed one of them
+   by ~99px and showed the frame's tint as grey bands above and below. Letting
+   each frame take its image's own shape removes that, and capping height keeps
+   every screenshot the same visual size down the page. */
+.bp-frame-phone {
+  aspect-ratio: auto;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  background-color: transparent;
+}
+
+.bp-frame-phone > img,
+.bp-frame-phone > video {
+  max-height: var(--bp-phone-h);
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+.bp-frame-icon {
+  aspect-ratio: 1 / 1;
+  background-color: transparent;
+  max-width: var(--bp-icon-w);
+  margin-inline: auto;
+}
+.bp-frame-wide {
+  aspect-ratio: 16 / 10;
+  max-width: var(--bp-wide-w);
+  margin-inline: auto;
+}
 /* The shop screenshot is 1920x660. Its own ratio, so it is not letterboxed
    into a 16/10 box. */
-.bp-frame-shop  { aspect-ratio: 1920 / 660; }
-.bp-frame-auto  { aspect-ratio: auto; cursor: default; }
+.bp-frame-shop {
+  aspect-ratio: 1920 / 660;
+  max-width: var(--bp-wide-w);
+  margin-inline: auto;
+}
+
+
+
+/* Placement rows sit beside their text, so their media is capped tighter than
+   a standalone screenshot. */
+.bp-frame-place {
+  aspect-ratio: 880 / 1920;
+  max-height: var(--bp-place-h);
+  width: auto;
+  margin-inline: auto;
+}
+/* Videos let their own intrinsic aspect govern, so the height cap has to be
+   applied to the media element for the width to follow. Without this the
+   timing videos sat 111px wider than the screenshots beside them. */
+.bp-frame-auto {
+  aspect-ratio: auto;
+  cursor: default;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+.bp-frame-auto > video,
+.bp-frame-auto > img {
+  max-height: var(--bp-phone-h);
+  width: auto;
+  height: auto;
+  max-width: 100%;
+}
 
 .bp-frame-emphasize { outline: 2px solid var(--bp-do); outline-offset: 3px; }
 
@@ -354,12 +478,6 @@ html[data-current-path="/publisher/best-practices"],
   color: var(--text-muted);
 }
 
-/* Inside a Do/Don't pair the two captions are rarely the same length, which
-   pushes the two point lists to different heights and makes the comparison
-   harder to read across. Reserve a consistent block so the rows line up. */
-@media (min-width: 720px) {
-  .bp-dodont .bp-caption { min-height: 5.8em; }
-}
 
 /* ─── Pointer arrow ───────────────────────────────────────────────────────
    Drawn over a screenshot to say "look at this element". The colour is a
@@ -368,13 +486,21 @@ html[data-current-path="/publisher/best-practices"],
 .bp-arrow {
   position: absolute;
   z-index: 3;
-  height: 26px;
   pointer-events: none;
   transform-origin: 100% 50%;
   color: var(--annotate-red);
   filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--brand-black) 45%, transparent));
 }
-.bp-arrow svg { display: block; }
+
+/* Length is a PERCENTAGE of the image width, not a pixel value, so the arrow
+   keeps its proportions at any media size — a 96px arrow on a 105px-wide
+   thumbnail was wider than the thing it pointed at. The SVG scales with the
+   span, so stroke weight scales too. */
+.bp-arrow svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 
 /* Screen-reader-only text for the arrow's meaning. */
 .bp-sr {
@@ -387,49 +513,66 @@ html[data-current-path="/publisher/best-practices"],
   border: 0;
 }
 
-/* ─── Thumbnail affordance ────────────────────────────────────────────────
-   An annotated image is worthless if nobody realises it is annotated. The
-   thumbnail advertises how many notes are behind it. */
+/* ─── Click hint ──────────────────────────────────────────────────────────
+   Replaces the old "N what to look at" pill, which sat on top of the
+   screenshot and obscured it. Ported from the source guide: a pulsing halo, a
+   scrim and a magnifier badge, shown once when the image first scrolls into
+   view, dismissed on click and remembered in localStorage.
 
-.bp-frame-hint {
+   This is the one looping animation in the guide. It is a one-time onboarding
+   cue over an image — never near running text — it self-dismisses on the first
+   click, and it is suppressed entirely under prefers-reduced-motion (in JS, so
+   the observer never even starts). */
+
+.bp-hint {
   position: absolute;
-  right: var(--sp-2);
-  bottom: var(--sp-2);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  border-radius: var(--r-pill);
-  padding: 0.3em 0.7em;
-  background-color: color-mix(in srgb, var(--brand-midnight) 78%, transparent);
-  backdrop-filter: blur(6px);
-  color: var(--brand-white);
-  font-size: var(--fs-eyebrow);
-  font-weight: var(--fw-bold);
-  letter-spacing: var(--tr-button);
-  line-height: 1;
+  inset: 0;
+  z-index: 4;
   pointer-events: none;
-  opacity: 0.9;
-  transition: opacity var(--dur-fast) var(--ease-soft),
-              transform var(--dur-fast) var(--ease-brand);
+  border-radius: var(--r-lg);
 }
-.bp-frame:hover .bp-frame-hint { opacity: 1; transform: translateY(-2px); }
-.bp-frame-icon .bp-frame-hint { display: none; }   /* too small to carry it */
 
-/* A frame with no annotations has nothing to advertise, so its plain "Enlarge"
-   badge is pure obstruction — reveal it on hover only. Annotated frames keep
-   their count visible, because that is the discoverability cue. */
-.bp-frame:not(:has(.bp-frame-hint-n)) .bp-frame-hint { opacity: 0; }
-.bp-frame:not(:has(.bp-frame-hint-n)):hover .bp-frame-hint { opacity: 1; }
+.bp-hint-halo {
+  position: absolute;
+  inset: -3px;
+  border-radius: calc(var(--r-lg) + 3px);
+  box-shadow: 0 0 0 3px var(--accent-bold);
+  animation: bp-hint-halo 1.8s var(--ease-soft) infinite;
+}
 
-.bp-frame-hint-n {
+.bp-hint-scrim {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-lg);
+  background-color: color-mix(in srgb, var(--brand-midnight) 25%, transparent);
+}
+
+.bp-hint-tap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   display: grid;
   place-items: center;
-  min-width: 1.15rem;
-  height: 1.15rem;
-  padding-inline: 0.25em;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin: -1.625rem 0 0 -1.625rem;
   border-radius: var(--r-pill);
   background-color: var(--accent-bold);
   color: var(--accent-bold-contrast);
+  box-shadow: var(--shadow-lg);
+  animation: bp-hint-tap 1.4s var(--ease-soft) infinite;
+}
+.bp-hint-tap svg { width: 1.5rem; height: 1.5rem; }
+
+@keyframes bp-hint-halo {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-bold) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 18px color-mix(in srgb, var(--accent-bold) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-bold) 0%, transparent); }
+}
+
+@keyframes bp-hint-tap {
+  0%, 100% { transform: scale(1); opacity: 0.92; }
+  50%      { transform: scale(1.3); opacity: 0.4; }
 }
 
 /* ─── Lightbox ────────────────────────────────────────────────────────────── */
@@ -873,74 +1016,153 @@ dialog.bp-lightbox::backdrop { background: transparent; }
 }
 .bp-tip p { margin: var(--sp-3) 0 0; font-size: var(--fs-small); line-height: var(--lh-body); color: var(--text); }
 
-/* ─── Placement cards ─────────────────────────────────────────────────────── */
+/* ─── Placement grid ──────────────────────────────────────────────────────
+   These screenshots are 0.458 aspect, so any BIG rendering of a whole phone is
+   also very tall — which is why the earlier row layouts were either enormous or
+   had thumbnails too small to read.
 
-.bp-placements { display: grid; gap: var(--sp-4); margin-top: var(--sp-6); }
-@media (min-width: 720px) { .bp-placements-2 { grid-template-columns: 1fr 1fr; } }
+   Resolved by cropping to the region that matters. The frame is a short, wide
+   window; the image sits inside it at full column width, anchored to whichever
+   edge holds the thing being pointed at. So the visual is ~2.7x wider than the
+   row layout managed while the section is shorter, and clicking still opens the
+   whole uncropped screen in the lightbox.
+
+   The arrows stay exact because they are absolutely positioned inside
+   .bp-crop-inner, whose box IS the image — a percentage there is a percentage
+   of the picture, not of the crop window. */
+
+.bp-placements {
+  display: grid;
+  gap: var(--sp-5) var(--sp-4);
+  margin-top: var(--sp-5);
+}
+
+@media (min-width: 720px) {
+  .bp-placements { grid-template-columns: 1fr 1fr; }
+  .bp-place-wide { grid-column: 1 / -1; }
+}
 
 .bp-place {
   display: flex;
   flex-direction: column;
-  border-radius: var(--r-2xl);
-  border: 1px solid var(--border);
-  background-color: var(--surface-sunken);
-  padding: var(--sp-4);
+  gap: var(--sp-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: none;
+  border: 0;
 }
+
+/* The crop window. 5/4 keeps enough of the surrounding screen for "corner" and
+   "above the nav" to still read as positions, while cutting the dead middle. */
+.bp-crop {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  border-radius: var(--r-lg);
+  background-color: color-mix(in srgb, var(--text) 6%, transparent);
+  cursor: zoom-in;
+}
+
+.bp-crop-inner {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 100%;
+  aspect-ratio: 880 / 1920;
+}
+
+.bp-crop-top .bp-crop-inner { top: 0; }
+.bp-crop-bottom .bp-crop-inner { bottom: 0; }
+
+.bp-crop-inner > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  margin: 0;
+}
+
+.bp-crop:hover { outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+
+/* The shop screenshot is already wide — no crop, just full width. */
+.bp-place-wide .bp-frame-shop { max-width: 100%; }
+
+.bp-place-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.bp-place-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.bp-place-n {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--r-pill);
+  background-color: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+}
+
 .bp-place h4 {
+  font-family: var(--font-body);
   font-size: var(--fs-h4);
   font-weight: var(--fw-bold);
   color: var(--text);
-  margin: var(--sp-4) 0 var(--sp-1);
-}
-.bp-place p { margin: 0; font-size: var(--fs-small); line-height: var(--lh-body); color: var(--text-muted); }
-.bp-place .bp-media { margin-top: var(--sp-4); }
-
-/* Placement frames size to their image instead of to a fixed aspect box.
-
-   A fixed `aspect-ratio` + `object-fit: contain` frame kept clipping the
-   bottom of the banner screenshot — which is precisely the Freecash offer bar
-   the card exists to show. Letting the image set the height removes the whole
-   class of problem: there is no box for it to overflow, so nothing can be cut,
-   at any width.
-
-   It also makes the pointer arrows exact. With `height: auto` the frame is
-   the image, so an arrow at `top: 93%` is at 93% of the picture rather than
-   93% of a box the picture is floating inside.
-
-   Both cards are the same width and both screenshots are ~0.46 aspect, so the
-   two render within a few pixels of each other — a matched pair without a
-   crop. */
-.bp-place .bp-frame,
-.bp-fullflow .bp-frame {
-  aspect-ratio: auto;
-  overflow: visible;
-  background-color: transparent;
+  margin: 0;
 }
 
-.bp-place .bp-frame > img,
-.bp-fullflow .bp-frame > video {
-  height: auto;
-  object-fit: fill;
-  border-radius: var(--r-lg);
-}
-
-/* Captions vary in length; reserve a common block so the headline and body of
-   the two side-by-side cards stay aligned. */
-@media (min-width: 720px) {
-  .bp-placements-2 .bp-caption { min-height: 4.4em; }
+.bp-place p {
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  color: var(--text-muted);
+  max-width: 52ch;
 }
 
 /* ─── Full user flow ──────────────────────────────────────────────────────
-   A portrait phone recording at full column width is enormous on a wide
-   screen — and now that the content column grows to ~1230px, more so. Cap it
-   to something closer to the size of the device it was recorded on. */
+   Deliberately EXEMPT from the shared --bp-phone-h cap. This is the page's one
+   end-to-end recording and it was already the right size; the cap shrank it by
+   ~17%. Capped by width instead so it stays a phone-sized player. */
 
 .bp-fullflow {
   margin-top: var(--sp-6);
   max-width: 330px;
 }
 
-.bp-fullflow .bp-frame { background-color: transparent; }
+.bp-fullflow .bp-frame,
+.bp-fullflow .bp-frame-auto {
+  background-color: transparent;
+  width: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  overflow: visible;
+}
+
+.bp-fullflow .bp-frame-auto > video {
+  max-height: none;
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-lg);
+}
 
 /* ─── Checklist ───────────────────────────────────────────────────────────── */
 
@@ -960,8 +1182,8 @@ dialog.bp-lightbox::backdrop { background: transparent; }
   background-color: var(--bp-do-tint);
   padding: var(--sp-2) var(--sp-4);
 }
-.bp-coinpill img { width: 1.75rem; height: 1.75rem; }
-.bp-coinpill span { font-weight: var(--fw-bold); color: var(--accent); font-size: 1.05rem; }
+.bp-coinpill img { width: 2.75rem; height: 2.75rem; }
+.bp-coinpill span { font-weight: var(--fw-bold); color: var(--accent); font-size: 1.15rem; }
 .bp-coinbar-note {
   font-size: var(--fs-eyebrow);
   font-weight: var(--fw-bold);
@@ -1016,14 +1238,14 @@ dialog.bp-lightbox::backdrop { background: transparent; }
   display: inline-flex; align-items: center; gap: var(--sp-2);
   border-radius: var(--r-sm);
   background-color: var(--surface-raised);
-  padding: 0.3em 0.8em;
+  padding: 0.35em 0.7em;
   font-size: var(--fs-eyebrow);
   font-weight: var(--fw-bold);
   letter-spacing: var(--tr-eyebrow);
   text-transform: uppercase;
   color: var(--text-muted);
 }
-.bp-stage-score img { width: 1.1rem; height: 1.1rem; }
+.bp-stage-score img { width: 1.9rem; height: 1.9rem; }
 
 .bp-progress { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-4); }
 .bp-progress-track {
@@ -1132,6 +1354,21 @@ dialog.bp-lightbox::backdrop { background: transparent; }
   max-width: 44rem;
   color: color-mix(in srgb, var(--accent-bold-contrast) 90%, transparent);
   line-height: var(--lh-body);
+}
+
+/* Mintlify autolinks the bare email, and the resulting link inherits the prose
+   link colour — near-black in light mode, i.e. invisible on the Lead Blue
+   panel. Force it to the panel's own contrast colour, in both modes. */
+.bp-close a:not(.bp-btn-onblue) {
+  color: var(--accent-bold-contrast);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1.5px;
+  font-weight: var(--fw-medium);
+}
+.bp-close a:not(.bp-btn-onblue):hover {
+  color: var(--accent-bold-contrast);
+  text-decoration-thickness: 2.5px;
 }
 .bp-close-blob {
   position: absolute; bottom: -40%; right: -8%;
