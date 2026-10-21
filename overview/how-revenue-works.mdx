@@ -7,23 +7,34 @@ icon: "trending-up"
 This page explains where the money comes from, how it is measured, and when it reaches you.
 It is written for commercial readers — no SDK knowledge assumed.
 
-<div className="al-todo">
+## Two streams, one integration
 
-**TODO(copy)** — the revenue model.
+**You are paid per verified link.** A player connects their Freecash account from inside your
+game, and that link is the billable event. New and existing Freecash users both count.
 
-<strong>This page needs real numbers and cannot be drafted without them.</strong> Revenue
-share, rates, minimums, payment terms and reporting cadence are all commercially sensitive and
-none of them appear anywhere in the source material for this site. Writing plausible-looking
-figures here would be worse than shipping the gap.
+**You are paid a CPA on Earn Tab installs.** Once a player has linked, the Earn Tab shows them
+other games to install. When one of those installs reaches its milestone — usually around
+level 2 of the new game — you are paid for it.
 
-Needed from the team:
+The second stream only exists because of the first. You earn for linking your players, then
+earn again when those players discover new games through you.
 
-- How revenue is generated, in plain language.
-- The revenue share or rate structure, and whether it is publicly stated at all.
-- How and when publishers are paid, and the reporting they get.
-- What is measured, and which of those measurements a publisher can see themselves.
+Neither stream touches your own monetisation. The rewards players earn on Freecash are funded
+by Almedia, not drawn from your economy.
 
-</div>
+<Info>
+  **TODO(copy)** — the commercial terms. Rates, CPA levels, milestone definitions, minimums,
+  payment terms and reporting cadence all come from your account manager today, and none of
+  them appear in the source material for this site.
+
+  What this page still needs from the team:
+
+  - The rate structure, and whether any of it is stated publicly at all.
+  - How and when publishers are paid.
+  - What reporting they receive, and how often.
+
+  Writing plausible-looking figures here would be worse than shipping the gap.
+</Info>
 
 ## What you can measure
 
@@ -31,13 +42,29 @@ Attribution runs through your existing MMP. Setup guides:
 [Adjust](/publisher/mmp/adjust), [AppsFlyer](/publisher/mmp/appsflyer) and
 [Singular](/publisher/mmp/singular).
 
-<div className="al-todo">
+Three things are worth separating, because they are measured in different places.
 
-**TODO(copy)** — which events and metrics are available, and how a publisher reads them.
-Event names must come from the SDK repository, not from here — see the
-[engineering docs](/technical).
+**Links.** Reported through your MMP. If you would rather see them on your own side in real
+time, Almedia can send a postback for every verified link — either through your MMP or to an
+endpoint you host. Postbacks are optional and do not block go-live.
 
-</div>
+**Earn Tab installs.** Same route. The postback covers the install and the milestone
+separately, so you can see both.
+
+**Player progress on Freecash.** This is the one that depends on you. Task progress is driven
+by the unattributed MMP events you share — app opens, ad revenue, level ups. If those stop
+flowing, the task list stops ticking and players earn less, which shows up later as a smaller
+LTV lift rather than as an obvious error.
+
+Almedia also runs automatic server-side holdout groups to measure the lift itself. That needs
+no configuration from you.
+
+<Info>
+  **TODO(copy)** — the exact event and field names, and where a publisher reads each one in
+  their own MMP dashboard. These must be transcribed from the SDK repository rather than
+  written here, so they stay correct as the SDK changes — see the
+  [engineering docs](/technical).
+</Info>
 
 ## The two figures we do publish
 
