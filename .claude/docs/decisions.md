@@ -1201,3 +1201,38 @@ MDX and must stay web-editor safe.
 
 **Verified** by loading all 20 pages and asserting the active tab on each, before and after the
 move.
+
+---
+
+## D-037 — MDX strips semantic HTML landmarks, and the landing footer had never rendered
+
+Found while verifying the live deploy of D-034/D-035/D-036, not by looking for it: the live
+landing page had no `.al-landing-footer` element at all. Local was identical, so it was not a
+deploy problem — the markup had simply never rendered, on either, since the page was written.
+
+The cause is general and worth knowing before writing any hand-rolled layout in MDX. Rendering
+one of each element and querying for it:
+
+| Element | Result |
+|---|---|
+| `<section>`, `<div>` | **kept** |
+| `<header>`, `<nav>`, `<footer>`, `<main>`, `<aside>`, `<article>`, `<figure>` | **stripped** |
+
+Silently — no error, no warning, nothing in `mint validate`, and `verify-build.sh` is happy
+because the *page* still renders; only a slice of it is missing. This is the same shape of
+failure as the inline `<style>` tag (D-002) and the dead `frame` selector (D-035): the thing you
+wrote is simply not there, and nothing tells you.
+
+`index.mdx`'s landing footer was `<footer><nav>…</nav></footer>` — both tags stripped, so the
+strapline and the five footer links never appeared. Rewritten as `div`s carrying
+`.al-landing-footer` and a new `.al-landing-footer-nav`, with `40-landing.css` repointed from
+the `nav` element selector to the class. Verified rendering in both modes with all five links.
+
+Mintlify's own components still emit these tags — `<Frame>` renders a `figure` — so the filter
+is on raw HTML an author writes in MDX, not on the output. A `div` with a class is the reliable
+way to build custom layout here; the accessibility cost of losing the landmark is real but there
+is no way around it short of a built-in component that emits one.
+
+Also removed: a stray blank line inside the landing page's `<CardGroup>`, left from appending a
+card. It was not the cause of anything — tested and ruled out before the real cause was found —
+but a blank line inside a JSX block is a known MDX hazard and not worth leaving in.

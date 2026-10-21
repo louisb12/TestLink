@@ -222,7 +222,7 @@ html[data-current-path="/"] .al-landing-footer {
   color: var(--text-muted);
 }
 
-html[data-current-path="/"] .al-landing-footer nav {
+html[data-current-path="/"] .al-landing-footer .al-landing-footer-nav {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-5);

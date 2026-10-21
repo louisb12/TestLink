@@ -120,6 +120,11 @@ Two capabilities were **smoke-tested and proven** here rather than assumed — s
   depends on this. Verified by computed style + `getAnimations()` in headless Chrome.
 - ❌ **Inline `<style>` tags in MDX are silently dropped.** They do not render and do not
   error. Never use them. This is why the old `almedia-link-showcase.mdx` was visually broken.
+- ❌ **MDX strips semantic HTML landmarks.** `<header>`, `<nav>`, `<footer>`, `<main>`,
+  `<aside>`, `<article>` and `<figure>` written in MDX **never reach the DOM** — silently, with
+  no error and nothing in `mint validate`. Only `<section>` and `<div>` survive. The landing
+  page's footer nav was written as `<footer><nav>` and had therefore never rendered at all.
+  **Use `<div>` with a class for any hand-rolled layout.** See **D-037**.
 
 ---
 

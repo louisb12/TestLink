@@ -240,6 +240,22 @@ Built-ins: `Card` `CardGroup` `Columns` `Tabs` `Steps` `Accordion` `AccordionGro
 `Frame` `Badge` `Tile` `Panel` `Expandable` `Update` `Tooltip` `Icon` `CodeGroup` `Mermaid`
 `Tree` `Color` `Prompt` `GitHub.Repo`.
 
+**MDX silently strips most semantic HTML landmarks.** Measured by rendering one of each and
+querying for it:
+
+| Element | Result |
+|---|---|
+| `<section>`, `<div>` | **kept** |
+| `<header>`, `<nav>`, `<footer>`, `<main>`, `<aside>`, `<article>`, `<figure>` | **stripped** |
+
+No error, no warning — the element and its children just never reach the DOM. The landing page's
+own footer nav was written as `<footer><nav>…</nav></footer>` and had therefore **never rendered**,
+locally or in production, since the page was built. Rewritten as `div`s with the same classes.
+
+Mintlify's own components may still emit these tags (`<Frame>` renders a `figure`); the filter
+applies to raw HTML an author writes in MDX. If you need a landmark, use a `div` and accept the
+loss, or reach for a built-in component that emits one. See **D-037**.
+
 **A directory may not span two tabs.** Mintlify resolves a group-root URL (`/publisher`) to the
 **first page under that directory in navigation order**, regardless of which tab holds it. Filing
 `publisher/best-practices` in an earlier tab than `publisher/index` made `/publisher` serve the
