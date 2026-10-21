@@ -10,43 +10,92 @@ cards, and in-game currency — for activity they were already doing.
 For a publisher, that single link is the whole integration surface. It typically takes about
 **15 minutes** to go from opening the SDK to a player completing their first link.
 
-<div className="al-todo">
+Almedia Link is an account link, not an ad placement. A player connects their Freecash account
+from inside your game, keeps playing, and earns real rewards for progress they were already
+making. You get paid for every verified link.
 
-**TODO(copy)** — the core product explanation. This page carries the most weight on the site:
-it is the first thing a commercial reader lands on, and every other Overview page assumes it.
+Almedia funds those rewards. They do not come out of your economy.
 
-Needed:
+## What the player does
 
-- What Almedia Link actually is, in two or three sentences a non-technical reader can repeat
-  back accurately.
-- What the player does, step by step, from first seeing the offer to receiving a reward.
-- What the publisher is responsible for, and what Almedia handles.
-- Where the rewards come from, described at whatever level of detail is approved.
+1. They see an entry point in your game — usually a button on a screen you already have.
+2. They tap it. The SDK opens the Freecash linking flow in a secure browser.
+3. They link their Freecash account and return to your game.
+4. They keep playing. Progress in your game becomes tasks completed on Freecash.
+5. They earn cash, gift cards or in-game currency, and are notified as they hit reward
+   milestones.
 
-Do not draft this from the marketing site — it needs to be the approved product description.
+New and existing Freecash users both count as a verified link.
 
-</div>
+## Who does what
+
+| You | Almedia |
+|---|---|
+| Place the entry point | Creates your campaign and offers |
+| Send your app IDs — bundle ID and package name | Issues your integration keys, one per platform |
+| Share unattributed MMP events | Decides per player whether the entry point shows at all |
+| Optionally grant an in-game reward when a player links | Funds every reward the player earns |
+| Optionally send a deep link so Freecash can reopen your game | Runs the linking flow, builds the links, handles the identifiers and the confirmation |
+
+The work that normally causes integration bugs — link building, attribution parameters,
+confirmation callbacks, eligibility checks — sits inside the SDK. Your engineers never touch
+any of it.
 
 ## Why publishers integrate it
 
-<div className="al-todo">
+**It is quick.** Fifteen minutes of engineering gets you to a first link using the bundled UI.
+A fully customised integration is measured in days, not weeks.
 
-**TODO(copy)** — the case for integrating, tied to real outcomes rather than adjectives.
+**It is small.** Less engineering, less QA, fewer support round-trips, because the parts that
+usually break live inside the SDK rather than in your codebase.
 
-The two approved figures are **~15% average install-to-link rate** and **10%+ LTV lift for
-linked users**, both already used on the [home page](/). Any additional claim — retention,
-ARPDAU, session length, revenue share — needs a real number from the team before it appears
-here.
+**It pays twice.** You earn per verified link, and again when linked players discover new games
+through the Earn Tab. See [how revenue works](/overview/how-revenue-works).
 
-</div>
+**It compounds.** Linked players play more, retain better, and are worth more. Across
+integrated titles that comes out at:
+
+<ul className="al-stats">
+  <li className="al-stat">
+    <span className="al-stat-value">~15%</span>
+    <span className="al-stat-label">Average install-to-link rate</span>
+  </li>
+  <li className="al-stat">
+    <span className="al-stat-value">10%+</span>
+    <span className="al-stat-label">LTV lift for linked users</span>
+  </li>
+</ul>
+
+Almedia measures that lift continuously, using automatic server-side holdout groups. Nothing
+to configure on your side.
+
+**It keeps improving without you shipping.** Eligibility, offers, supported countries and
+reward logic all live server-side. When a new country or a new experience goes live, it
+reaches your players immediately — not through your release cycle.
 
 ## What it is not
 
+**It is not a replacement for your MMP setup.** Unattributed events still have to flow from
+your MMP to Almedia. Without them, player progress cannot be scored and players get fewer and
+worse rewards — which erodes the LTV lift the integration exists to produce.
+
+**It is not a set of screens for your team to build.** The SDK owns the linking flow and the
+reward hub. There is no WebView to configure, no URL to assemble, no navigation to intercept,
+no close button to build.
+
+**It is not a hard dependency on a recent OS.** On older systems the SDK stays dormant and
+reports "not available" rather than breaking your build or crashing for your players.
+
 <div className="al-todo">
 
-**TODO(copy)** — the boundaries. Worth stating explicitly, because it heads off the questions
-that otherwise arrive in the first integration call. For example: whether it is an ad network,
-whether it competes with existing monetisation, what it does not do with player data.
+**TODO(copy)** — the commercial boundaries. Three questions arrive in most first integration
+calls and none of them are answered in the source material:
+
+- Is this an ad network? (It is not, but the positioning needs approved wording.)
+- How does it sit alongside existing monetisation — rewarded video, IAP, subscriptions?
+- What happens with player data, and what does a publisher need to tell their own users?
+
+The third likely needs legal review rather than a copy decision.
 
 </div>
 

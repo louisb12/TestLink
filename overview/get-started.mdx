@@ -22,34 +22,53 @@ time goes to the commercial and attribution setup around it, which can happen in
 
 ## What happens, in order
 
-<div className="al-todo">
+Seven stages. Two of them run in parallel, which is what keeps the calendar time down.
 
-**TODO(copy)** — the end-to-end sequence, from first conversation to live.
+**1. Scope it** — you and your account manager. Which experiences you want, and a check that
+your game is on Unity 2022.3 LTS or newer.
 
-This is deliberately prose with subheadings rather than a numbered `<Steps>` component. Steps
-renders as a CLI install wizard, which reads wrong for a mixed commercial and technical
-audience — it is reserved for the [engineering docs](/technical).
+**2. Set up attribution** — your growth or UA team. Configure your MMP to share unattributed
+events with Almedia. **Start this now.** It does not depend on anything below it, and it is
+the stage most likely to be waiting on someone else.
 
-Needed: the real ordering, who owns each stage, and roughly how long each takes. The only
-timing figure currently approved is the ~15 minutes of engineering work for the SDK
-integration itself.
+**3. Send your app IDs** — you. Bundle ID and package name, plus a deep link if you have one.
 
-</div>
+**4. Receive your keys** — Almedia. Your campaign and offers are created, and integration keys
+are issued, one per platform.
+
+**5. Integrate** — your engineers. About **15 minutes** using the bundled UI. Building your own
+UI instead is measured in days rather than weeks.
+
+**6. Test and review** — your QA, with feedback from Almedia. The SDK ships an editor mock that
+drives every state from inside the Unity editor, so most testing needs no device build. Share
+screenshots of your popup and Almedia will review them against what performs.
+
+**7. Go live.**
+
+<Warning>
+  Stage 6 only means something after stage 4. Testing before the campaign exists and the keys
+  are issued proves nothing, and it is where most "it doesn't work" reports come from.
+</Warning>
 
 ## Before you start
 
 Worth having in place first — the full list is on
 [prerequisites](/publisher/prerequisites):
 
-<div className="al-todo">
-
-**TODO(copy)** — the short version of the prerequisites list, three or four items. Keep it a
-summary; the page it links to owns the detail.
-
-</div>
+- **Your app IDs** — bundle ID for iOS, package name for Android.
+- **Unattributed MMP events** flowing to Almedia across all media sources.
+- **A deep link** into your game, if you have one. Recommended, not required.
+- **Unity 2022.3 LTS or newer.**
 
 <Callout icon="life-buoy">
-  **TODO(copy)** — support route. Who does a publisher contact when they get stuck, and
-  through what channel? No support address appears in the source material, so none is invented
-  here.
+  **Stuck? Your account manager is the route.** They issue the keys, create the campaign,
+  review your screenshots, and pull in Almedia engineers when the question is technical.
+  Asking them early is cheaper than testing against a campaign that does not exist yet.
 </Callout>
+
+<Info>
+  **TODO(copy)** — the support channel. "Your account manager" is the right answer to *who*,
+  and it is what the source material says throughout. What it does not give is a **channel** —
+  a shared Slack Connect channel, a support address, a response expectation. Publishers
+  without a named account manager yet also need somewhere to start.
+</Info>

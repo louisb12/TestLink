@@ -195,7 +195,7 @@ Before shipping, verify a `publisher/**` page by **actually opening it in the we
     `__SESSION__` is strong emphasis and renders as bold `SESSION`, which silently corrupts the
     one thing the page exists to get right.
 - **Never hand-write Technical Docs content.** README, Integration Guide and API Reference
-  sync from **`github.com/almedia-tm/almedia-link-sdk`** — the single source of truth. The
+  sync from **`github.com/almedia-tm/almedia-sdk`** — the single source of truth. The
   current pages are honest placeholders that say so. Keep them honest until sync is live.
 - **The best-practices guide is now hosted here, not linked out.** It was ported from the
   standalone Lovable SPA into `overview/best-practices.mdx` (decisions.md D-028, moved in

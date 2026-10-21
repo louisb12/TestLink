@@ -8,36 +8,114 @@ Almedia Link reaches players through a small set of rewarded experiences. This p
 product and design leads deciding which ones to use and where they belong in the player
 journey.
 
-<div className="al-todo">
+There are three. You integrate once and get all of them. The SDK decides, per player, which to
+show: linking for eligible players, reward progression for linked players, offers for players
+who have them.
 
-**TODO(copy)** — the experience catalogue. For each experience:
+<CardGroup cols={3}>
+  <Card title="Link" icon="link">
+    A player connects their Freecash account from inside your game. You are paid per verified
+    link.
+  </Card>
+  <Card title="Reward Progression" icon="trophy">
+    An in-game screen showing what a player has to do, how far along they are, and what they
+    have earned.
+  </Card>
+  <Card title="Offers" icon="coins">
+    An Earn Tab of other games to install and earn from. You are paid a CPA when a player
+    reaches a milestone.
+  </Card>
+</CardGroup>
 
-- What the player sees and does.
-- Where it typically sits in the game (onboarding, store, reward moment, session end).
-- What it is best at — acquisition, re-engagement, monetisation.
-- Any constraints on placement or frequency.
+## Link
 
-Each one should get its own `<Card>` in the group below once the list is confirmed. Leaving
-them uncatalogued is deliberate: guessing at experience names would be worse than an
-obvious gap.
+**What the player sees.** An entry point in your game, usually a button on a screen you
+already have. Tapping it opens the Freecash linking flow in a secure browser. They link, and
+come back.
 
+<div className="max-w-xs mx-auto">
+  <Frame caption="The Almedia Link popup, captured in a live session.">
+    ![The Almedia Link reward popup over a running game, offering a sign-up bonus, in-game currency for linking, and cash or gift cards for playing.](/images/product/link-popup.png)
+  </Frame>
 </div>
+
+**Where it sits.** On a screen players already reach. Four button styles ship with the SDK, or
+you can wire your own UI to a single call.
+
+**What it is best at.** Converting your existing players into linked players. This is the
+experience you are paid per event for.
+
+**Constraints.** The entry point shows only for eligible players — right country, not already
+attributed to Freecash. For everyone else it hides itself. You do not write that logic; the
+SDK decides per installation.
+
+## Reward Progression
+
+**What the player sees.** An in-game screen listing the tasks they need to complete in your
+game, their progress against each, and what they have earned on Freecash. Reward notifications
+arrive as cards when they earn something, in the SDK's style or re-skinned to yours.
+
+**Where it sits.** It wants a permanent, findable home — typically a button on your main
+screen. If you shipped Link with a prebuilt button, you already have it: the same button
+becomes the rewards entry once a player links.
+
+**What it is best at.** Retention. It keeps the reward visible where the playing happens,
+instead of on a website the player has to remember to open.
+
+**Constraints.** It renders only for players Almedia recognises — players who linked, and
+players acquired through Almedia UA campaigns, who are treated as already linked. Everyone
+else never sees the entry point. Task progress depends on your MMP events flowing; without
+them the list does not tick.
+
+## Offers (Earn Tab)
+
+**What the player sees.** Other games to install and earn from, and what each one pays. Games
+with an offer already in progress show what is left to earn, which is what brings players back
+to the tab.
+
+**Where it sits.** Two places. Inside the reward hub as an Earn Tab, which is the default. Or
+surfaced directly as a screen, at a moment you choose, through a single call from your own UI.
+
+**What it is best at.** A second revenue stream on top of Link. You are paid a CPA for each
+install that reaches its milestone.
+
+**Constraints.** Offer availability is per player and changes over time — a player may have an
+offer this session and none the next. Asking the SDK to show one when there is none simply
+does nothing, so your UI never dead-ends. The Earn Tab also has to be enabled by Almedia for
+your integration, and needs your in-game currency name, reward amount and artwork before it
+can be personalised.
+
+## Seeing it end to end
+
+<video
+  controls
+  className="w-full aspect-video rounded-xl"
+  src="/images/product/link-demo.mp4"
+  alt="A screen recording of the Almedia Link popup appearing in a live game, a player linking their Freecash account, and the reward confirming."
+  aria-label="A screen recording of the Almedia Link popup appearing in a live game, a player linking their Freecash account, and the reward confirming."
+></video>
 
 ## Choosing a placement
 
-<div className="al-todo">
+Four things decide whether a placement works.
 
-**TODO(copy)** — guidance on where to put the entry point, and what makes placements perform.
+**Put it where attention already is.** A screen players reach anyway beats a screen built for
+the purpose. The entry point competes with whatever else is on that screen, not with the rest
+of your game.
 
-Keep this page's guidance at the level of *what and why*. The tactical detail — creative,
-copy, timing — belongs in the
-[best-practices guide](/overview/best-practices), and must not be
-duplicated here.
+**Give Reward Progression a permanent home.** Its value is being visible between sessions. A
+button that only appears after a reward is earned defeats the point.
 
-</div>
+**Let the SDK decide who sees what.** Every experience hides itself from players who should
+not see it. Building your own eligibility or audience-gating logic on top is the single most
+common piece of wasted work in an integration, and it goes stale the moment Almedia enables a
+new country.
 
-<Callout icon="image">
-  Real product media is available at `/images/product/link-popup.png` (the reward popup
-  captured in a live session) and `/images/product/link-demo.mp4` (a screen recording). Both
-  are in the repository and unused — drop them in once the surrounding copy is written.
-</Callout>
+**Pick the moment, not the frequency.** Surfacing an offer screen is a single call you make
+when it suits your game. There is nothing to rate-limit on your side.
+
+<Note>
+  Creative, copy and timing — what the popup says, when it fires, how the button looks — are
+  covered in the [best-practices guide](/overview/best-practices), which carries the measured
+  results behind each recommendation.
+</Note>

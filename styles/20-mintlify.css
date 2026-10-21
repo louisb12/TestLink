@@ -11,6 +11,46 @@
    Selector reference: https://www.mintlify.com/docs/customize/custom-scripts.md
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ─── Body text colour ────────────────────────────────────────────────────
+   Mintlify paints every non-heading element gray via a wrapper utility
+   (`text-gray-500 dark:text-gray-400` plus a `*:not(h1..h6,strong,b)`
+   descendant selector). Headings and bold escape it; running prose does not.
+
+   That breaks a brand rule: "Do not use coloured type — always Midnight on
+   light, White on dark" + "Ensure maximum contrast for digital". It also
+   passes `mint a11y`, because gray-400 on Midnight still clears WCAG AA —
+   which is why it survived this long.
+
+   Take the colour back. An id selector beats Mintlify's (0,1,1) on
+   specificity alone, so no override flag is needed. Muted is re-asserted
+   below: it is for captions and metadata, never for running prose.         */
+#content p,
+#content li,
+#content dd,
+#content dt,
+#content td,
+#content th,
+#content strong,
+#content em,
+#content b,
+#content span,
+#content summary,
+#content label {
+  color: var(--text);
+}
+
+#content small,
+#content small span,
+#content figcaption,
+#content figcaption span,
+#content .al-muted,
+#content .al-muted p,
+#content .al-muted li,
+#content blockquote,
+#content blockquote p {
+  color: var(--text-muted);
+}
+
 /* ─── The gradient ground ─────────────────────────────────────────────────
    Two layers. docs.json's background.decoration:"gradient" is the native,
    performant base; this adds a very subtle brand wash on top.
@@ -57,6 +97,160 @@ body {
   backdrop-filter: saturate(1.4) blur(10px);
   -webkit-backdrop-filter: saturate(1.4) blur(10px);
   border-bottom: 1px solid var(--border);
+}
+
+/* ─── Floating pill navbar — landing page only ───────────────────────────
+   Rebuilt to match the Link marketing site's header (try-link.pages.dev).
+   Every number below was measured off that header, not estimated:
+
+     shell      90px tall, max-width 1312px, 20px from the top,
+                fully rounded, Midnight fill, 1px rgba(255,255,255,0.16)
+     logo       41px from the shell's left edge
+     nav links  DM Sans 16px/400, white, 8px vertical padding, 53px apart
+     hover      a lightened Lead Blue — exactly Lead Blue 60% mixed with white
+     right edge 53px padding, 12px between the controls
+     pill       46px tall, 14px/32px padding, Lead Blue
+
+   Applied site-wide so a doc page's header is identical to the landing
+   page's. Doc pages also carry a sidebar and a sticky table of contents, so
+   their offsets are re-based below against the floating shell's real height
+   (90px tall + 20px off the top).                                          */
+
+#navbar {
+  inset-inline: clamp(var(--sp-4), 4vw, var(--sp-8));
+  margin-block-start: 20px;
+  max-width: 1312px;
+  margin-inline: auto;
+  height: 90px;
+  border: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-md);
+  background-color: color-mix(in srgb, var(--surface-raised) 92%, transparent);
+  overflow: hidden;
+}
+
+/* Mintlify stacks two absolutely-positioned layers inside the navbar for its
+   ground and its bottom rule. The rule cuts across the pill's lower curve. */
+#navbar > div[class*="border-b"] {
+  border-bottom-color: transparent;
+}
+#navbar [class*="border-b"] {
+  border-bottom-color: transparent;
+}
+
+/* One row. Aspen ships the brand row and the tab row stacked; the tab block is
+   lifted out and centred over the shell so the three groups read as a single
+   bar — logo left, sections centre, controls right. */
+#navbar > div[class*="mx-auto"] {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 90px;
+  padding-inline: 41px;
+  max-width: none;
+}
+
+#navbar > div[class*="mx-auto"] > div:first-child {
+  width: 100%;
+  height: auto;
+}
+
+#navbar > div[class*="mx-auto"] > div:first-child > div {
+  margin-inline: 0;
+  padding-inline: 0;
+  height: auto;
+}
+
+#navbar .nav-tabs {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  height: auto;
+  gap: 53px;
+  font-size: 16px;
+}
+
+#navbar > div[class*="mx-auto"] > div:nth-child(2) {
+  position: static;
+  padding: 0;
+  height: auto;
+}
+
+/* Nav links: plain text, no chrome. The marketing header has no active pill
+   and no icons, so both are removed rather than restyled. */
+#navbar .nav-tabs-item {
+  height: auto;
+  padding: 8px 0;
+  gap: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: normal;
+  /* Theme token, not a fixed white. The shell follows the page ground, so in
+     light mode a hard-coded white left the section links unreadable. */
+  color: var(--text);
+  border: 0;
+  background: none;
+  border-radius: 0;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+#navbar .nav-tabs-item:hover {
+  color: var(--accent);
+}
+
+/* Icons and the active underline/pill that Aspen draws under the current tab. */
+#navbar .nav-tabs-item svg,
+#navbar .nav-tabs-item > span[class*="bg-"],
+#navbar .nav-tabs-item > div[class*="absolute"] {
+  display: none;
+}
+
+/* Controls on the right: 12px apart, matching the marketing header's spacing
+   between "Get in touch", the pill and the globe. */
+#navbar a[href*="github.com"],
+#navbar button {
+  margin-inline-start: 12px;
+}
+
+/* Search. Aspen gives its wrapper `flex-1 justify-center`, which expands it
+   across the middle of the bar — straight into the centred section links.
+   Collapse it to its content and park it with the other controls on the
+   right. It opens a dialog on click, so the wide field was never doing any
+   work anyway. */
+#navbar div[class*="flex-1"][class*="justify-center"] {
+  flex: 0 0 auto;
+  width: auto;
+  justify-content: flex-end;
+}
+
+/* The brand row has three visible children: the logo group, the search
+   wrapper, and .topbar-right-container. The logo group and the right
+   container BOTH carry flex-1, so they split the free space evenly and pin
+   search exactly in the middle — which is where the section links sit.
+
+   Stopping the right container from growing is the whole fix: the logo group
+   then takes all the slack and search lands next to the controls. */
+/* Logo at the marketing header's size. Aspen ships it at h-6 (24px); the
+   Link lockup there is 47px tall, which is also comfortably above the brand
+   book's 120px minimum lockup width. */
+#navbar .nav-logo {
+  height: 47px;
+  width: auto;
+}
+
+#navbar .topbar-right-container {
+  flex: 0 0 auto;
+}
+
+#navbar #search-bar-entry,
+#navbar [id*="search"] {
+  width: auto;
+  min-width: 0;
+  max-width: 11rem;
+  border-radius: var(--r-pill);
 }
 
 /* The primary CTA.
@@ -559,4 +753,24 @@ pagination-next:hover {
 html[data-current-path="/publisher/mmp/adjust"] [data-name="frame"] {
   max-width: 32rem;
   margin-inline: auto;
+}
+
+
+/* ─── Sticky offsets under the floating header ───────────────────────────
+   The navbar no longer sits flush at y=0: it is 90px tall and starts 20px
+   down. Anything that sticks to the top of a doc page has to clear 110px,
+   not the navbar's own height. */
+
+:root {
+  --nav-float-total: 110px;
+}
+
+#sidebar,
+#table-of-contents,
+#content-side-layout {
+  top: var(--nav-float-total);
+}
+
+html {
+  scroll-padding-top: calc(var(--nav-float-total) + var(--sp-4));
 }

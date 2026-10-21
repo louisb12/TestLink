@@ -10,11 +10,41 @@ sitting behind a missing account or an unconfigured MMP.
 
 ## Accounts and access
 
-<Info>
-  **TODO(copy)** — which accounts a publisher needs, who issues them, and what they need to
-  request. No account, portal or credential names appear in the source material for this site,
-  so none are invented here.
-</Info>
+Your account manager is the route for all of this. Send three things:
+
+1. **Your app IDs** — bundle ID for iOS, package name for Android.
+2. **Unattributed MMP events**, shared with Almedia across all media sources. See
+   [Attribution](#attribution) below.
+3. **A deep link into your game**, if you have one. Strongly recommended, not required.
+
+In return, Almedia creates your campaign and offers, and issues your **integration keys** —
+one per platform. Treat the keys as configuration rather than secrets, but keep them out of
+public repositories.
+
+<Warning>
+  **Do not start end-to-end QA before the campaign exists and the keys are issued.** Testing
+  earlier does not prove anything, and it is where most "it doesn't work" reports come from.
+</Warning>
+
+A deep link lets the Play button on Freecash reopen your game directly. Without one, players
+come back via your store page. Anything that opens your app today works — an Adjust,
+AppsFlyer or Singular link, or a scheme like `mygame://`. No release needed to supply it.
+
+### Your dashboard
+
+You also get an account on the Almedia Platform at
+[app.almedia.ai](https://app.almedia.ai). Your account manager sends the invite by email — you
+set a password and sign in.
+
+It shows your Link performance: revenue, players linked, CPA and ROAS, filtered by date range,
+app, platform and country.
+
+It is also the number you invoice from. Each month, take the figure from the dashboard and
+invoice Almedia for it.
+
+<Note>
+  The dashboard is not live. It syncs at intervals, so today's numbers are not final.
+</Note>
 
 ## Attribution
 
@@ -29,19 +59,60 @@ engineering work.
 
 ## Decisions to make before you build
 
-<Info>
-  **TODO(copy)** — the choices that are expensive to change later. Likely candidates, to be
-  confirmed: where the entry point sits in the player journey, which rewarded experiences to
-  enable, and which events matter for reporting.
-</Info>
+Five, in rough order of how expensive they are to revisit.
+
+**Which experiences to enable.** Link, Reward Progression and the Earn Tab ship through one
+integration, but each has its own launch steps. See [Experiences](/publisher/experiences).
+
+**Where the entry point sits.** The screen you choose is the single biggest lever on
+install-to-link rate.
+
+**Prebuilt button or your own UI.** Four button styles ship with the SDK and manage their own
+visibility. Your own UI is a single call plus a status subscription — more control, slightly
+more work. Both are themeable.
+
+**Whether linking earns an in-game reward.** If it does, the SDK gives you a hook that fires
+exactly once per player, so you do not need deduplication logic of your own.
+
+**How you want postbacks.** Through your MMP, or to an endpoint you host. Postbacks are
+optional and do not block go-live — most publishers want them for real-time revenue
+monitoring on their own side.
 
 ## Ready-to-launch checklist
 
-<Info>
-  **TODO(copy)** — a short checklist a publisher can work through and confirm. Best written
-  last, once the pages above are settled, so it stays a summary rather than a second copy of
-  them.
-</Info>
+One checklist per experience. Link comes first; the other two build on it.
+
+### Link
+
+1. Configure your MMP to share unattributed data for your game with Almedia. **Send** a
+   screenshot of the setup.
+2. **Send** your game IDs, your deep link, and your preferred `link_success` postback setup —
+   MMP or your own server. **Receive** your SDK integration key.
+3. Integrate the SDK into your game.
+4. *Strongly recommended, not required:* build your own popup. **Send** screenshots for
+   feedback.
+5. Test: the popup matches the guidelines, linking works, the linking notification works.
+6. Go live.
+
+### Reward Progression
+
+1. Add a button on your main screen to open Freecash rewards. Use your own, or one of the four
+   that ship with the SDK.
+2. Test: the button shows for linked players and opens the reward hub. **Send** screenshots
+   for feedback.
+3. Go live.
+
+### Earn Tab
+
+1. **Send** your in-game currency name, the amount rewarded per downloaded game, your currency
+   art and banner art. Your account manager will send you a short survey for this.
+   **Receive** your personalised Earn Tab UI.
+2. Confirm your postback setup for *install* and *install plus first task completed* — same
+   route as Link.
+3. Ask Almedia to enable the Earn Tab for your integration.
+4. Test that the Earn Tab appears for an eligible linked player. **Send** screenshots for
+   feedback.
+5. Go live.
 
 <Note>
   Once these are in place, engineering can pick up the
