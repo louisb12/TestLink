@@ -14,7 +14,7 @@ html[data-current-path="/"] .al-landing {
   max-width: var(--landing-max);
   margin-inline: auto;
   padding-inline: var(--sp-5);
-  padding-block: var(--sp-7) var(--sp-9);
+  padding-block: 0 var(--sp-9);
 }
 
 /* ─── Hero ────────────────────────────────────────────────────────────────
@@ -235,9 +235,419 @@ html[data-current-path="/"] .al-landing-footer a {
 }
 html[data-current-path="/"] .al-landing-footer a:hover { color: var(--accent); }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Marketing landing — mirrors try-link.pages.dev
+
+   The Link marketing site is a bespoke Webflow build; this is the same page
+   rebuilt inside Mintlify's constraints (no npm packages, no arbitrary
+   Tailwind values, semantic landmarks stripped — see CLAUDE.md §3).
+
+   Everything here is token-driven. The marketing site's ground is Midnight,
+   which is already --surface in dark mode, so the band treatment inverts
+   cleanly in light mode rather than being hard-coded dark.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+html[data-current-path="/"] .al-tl-accent { color: var(--accent); }
+
+/* ─── Hero ────────────────────────────────────────────────────────────────
+   Two columns on desktop: copy left, the live demo right. That is the
+   marketing site's arrangement and the reason the hero is not centred here
+   the way a pure statement hero would be.                                  */
+
+/* Top padding only clears the floating navbar (90px shell + 20px offset)
+   plus a little air — the marketing site sits its hero tight under the bar
+   rather than dropping it a full section's worth. */
+html[data-current-path="/"] .al-tl-hero {
+  position: relative;
+  padding-block: var(--sp-6) var(--sp-8);
+}
+
+html[data-current-path="/"] .al-tl-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: var(--sp-8);
+  max-width: 72rem;
+  margin-inline: auto;
+}
+
+html[data-current-path="/"] .al-tl-hero-copy { text-align: left; }
+
+/* The "Link / For games" lockup. The real sub-brand lockup has not been
+   supplied yet (open-questions.md #1) — this is a type-set stand-in using the
+   brand headline face, not an invented logo. Swap it for the SVG when it
+   arrives. */
+html[data-current-path="/"] .al-tl-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-block-end: var(--sp-5);
+}
+
+/* The real Almedia Link lockup, taken from the Link marketing site. Two
+   approved colour combinations, one per mode: Lead Blue symbol + white
+   wordmark on Midnight, and the all-Midnight logo on white. Minimum lockup
+   width is 120px — this sits well above it. */
+html[data-current-path="/"] .al-tl-lockup-mark {
+  width: clamp(9.5rem, 8rem + 3vw, 12rem);
+  height: auto;
+  display: block;
+}
+
+html[data-current-path="/"] .al-only-dark { display: none; }
+.dark html[data-current-path="/"] .al-only-dark,
+html[data-current-path="/"].dark .al-only-dark { display: block; }
+.dark html[data-current-path="/"] .al-only-light,
+html[data-current-path="/"].dark .al-only-light { display: none; }
+
+html[data-current-path="/"] .al-tl-lockup-badge {
+  padding: 0.35em 0.9em;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border-strong);
+  background-color: var(--surface-raised);
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+html[data-current-path="/"] .al-tl-h1 {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: clamp(2.5rem, 1rem + 4.6vw, 4.5rem);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tr-display);
+  color: var(--text);
+  margin: 0;
+  text-wrap: balance;
+}
+
+html[data-current-path="/"] .al-tl-hero-sub {
+  max-width: 44ch;
+  margin-block-start: var(--sp-5);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+html[data-current-path="/"] .al-tl-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-block-start: var(--sp-6);
+}
+
+html[data-current-path="/"] .al-tl-band .al-tl-cta-row { justify-content: center; }
+
+/* ─── The live demo ───────────────────────────────────────────────────────
+   NOT a second WebGL build. This is the same hosted Unity player the
+   marketing site embeds (fc-link-webgl.pages.dev/?embed), on the project
+   owner's instruction: one build, two embeds, nothing extra to maintain.   */
+
+html[data-current-path="/"] .al-tl-hero-demo { text-align: center; }
+
+/* The live demo, in place.
+
+   Two Mintlify behaviours shape this, both found by measuring the DOM:
+
+   1. It STRIPS width/height attributes off an iframe in MDX, so any selector
+      keyed on [width] never matches.
+   2. It wraps the iframe in its own <div class="flex justify-center w-full">,
+      so the iframe's containing block is that wrapper, not .al-tl-phone.
+
+   The build itself renders at a fixed design size of 402 x 874 (read from the
+   embed page's stylesheet) and crops rather than reflows in a narrower box.
+   So the iframe keeps its native size and the whole thing is scaled down with
+   a transform — the game renders at design resolution, only the result
+   shrinks, and nothing crops.
+
+   --phone-scale is the single knob; the frame's size is derived from it, so
+   mask and content cannot disagree. */
+
+html[data-current-path="/"] .al-tl-phone {
+  --phone-w: 402;
+  --phone-h: 874;
+  --phone-scale: 0.74;
+
+  position: relative;
+  width: calc(var(--phone-w) * var(--phone-scale) * 1px);
+  height: calc(var(--phone-h) * var(--phone-scale) * 1px);
+  margin-inline: auto;
+
+  /* The handset, to the embed page's own spec. In ?embed mode it strips its
+     frame and leaves a note saying so: "The host page draws the phone". These
+     are the values from its non-embed stylesheet — a squircle radius given as
+     two percentages, a black screen, and two stacked ring shadows for the
+     inner bezel and the outer rim, over an ambient drop. */
+  background-color: var(--brand-black);
+  border: 0;
+  border-radius: 13.7% / 6.3%;
+  box-shadow:
+    0 0 0 10px var(--brand-black),
+    0 0 0 12px color-mix(in srgb, var(--brand-black) 80%, var(--brand-white)),
+    0 0 60px 12px rgb(0 0 0 / 0.5);
+  overflow: hidden;
+}
+
+/* Neutralise Mintlify's wrapper. Left as a `flex justify-center` box it
+   centres the 402px-wide iframe inside the 297px frame, overhanging both
+   sides equally — which lops ~52px off the left of the game once the scale
+   transform runs from the top-left. */
+html[data-current-path="/"] .al-tl-phone > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: calc(var(--phone-w) * 1px);
+  height: calc(var(--phone-h) * 1px);
+  overflow: hidden;
+}
+
+html[data-current-path="/"] .al-tl-phone iframe {
+  display: block;
+  width: calc(var(--phone-w) * 1px);
+  height: calc(var(--phone-h) * 1px);
+  max-width: none;
+  border: 0;
+  transform: scale(var(--phone-scale));
+  transform-origin: 0 0;
+}
+
+html[data-current-path="/"] .al-tl-phone-note {
+  margin-block-start: var(--sp-4);
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+html[data-current-path="/"] .al-tl-phone-note a { color: var(--accent); }
+
+/* ─── Bands ───────────────────────────────────────────────────────────────
+   The marketing site runs every section full-bleed at viewport width with a
+   1312px inner column, and changes ground three times down the page:
+
+     hero + logos + stats   Midnight
+     features               gradient, Sky -> near-white
+     sdk + case study + cta  the page ground (white there)
+
+   That dark-to-light run is kept here, including in light mode, because it
+   is the page's structure rather than a theme choice — try-link has no dark
+   mode and its hero is always Midnight.
+
+   Breaking out of .al-landing's measure: pull back to the viewport edges,
+   then pay the inner column back as padding.                               */
+
+html[data-current-path="/"] .al-tl-band,
+html[data-current-path="/"] .al-tl-hero {
+  margin-inline: calc(50% - 50vw);
+  padding-inline: max(var(--sp-5), calc(50vw - 656px));
+  border-radius: 0;
+  border: 0;
+}
+
+html[data-current-path="/"] .al-tl-band {
+  margin-block: 0;
+  padding-block: 120px;
+  text-align: start;
+
+  /* The marketing site's sections each run close to a full screen. Rather
+     than padding each one by hand to its own content height, give them all a
+     floor and centre within it — short sections grow, tall ones are
+     unaffected. */
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Midnight ground, fixed in both modes. White text on Midnight is 14.46 AAA,
+   so this needs no per-mode handling. */
+
+
+
+
+/* The features band: Sky at the top falling to near-white, exactly the
+   gradient the marketing site uses between its dark and light halves. */
+
+
+
+
+
+/* ─── Display statements ──────────────────────────────────────────────── */
+
+html[data-current-path="/"] .al-tl-display {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: clamp(2rem, 1rem + 3.4vw, 3.75rem);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tr-display);
+  color: var(--text);
+  max-width: 20ch;
+  margin-inline: 0;
+  text-wrap: balance;
+}
+
+html[data-current-path="/"] .al-tl-display-sm {
+  font-size: clamp(1.625rem, 1rem + 2.2vw, 2.75rem);
+  max-width: 24ch;
+  margin-block-start: var(--sp-8);
+}
+
+html[data-current-path="/"] .al-tl-display-sub {
+  max-width: 62ch;
+  margin: var(--sp-5) 0 0;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+html[data-current-path="/"] .al-tl-h2 {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: clamp(1.875rem, 1rem + 2.6vw, 3rem);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--tr-display);
+  color: var(--text);
+  margin: 0;
+}
+
+html[data-current-path="/"] .al-tl-eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-block-end: var(--sp-3);
+}
+
+/* ─── Stat rows ───────────────────────────────────────────────────────── */
+
+html[data-current-path="/"] .al-tl-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+  max-width: none;
+  margin: var(--sp-8) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+html[data-current-path="/"] .al-tl-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-inline: var(--sp-4);
+  border-inline-start: 1px solid var(--border);
+}
+html[data-current-path="/"] .al-tl-stat:first-child { border-inline-start: 0; }
+
+html[data-current-path="/"] .al-tl-stat-value {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: clamp(2rem, 1rem + 2.6vw, 3.25rem);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tr-display);
+  color: var(--text);
+}
+
+html[data-current-path="/"] .al-tl-stat-label {
+  font-size: var(--fs-small);
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* ─── Feature list ────────────────────────────────────────────────────── */
+
+
+
+/* ─── Launch steps ────────────────────────────────────────────────────── */
+
+html[data-current-path="/"] .al-tl-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-5);
+  max-width: none;
+  margin: var(--sp-8) 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  counter-reset: none;
+}
+
+html[data-current-path="/"] .al-tl-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-5);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border);
+  background-color: var(--surface-raised);
+}
+
+html[data-current-path="/"] .al-tl-step-n {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: 1.25rem;
+  letter-spacing: var(--tr-display);
+  color: var(--accent);
+}
+
+html[data-current-path="/"] .al-tl-step-t {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: 1.125rem;
+  line-height: 1.2;
+  letter-spacing: var(--tr-display);
+  color: var(--text);
+}
+
+html[data-current-path="/"] .al-tl-step-d {
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ─── Case study ──────────────────────────────────────────────────────── */
+
+html[data-current-path="/"] .al-tl-case {
+  max-width: none;
+  margin: var(--sp-7) 0 0;
+  padding: var(--sp-7) var(--sp-6);
+  border-radius: var(--r-2xl);
+  border: 1px solid var(--border);
+  background-color: var(--surface-raised);
+}
+
+html[data-current-path="/"] .al-tl-case-title {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: clamp(1.375rem, 1rem + 1.4vw, 2rem);
+  line-height: var(--lh-h3);
+  letter-spacing: var(--tr-display);
+  color: var(--text);
+  margin: 0;
+  text-wrap: balance;
+}
+
+html[data-current-path="/"] .al-tl-case-body {
+  max-width: 56ch;
+  margin: var(--sp-4) 0 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+html[data-current-path="/"] .al-tl-stats-case { margin-block-start: var(--sp-6); }
+
 /* ─── Mobile ──────────────────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
+  html[data-current-path="/"] .al-statement { margin-block: var(--sp-7); }
+  html[data-current-path="/"] .al-demo { margin-block: var(--sp-7); }
   html[data-current-path="/"] .al-hero { padding-block: var(--sp-7) var(--sp-6); }
   html[data-current-path="/"] .al-hero-inner { max-width: 100%; }
   html[data-current-path="/"] .al-landing { padding-block: var(--sp-5) var(--sp-8); }
@@ -246,4 +656,37 @@ html[data-current-path="/"] .al-landing-footer a:hover { color: var(--accent); }
   html[data-current-path="/"] .al-quickclaim { border-radius: var(--r-lg); }
   /* Blobs are decoration; they cost more than they give on a small screen. */
   html[data-current-path="/"] .al-blob { display: none; }
+}
+
+/* ─── One ground ──────────────────────────────────────────────────────────
+   Every section sits on the page ground. No per-band fills, no gradients, no
+   inverted CTA — so there is nothing to shift as you scroll, and nothing to
+   re-colour text against. Text falls back to the theme tokens, which are
+   already correct in both modes. */
+
+html[data-current-path="/"] .al-tl-hero,
+html[data-current-path="/"] .al-tl-band {
+  background-color: transparent;
+  background-image: none;
+}
+
+/* ─── Centred bands ───────────────────────────────────────────────────────
+   Band content aligns to the band's left padding edge by default — one
+   column, one left edge. These two bands centre instead, so their children
+   need the auto margins back; text-align alone does not centre a block that
+   has a max-width. */
+
+html[data-current-path="/"] #content .al-tl-band-center {
+  text-align: center;
+  align-items: center;
+}
+
+html[data-current-path="/"] #content .al-tl-band-center .al-tl-display,
+html[data-current-path="/"] #content .al-tl-band-center .al-tl-display-sub,
+html[data-current-path="/"] #content .al-tl-band-center .al-tl-stats {
+  margin-inline: auto;
+}
+
+html[data-current-path="/"] #content .al-tl-band-center .al-tl-display {
+  max-width: 24ch;
 }

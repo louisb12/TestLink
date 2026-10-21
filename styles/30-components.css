@@ -146,11 +146,11 @@ tabs [role="tab"][aria-selected="true"] {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  padding: 0.8em 1.6em;
+  padding: 1.05em 2.2em;
   border-radius: var(--r-pill);
   font-family: var(--font-body);
   font-weight: var(--fw-bold);
-  font-size: var(--fs-small);
+  font-size: 1rem;
   letter-spacing: var(--tr-button);
   text-decoration: none;
   border: 1px solid transparent;
