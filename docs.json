@@ -53,7 +53,7 @@
     "links": [
       {
         "label": "GitHub",
-        "href": "https://github.com/almedia-tm/almedia-link-sdk",
+        "href": "https://github.com/almedia-tm/almedia-sdk",
         "icon": "github"
       }
     ]
@@ -63,7 +63,7 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/almedia-tm/almedia-link-sdk",
+      "github": "https://github.com/almedia-tm/almedia-sdk",
       "linkedin": "https://www.linkedin.com/company/almedia"
     },
     "links": [
@@ -126,7 +126,7 @@
           },
           {
             "label": "SDK on GitHub",
-            "href": "https://github.com/almedia-tm/almedia-link-sdk"
+            "href": "https://github.com/almedia-tm/almedia-sdk"
           }
         ]
       },

@@ -67,7 +67,7 @@ CSS/JS, MCP, or headless.
 Everything here is built on custom CSS. Please confirm the Almedia plan covers it **before**
 this deploys, so we don't discover it at launch.
 
-### 4. Branch protection on `almedia-link-sdk`
+### 4. Branch protection on `almedia-sdk`
 **Status:** not actioned — I have not touched any repo settings.
 
 Branch protection **blocks the Mintlify GitHub App from pushing**, which breaks the web
@@ -110,7 +110,7 @@ homes, send the URLs and I'll swap them.
 **Status:** not configured — requires GitHub App installation, which I will not do unasked.
 
 `technical/readme.mdx`, `integration-guide.mdx` and `api-reference.mdx` are honest placeholders
-that say they sync from `github.com/almedia-tm/almedia-link-sdk`. They stay honest until the
+that say they sync from `github.com/almedia-tm/almedia-sdk`. They stay honest until the
 sync is live. Confirm when you want this wired up, and whether the SDK repo's file paths are
 final.
 
