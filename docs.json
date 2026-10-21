@@ -41,8 +41,8 @@
     }
   },
   "logo": {
-    "light": "/logos/symbol-lead-blue.svg",
-    "dark": "/logos/symbol-white.svg",
+    "light": "/logos/link-lockup-light.svg",
+    "dark": "/logos/link-lockup-dark.svg",
     "href": "/"
   },
   "favicon": "/favicon.svg",
