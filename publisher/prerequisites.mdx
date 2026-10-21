@@ -18,19 +18,14 @@ sitting behind a missing account or an unconfigured MMP.
 
 ## Attribution
 
-Almedia Link reports through your existing MMP. Pick yours and follow its setup page:
+Almedia Link reports through your existing MMP, configured in your own dashboard rather than
+anywhere on Almedia's side. This is usually owned by growth or UA rather than product, but it is
+a real dependency — it has to be done before launch, and it can run in parallel with the
+engineering work.
 
-<CardGroup cols={3}>
-  <Card title="Adjust" icon="chart-no-axes-column" href="/publisher/mmp/adjust">
-    Configure Adjust for Link attribution.
-  </Card>
-  <Card title="AppsFlyer" icon="chart-no-axes-column" href="/publisher/mmp/appsflyer">
-    Configure AppsFlyer for Link attribution.
-  </Card>
-  <Card title="Singular" icon="chart-no-axes-column" href="/publisher/mmp/singular">
-    Configure Singular for Link attribution.
-  </Card>
-</CardGroup>
+<Card title="MMP Setup" icon="trending-up" href="/publisher/mmp" horizontal>
+  Step-by-step setup for Adjust, AppsFlyer and Singular, with screenshots.
+</Card>
 
 ## Decisions to make before you build
 
@@ -50,5 +45,6 @@ Almedia Link reports through your existing MMP. Pick yours and follow its setup 
 
 <Note>
   Once these are in place, engineering can pick up the
-  [integration guide](/technical/integration-guide).
+  [integration guide](/technical/integration-guide), and
+  [For QA](/qa) covers signing the result off.
 </Note>

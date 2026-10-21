@@ -5,38 +5,84 @@ description: "Configure AppsFlyer to attribute and report on Almedia Link activi
 icon: "chart-no-axes-column"
 ---
 
-This page covers configuring **AppsFlyer** so that Almedia Link activity is attributed and shows
-up in your reporting alongside everything else.
-
-<Info>
-  **TODO(copy)** — the AppsFlyer configuration steps.
-
-  This page is intentionally empty rather than approximated. Attribution setup is exactly the
-  kind of content where a plausible-looking guess causes real damage: a wrong event name or
-  partner ID produces an integration that appears to work and silently misreports.
-
-  Needed, from someone who has done a real AppsFlyer integration:
-
-  - Where in AppsFlyer the configuration lives, and what permissions it needs.
-  - The exact event names Almedia Link sends, taken from the SDK repository rather than
-    written by hand.
-  - The partner or channel identifier to use for Almedia Link.
-  - How to verify attribution is working, and what a correct result looks like.
-  - Anything AppsFlyer does differently from the other two MMPs.
-</Info>
-
-## Verifying it works
-
-<Info>
-  **TODO(copy)** — how a publisher confirms the setup is correct before launch, and what to
-  check first when numbers look wrong.
-</Info>
+Everything below happens inside your **AppsFlyer** dashboard. Almedia appears there as the
+partner **Almedia GmbH** — no SDK work is involved, so this can be completed before or in
+parallel with the engineering integration.
 
 <Note>
-  Event names are owned by the SDK, not by this guide. When this page is written, take them
-  from the [API reference](/technical/api-reference) so the two can never disagree.
+  Screenshots show the AppsFlyer dashboard as it looked when this guide was written. AppsFlyer
+  moves things around from time to time; the setting names are the reliable part, not the exact
+  position on screen.
+
+  Click any screenshot to enlarge it.
 </Note>
 
-<Card title="AppsFlyer documentation" icon="external-link" href="https://appsflyer.com" horizontal>
+## Add Almedia as a partner
+
+Search for **"Almedia GmbH"**.
+
+<Frame caption="Almedia GmbH in the AppsFlyer partner directory.">
+  ![The Almedia GmbH partner card in AppsFlyer, listed as an Ad network with Retargeting, Cost and Ad revenue capabilities.](/images/mmp/appsflyer/almedia-gmbh-partner.png)
+</Frame>
+
+## Grant Almedia access
+
+Grant access to your POC's `@almedia.co` email address.
+
+## Open the integration
+
+Go to **Collaborate → Active Integrations → Integration**.
+
+<Warning>
+  **IMPORTANT:** Make sure to turn off **Advanced Privacy** for the **iOS App**.
+</Warning>
+
+<Frame caption="AppsFlyer → Collaborate → Active Integrations → Almedia GmbH → Integration.">
+  ![The Almedia GmbH integration page in AppsFlyer, with Collaborate and Active Integrations highlighted in the sidebar and Advanced Privacy for iOS 14.5+ set to OFF.](/images/mmp/appsflyer/advanced-privacy-off.png)
+</Frame>
+
+## Set the in-app event postback window
+
+Set up the **"In-app event postback window"** as `180` days.
+
+<Frame caption="The in-app event postback window, set to 6 months.">
+  ![The AppsFlyer in-app event postback window control, switched on and set to 6 months.](/images/mmp/appsflyer/in-app-event-postback-window.png)
+</Frame>
+
+## Turn on ad revenue and install postbacks
+
+- Activate **"Access ad revenue raw data"**.
+- Enable the `install` postback from **"all media sources, including organic"**.
+
+<Frame caption="Default postbacks — set Install to all media sources, including organic.">
+  ![The AppsFlyer Default postbacks section, with the Install event's audience dropdown open on All media sources, including organic.](/images/mmp/appsflyer/install-postback-all-media-sources.png)
+</Frame>
+
+## Enable the events
+
+Please enable the following standard events, and other events that you would like to share
+with us:
+
+```text Standard events
+install
+af_purchase
+af_ad_revenue
+af_app_opened
+```
+
+## Cost reporting
+
+We support the following two options:
+
+- **AppsFlyer Cost API (ROI360)** — please reach out to your AppsFlyer manager to confirm
+  availability and enable this integration.
+- **Direct Cost API integration to your BI** — if you prefer this option, please let us know so
+  we can send you Cost API documentation, along with your API ID and Key.
+
+<Frame caption="AppsFlyer → Almedia GmbH → Cost.">
+  ![The Cost tab of the Almedia GmbH integration in AppsFlyer, with the Get cost data toggle switched on.](/images/mmp/appsflyer/cost-data.png)
+</Frame>
+
+<Card title="AppsFlyer documentation" icon="external-link" horizontal href="https://support.appsflyer.com">
   AppsFlyer's own documentation, for anything specific to their platform.
 </Card>

@@ -10,7 +10,7 @@
           "directory": "card",
           "pages": [
             "overview/what-is-almedia-link",
-            "overview/experiences",
+            "overview/best-practices",
             "overview/how-revenue-works",
             "overview/get-started"
           ]
@@ -18,20 +18,22 @@
       ]
     },
     {
-      "tab": "Publisher Guide",
-      "icon": "book-open",
+      "tab": "For Product & UA",
+      "icon": "layout-dashboard",
       "groups": [
         {
-          "group": "Publisher Guide",
+          "group": "For Product & UA",
           "root": "publisher/index",
           "directory": "card",
           "pages": [
             "publisher/prerequisites",
-            "publisher/best-practices"
+            "publisher/experiences"
           ]
         },
         {
-          "group": "Attribution setup",
+          "group": "MMP Setup",
+          "root": "publisher/mmp/index",
+          "directory": "card",
           "pages": [
             "publisher/mmp/adjust",
             "publisher/mmp/appsflyer",
@@ -41,11 +43,26 @@
       ]
     },
     {
-      "tab": "Technical Docs",
+      "tab": "For QA",
+      "icon": "clipboard-check",
+      "groups": [
+        {
+          "group": "For QA",
+          "root": "qa/index",
+          "directory": "card",
+          "pages": [
+            "qa/test-checklist",
+            "qa/verify-attribution"
+          ]
+        }
+      ]
+    },
+    {
+      "tab": "For Engineering",
       "icon": "code",
       "groups": [
         {
-          "group": "Technical Docs",
+          "group": "For Engineering",
           "root": "technical/index",
           "directory": "card",
           "pages": [

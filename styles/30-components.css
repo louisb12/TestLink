@@ -119,10 +119,17 @@ tabs [role="tab"][aria-selected="true"] {
 
 /* ─── Frames ──────────────────────────────────────────────────────────────── */
 
-frame {
+/* `<Frame>` renders as `figure.frame[data-name="frame"]` — there is NO `frame`
+   custom element, so the bare element selector this block used to carry was dead
+   code and every frame on the site was wearing Mintlify's stock `bg-gray-50/50`
+   instead of a brand token. Same trap as `#sidebar` (D-022). Use the data
+   attribute: it is the selector Mintlify documents, and unlike `[class*="frame"]`
+   it cannot collide with our own `bp-frame` classes. */
+
+[data-name="frame"] {
   border-radius: var(--r-lg);
   border: 1px solid var(--border);
-  background-color: var(--surface-raised);
+  background-color: var(--surface-sunken);
   overflow: hidden;
 }
 

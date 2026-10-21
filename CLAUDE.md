@@ -130,11 +130,33 @@ team maintains the Publisher Guide *in the web editor*. Therefore:
 
 | Path | Owner | Constraint |
 |---|---|---|
-| `publisher/**` | **Commercial team** (web editor) | **Plain MDX + built-in components ONLY.** No snippets, no custom components, no `import`. |
-| `publisher/best-practices.mdx` | **Engineering** — the one carve-out | Interactive guide with inline React components. **Not web-editor editable.** Edit in the repo. See §5 and decisions.md D-028. |
-| `overview/**` | Engineering | Snippets and custom components allowed. |
+| `publisher/**` | **Commercial team** (web editor) | **Plain MDX + built-in components ONLY.** No snippets, no custom components, no `import`. **No exceptions** — the old `best-practices.mdx` carve-out is gone, it moved to `overview/` (D-035). |
+| `qa/**` | **Commercial team** (web editor) | Same rule as `publisher/**`. Both are covered by `verify.sh`'s web-editor guard. |
+| `overview/**` | Engineering | Snippets and custom components allowed. Includes `best-practices.mdx`, the interactive guide — **not web-editor editable**, edit it in the repo. |
 | `index.mdx` (landing) | Engineering | Snippets and custom components allowed. |
 | `technical/**` | Engineering — **synced from the SDK repo** | Never hand-write. See §5. |
+
+### ⚠️ One directory, one tab — no exceptions
+
+Mintlify resolves a group-root URL like `/publisher` to the **first page under that directory in
+navigation order**, whatever tab holds it. So a page filed under `publisher/` but listed in an
+earlier tab *hijacks* `/publisher` — it serves that page, under that tab.
+
+Nothing warns you. `mint validate` and `mint broken-links` stay clean, and `verify-build.sh`
+reports "`/publisher` renders" because it only asserts the route responds, not **which page** it
+serves. The only way to catch it is to load each page and read the active tab.
+
+This applies to **subdirectories too**. `qa/` is top-level rather than `publisher/qa/` precisely
+because a subdirectory in a different tab is the same trap, merely ordered safely: proven by
+reordering the tabs and watching `/publisher` become the QA index. The current layout survives
+arbitrary tab reordering. Keep it that way.
+
+| Directory | Tab |
+|---|---|
+| `overview/` | Overview |
+| `publisher/` (incl. `publisher/mmp/`) | For Product & UA |
+| `qa/` | For QA |
+| `technical/` | For Engineering |
 
 Before shipping, verify a `publisher/**` page by **actually opening it in the web editor**.
 "It looks like plain MDX" is not verification.
@@ -151,18 +173,28 @@ Before shipping, verify a `publisher/**` page by **actually opening it in the we
 
   Anything else needs a real number from the team. Leave a clearly marked placeholder
   (`<!-- TODO(copy) -->` / the `PlaceholderNote` pattern) instead.
-- **`publisher/best-practices.mdx` carries additional approved facts**, because it was ported
+- **`overview/best-practices.mdx` carries additional approved facts**, because it was ported
   verbatim from Lou's own guide rather than written here: the **$10 sign-up bonus**, the
   **$3 CPA** per completed Earn Tab offer, **80 million players**, **SDK 1.1+** for Rewarded
   Progression and the Earn Tab, and the Link Coins scoring. These are approved *on that page*.
   Do not spread them to other pages without checking, and do not treat them as licence to
   invent new figures anywhere.
+- **`publisher/mmp/*.mdx` carry approved MMP facts**, transcribed from Lou's three live Notion
+  guides (decisions.md **D-034**), not written here: the dashboard setting names, the `180`-day
+  postback window, the partner names (`Almedia GmbH`, `Almedia`), `account-manager@almedia.co`,
+  and the event names (`install`, `af_purchase`, `af_ad_revenue`, `af_app_opened`, `__SESSION__`,
+  `__ADMON_USER_LEVEL_REVENUE__`, `__iap__`). These are approved **on those pages only**. They
+  are **not** licence to invent an event name anywhere else, and the Notion pages stay the
+  source — if a step changes there, re-transcribe rather than editing from memory.
+  - ⚠️ Event names containing double underscores **must stay inside code blocks**. In prose MDX
+    `__SESSION__` is strong emphasis and renders as bold `SESSION`, which silently corrupts the
+    one thing the page exists to get right.
 - **Never hand-write Technical Docs content.** README, Integration Guide and API Reference
   sync from **`github.com/almedia-tm/almedia-link-sdk`** — the single source of truth. The
   current pages are honest placeholders that say so. Keep them honest until sync is live.
 - **The best-practices guide is now hosted here, not linked out.** It was ported from the
-  standalone Lovable SPA into `publisher/best-practices.mdx` (decisions.md D-028), so
-  `/publisher/best-practices` is the single canonical copy. The old bridge-page rule is
+  standalone Lovable SPA into `overview/best-practices.mdx` (decisions.md D-028, moved in
+  D-035), so `/overview/best-practices` is the single canonical copy. The old bridge-page rule is
   retired. Two things follow:
   - **Do not re-introduce a link-out**, and do not let a second copy appear anywhere.
   - **All its media is local** under `images/best-practices/`. Nothing is fetched from
@@ -223,12 +255,15 @@ docs.json                  # config; navigation is $ref-split out
 config/navigation.json     # tabs, groups, pages
 styles/*.css               # the design system (auto-injected, see §6)
 snippets/*.mdx             # engineering-owned reusable blocks — NOT usable in web editor
-overview/*.mdx             # engineering-owned
-publisher/**/*.mdx         # COMMERCIAL-OWNED — plain MDX only (§4)
+overview/*.mdx             # engineering-owned; best-practices.mdx lives here
+publisher/**/*.mdx         # COMMERCIAL-OWNED — plain MDX only, no exceptions (§4)
+  mmp/                     # MMP Setup group, inside the "For Product & UA" tab
+qa/*.mdx                   # COMMERCIAL-OWNED — the "For QA" tab (top-level, see §4)
 technical/*.mdx            # synced from the SDK repo — never hand-write
 images/                    # root-relative URLs, case-sensitive
   product/                 # real product media (popup screenshot, demo recording)
   decor/                   # organic blob accents, light + dark variants
+  mmp/                     # MMP dashboard screenshots, pulled from Notion (D-034)
 logos/                     # brand symbol; Almedia Link lockups pending from Lou
 fonts/                     # Daimito Expanded SemiBold .woff2 (pending from Lou)
 scroll-navbar.js           # the ONE custom JS file (auto-injected sitewide)

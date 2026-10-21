@@ -5,38 +5,63 @@ description: "Configure Singular to attribute and report on Almedia Link activit
 icon: "chart-no-axes-column"
 ---
 
-This page covers configuring **Singular** so that Almedia Link activity is attributed and shows
-up in your reporting alongside everything else.
-
-<Info>
-  **TODO(copy)** — the Singular configuration steps.
-
-  This page is intentionally empty rather than approximated. Attribution setup is exactly the
-  kind of content where a plausible-looking guess causes real damage: a wrong event name or
-  partner ID produces an integration that appears to work and silently misreports.
-
-  Needed, from someone who has done a real Singular integration:
-
-  - Where in Singular the configuration lives, and what permissions it needs.
-  - The exact event names Almedia Link sends, taken from the SDK repository rather than
-    written by hand.
-  - The partner or channel identifier to use for Almedia Link.
-  - How to verify attribution is working, and what a correct result looks like.
-  - Anything Singular does differently from the other two MMPs.
-</Info>
-
-## Verifying it works
-
-<Info>
-  **TODO(copy)** — how a publisher confirms the setup is correct before launch, and what to
-  check first when numbers look wrong.
-</Info>
+Everything below happens inside your **Singular** dashboard. Almedia appears there as a
+partner you configure and send postbacks to — no SDK work is involved, so this can be
+completed before or in parallel with the engineering integration.
 
 <Note>
-  Event names are owned by the SDK, not by this guide. When this page is written, take them
-  from the [API reference](/technical/api-reference) so the two can never disagree.
+  Screenshots show the Singular dashboard as it looked when this guide was written. Singular
+  moves things around from time to time; the setting names are the reliable part, not the exact
+  position on screen.
+
+  Click any screenshot to enlarge it.
 </Note>
 
-<Card title="Singular documentation" icon="external-link" href="https://singular.net" horizontal>
+## Add Almedia as a partner
+
+Go to **Singular → Settings → Partner Configuration → Add Partner**, then search for
+**Almedia**.
+
+## Add an attribution integration
+
+Paste the **Provider ID** and **API key** to add us as a data connector.
+
+<Info>
+  Your Provider ID and API key come from Almedia. Ask your Almedia contact for them before you
+  start this step — the form cannot be saved without them.
+</Info>
+
+<Frame caption="The Almedia configuration dialog in Singular.">
+  ![The almedia Configuration dialog in Singular, with empty Provider ID and API-Key fields and Automatically pull historical data checked.](/images/mmp/singular/almedia-configuration.png)
+</Frame>
+
+## Select your apps
+
+Select the app or apps for which the integration is being activated.
+
+## Complete the postbacks
+
+Complete **Attribution Postbacks** and **In app Events Postback**.
+
+Please check the **"Send All"** box for events, to send postbacks for all attributed and
+unattributed sources.
+
+<Frame caption="Attribution Postbacks — Send All checked for the Install event.">
+  ![The almedia Partner Configuration screen in Singular, on the Attribution Postbacks tab, with the Send All checkbox ticked for the Install event.](/images/mmp/singular/attribution-postbacks-send-all.png)
+</Frame>
+
+## Enable the events
+
+Enable the following standard events, and any other events that you would like to share with
+us:
+
+```text Standard events
+install
+__SESSION__
+__ADMON_USER_LEVEL_REVENUE__
+__iap__
+```
+
+<Card title="Singular documentation" icon="external-link" horizontal href="https://support.singular.net">
   Singular's own documentation, for anything specific to their platform.
 </Card>

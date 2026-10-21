@@ -240,6 +240,26 @@ Built-ins: `Card` `CardGroup` `Columns` `Tabs` `Steps` `Accordion` `AccordionGro
 `Frame` `Badge` `Tile` `Panel` `Expandable` `Update` `Tooltip` `Icon` `CodeGroup` `Mermaid`
 `Tree` `Color` `Prompt` `GitHub.Repo`.
 
+**A directory may not span two tabs.** Mintlify resolves a group-root URL (`/publisher`) to the
+**first page under that directory in navigation order**, regardless of which tab holds it. Filing
+`publisher/best-practices` in an earlier tab than `publisher/index` made `/publisher` serve the
+best-practices page. Nothing warns: `mint validate` and `mint broken-links` stay clean. Keep each
+directory inside one tab. See **D-035**.
+
+**Footer columns cap at 4.** `#.footer.links: A footer can have a maximum of 4 links columns` —
+caught by `mint validate`, not documented on the settings page.
+
+**`mint export`'s `serve.js` cannot serve group-root routes.** `/overview`, `/publisher` and
+friends render an empty document there, with or without a trailing slash. Leaf pages are fine.
+Use `mint dev` for anything about routing; `verify-build.sh` is for production *parse* failures.
+
+**`<Frame>` gives click-to-zoom for free** (undocumented in the components page). Mintlify wraps
+the image in `button.zoom-image-trigger[data-ramka-trigger]` and, on click, mounts
+`.zoom-image-backdrop` + `.zoom-image-content` as fixed full-screen layers. Verified by clicking
+in headless Chrome and reading the DOM back. This matters for wide screenshots shown in a narrow
+content column — no custom lightbox is needed, which keeps web-editor-owned pages plain MDX.
+
+
 - **Typed callouts** (`Note` `Warning` `Info` `Tip` `Check` `Danger`) **accept only `children`** —
   not recolourable, not re-iconable. Use generic `<Callout icon="…" color="#hex">` for brand colour.
 - React in MDX: hooks pre-injected (`useState` `useEffect` `useRef` `useCallback` `useMemo`

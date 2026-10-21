@@ -58,9 +58,11 @@ fi
 
 # ── 2. Web-editor safety: publisher/** must stay plain MDX ──────────────────
 step "Web-editor safety (publisher/** is commercial-owned)"
-# best-practices.mdx is the documented carve-out: an engineering-owned
-# interactive page that is deliberately NOT web-editor editable (CLAUDE.md §4).
-EDITABLE=$(find publisher -name '*.mdx' ! -name 'best-practices.mdx')
+# No carve-out any more. The interactive guide used to live here and had to be
+# excluded; it now sits at overview/best-practices.mdx, where engineering-owned
+# pages belong, so EVERY page under publisher/ must be web-editor safe (D-035).
+# qa/ is the same deal: commercial-owned, plain MDX, edited in the web editor.
+EDITABLE=$(find publisher qa -name '*.mdx')
 UNSAFE=$(grep -ln -E '^import |^export const |<Snippet|/snippets/' $EDITABLE 2>/dev/null || true)
 if [ -n "$UNSAFE" ]; then
   bad "snippet, import or inline component in a commercial-owned page:"
@@ -96,7 +98,7 @@ fi
 # Every asset the guide references must exist locally.
 # Scan the stylesheet too — decorative art is referenced from CSS, not markup.
 GUIDE_REFS=$(grep -hoE '/images/best-practices/[A-Za-z0-9._-]+' \
-               publisher/best-practices.mdx styles/60-best-practices.css | sort -u)
+               overview/best-practices.mdx styles/60-best-practices.css | sort -u)
 MISSING=$(echo "$GUIDE_REFS" | while read -r a; do [ -n "$a" ] && { [ -f ".$a" ] || echo "$a"; }; done)
 if [ -n "$MISSING" ]; then
   bad "guide references media that is not in the repo:"

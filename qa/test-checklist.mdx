@@ -1,0 +1,49 @@
+---
+title: "Test checklist"
+sidebarTitle: "Test checklist"
+description: "What to exercise on an Almedia Link integration before a build ships."
+icon: "list-checks"
+---
+
+A pre-ship pass over the parts of a Link integration a player actually touches.
+
+<div className="al-todo">
+
+**TODO(copy)** — the checklist itself.
+
+This page is a scaffold, not a draft. Test steps are exactly the kind of content where a
+plausible guess is dangerous: a checklist that looks complete gets signed off, and anything
+missing from it never gets tested.
+
+Needed, from someone who has taken a Link integration through QA:
+
+- The device and OS matrix worth covering, and whether iOS and Android differ.
+- How to put a test device into a state where the pop-up fires, without waiting for the real
+  timing rules.
+- What a successful link looks like end to end, including where the in-game currency reward
+  appears and how long it takes.
+- What a failed or abandoned link looks like, and whether the player can retry.
+- Whether a test account can be unlinked and re-linked, and how.
+- Which build configuration is required — sandbox versus production, and any test flag.
+- The known-good result for each step, so a tester can tell pass from fail without asking.
+
+</div>
+
+## What the placement is judged against
+
+The rules the pop-up and entry point have to satisfy are already written up, with worked
+examples of what passes and what fails:
+
+<Card title="Best practices guide" icon="book-open" href="/overview/best-practices" horizontal>
+  Timing, dismissal, CTA wording, reward wording, and the persistent entry point — with
+  annotated do and don't screenshots for each.
+</Card>
+
+That guide also carries two AI audit prompts. Paste one into an assistant with a screenshot of
+your pop-up or entry point and it returns a rule-by-rule scorecard and a ranked fix list, which
+is a faster first pass than reading the guide end to end.
+
+<Note>
+  A human review is available and is the reliable check until this page is written. Send your
+  setup to `link@almedia.co`.
+</Note>

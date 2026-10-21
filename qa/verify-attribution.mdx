@@ -1,0 +1,72 @@
+---
+title: "Verify attribution"
+sidebarTitle: "Verify attribution"
+description: "Confirm Almedia Link events are reaching your MMP correctly, and what to check when the numbers disagree."
+icon: "chart-no-axes-column"
+---
+
+Attribution failures are quiet. A misconfigured postback does not throw an error — it produces
+an integration that looks like it works and reports the wrong numbers, which is usually caught
+weeks later during a revenue reconciliation. This page is the check that stops that.
+
+## Start from your setup page
+
+The settings your dashboard should be showing are listed per MMP, screenshots included. Verify
+against those first — most problems are a setting that was never switched on rather than
+anything subtle:
+
+<CardGroup cols={3}>
+  <Card title="Adjust" icon="chart-no-axes-column" href="/publisher/mmp/adjust">
+    Data sharing, event mapping, probabilistic modeling, S2S.
+  </Card>
+  <Card title="AppsFlyer" icon="chart-no-axes-column" href="/publisher/mmp/appsflyer">
+    Advanced Privacy off, 180-day window, install postback scope.
+  </Card>
+  <Card title="Singular" icon="chart-no-axes-column" href="/publisher/mmp/singular">
+    Provider ID and API key, Send All on postbacks.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Two settings are easy to leave at their default and worth confirming by eye rather than from
+  memory, because both are explicit requirements on the setup pages: AppsFlyer's `install`
+  postback must be sent from **all media sources, including organic**, and Singular's
+  **"Send All"** box must be checked so postbacks cover attributed and unattributed sources
+  alike.
+</Warning>
+
+## Confirming events are arriving
+
+<div className="al-todo">
+
+**TODO(copy)** — how a publisher confirms events are landing, and what a correct result looks
+like.
+
+No verification procedure has been approved for this site yet, and none is guessed at here.
+Naming the wrong dashboard view or the wrong expected value would send someone chasing a
+problem that does not exist, or worse, sign off an integration that is broken.
+
+Needed:
+
+- Where in each MMP to look for incoming Almedia events, and how soon they appear.
+- The expected event names per MMP, cross-checked against the setup pages rather than retyped.
+- What a healthy volume looks like relative to installs, so an obviously-wrong number is
+  recognisable.
+- The first three things to check when events are missing.
+- Who to contact when the data disagrees, and what to send them.
+
+</div>
+
+## What Almedia checks on its side
+
+Two of the three setups already include a hand-off back to us, which doubles as a review:
+
+- **Adjust** — you send a screenshot of the event mapping on the Data sharing page.
+- **Singular** — the Provider ID and API key come from Almedia, so the connection is confirmed
+  from our side when it goes live.
+
+<Note>
+  If the numbers disagree and the cause is not obvious, send what you are seeing to
+  `link@almedia.co` rather than adjusting settings to make the totals match. A setting changed
+  to fix a symptom is how attribution ends up wrong in a way nobody can reconstruct later.
+</Note>

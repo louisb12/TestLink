@@ -1,7 +1,7 @@
 # Open questions — for Lou
 
 Short and actionable. Everything blocking or pending, with current status.
-Last updated: **2026-09-01**.
+Last updated: **2026-09-16**.
 
 ---
 
@@ -33,7 +33,24 @@ your call, every page is scaffolded with real structure, frontmatter, IA and bra
 components, and every unwritten section renders a **visible placeholder**.
 
 **Needed:** the approved prose. Search the repo for `TODO(copy)` to find every gap —
-`grep -rn "TODO(copy)" --include=*.mdx .`
+`grep -rn "TODO(copy)" --include='*.mdx' .`
+
+**16 placeholders across 7 pages.** The three MMP pages were closed by transcribing your live
+Notion guides (D-034), which took it from 19 to 13; the new **For QA** section
+(D-035) then added 3 back, on purpose.
+
+Two of those are the ones worth your attention, because the tab is live but empty:
+
+- `qa/test-checklist.mdx` — needs the device matrix, how to force the pop-up on a
+  test device, and the known-good result for each step.
+- `qa/verify-attribution.mdx` — needs where to look in each MMP for incoming Almedia
+  events, and what a healthy volume looks like.
+
+Nothing was guessed at on either. A QA checklist that looks complete gets signed off, and
+anything missing from it then never gets tested.
+
+The rest are the four Overview pages plus `publisher/prerequisites`, whose "Accounts and
+access" section still has no source at all.
 
 Reminder of the guardrail I have been holding to: the only two approved stats are
 **~15% install-to-link** and **10%+ LTV lift**. Anything else — revenue share, pricing, SDK
@@ -110,7 +127,9 @@ final.
 | — | **Light/dark toggle** | **Working**, verified end to end including OS-dark-plus-manual-light (D-023). |
 | — | **Daimito Expanded** | **In and rendering.** Licensed `.woff2` supplied and verified genuinely active, not falling back (D-026). Note the configured path had a case mismatch that would have 404'd in production — fixed. |
 | — | **Nav "bubble" shapes** | **Fixed.** Caused by an over-broad `[class*="primary"]` selector capturing Aspen's active tab, plus pill radii on short wide elements. Tabs and sidebar rows are rounded rectangles now (D-027). |
-| — | **Best-practices guide** | **Ported and self-hosted** at `/publisher/best-practices` (D-028). All 19 media files are local; Lovable is no longer a runtime dependency. Interactive parts — staged checklist, chaptered videos, lightbox, prompt copy — all verified working. |
+| — | **Site structure** | **Reorganised by reader** into four tabs — Overview, For Product & UA, For QA, For Engineering (D-035, D-036). Tab row centred under the search bar. Two pages changed URL (old ones permanently redirected) because a directory cannot span two tabs in Mintlify without hijacking its own group-root URL — every top-level directory now maps to exactly one tab. |
+| — | **Best-practices guide** | **Ported and self-hosted**, now at `/overview/best-practices` (D-028, moved D-035). All 19 media files are local; Lovable is no longer a runtime dependency. Interactive parts — staged checklist, chaptered videos, lightbox, prompt copy — all verified working. |
+| — | **MMP attribution setup** | **Written**, from your three live Notion guides rather than guessed (D-034). Pages are public, so all 13 screenshots came down directly from Notion — nothing had to be re-supplied. Setting names, event names and values are verbatim; see D-034 for the four deliberate departures, of which the one worth knowing is that `__SESSION__` and `__iap__` had to become code blocks or Markdown would have rendered them bold and silently mangled two event names. |
 | — | **`mint a11y` reports FAIL** | **False positive**, proven by DOM probe — `colors.dark` only ever paints the navbar CTA's background fill, never text (D-020). The MDX half of the audit is clean. Expect the overall line to keep reading FAIL. |
 
 ---

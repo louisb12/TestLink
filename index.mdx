@@ -39,7 +39,7 @@ mode: "custom"
 <a className="al-route al-route-primary" href="/technical">
   <div className="al-blob al-blob-3" aria-hidden="true" />
   <span className="al-route-eyebrow">For engineers</span>
-  <span className="al-route-title">Technical Docs</span>
+  <span className="al-route-title">For Engineering</span>
   <p className="al-route-body">
     The SDK, the integration guide and the API reference — synced from the Almedia Link
     repository so the docs and the code never drift apart.
@@ -47,20 +47,20 @@ mode: "custom"
   <span className="al-route-more">Start integrating</span>
 </a>
 
-<a className="al-route" href="/publisher">
-  <span className="al-route-eyebrow">For commercial, product and design</span>
-  <span className="al-route-title">Publisher Guide</span>
+<a className="al-route" href="/overview">
+  <span className="al-route-eyebrow">For everyone else</span>
+  <span className="al-route-title">Overview</span>
   <p className="al-route-body">
     What Almedia Link is, how the rewarded experience works for players, how revenue reaches
-    you, and what to set up before launch. No SDK knowledge assumed.
+    you, and the best practices that decide how well it performs. No SDK knowledge assumed.
   </p>
-  <span className="al-route-more">Read the guide</span>
+  <span className="al-route-more">Start here</span>
 </a>
 
 </section>
 
 <section className="al-secondary al-animate al-animate-6">
-  <a className="al-btn al-btn-secondary" href="/publisher">Read the Publisher Guide</a>
+  <a className="al-btn al-btn-secondary" href="/overview">Start with the overview</a>
   <a className="al-btn al-btn-secondary" href="https://github.com/almedia-tm/almedia-link-sdk">
     View the SDK on GitHub
   </a>
@@ -95,17 +95,24 @@ mode: "custom"
 ## Not sure which path is yours?
 
 <p className="al-landing-lede">
-  Three kinds of reader use this site. Every page outside Technical Docs is written to make
-  sense without an engineering background.
+  The site is organised by who is reading it. Every section outside engineering is written to
+  make sense without an SDK background.
 </p>
 
 <CardGroup cols={3}>
   <Card title="Deciding whether to integrate" icon="handshake" href="/overview/what-is-almedia-link">
-    Start with what Almedia Link is and how revenue reaches you.
+    What Almedia Link is, how revenue reaches you, and what good looks like.
   </Card>
-  <Card title="Designing the player experience" icon="layout-dashboard" href="/overview/experiences">
-    See the rewarded experiences and where they sit in your game.
+  <Card title="Designing the player experience" icon="layout-dashboard" href="/publisher">
+    Placement, rewarded experiences, and what to settle before engineering starts.
   </Card>
+  <Card title="Wiring up attribution" icon="trending-up" href="/publisher/mmp">
+    Adjust, AppsFlyer or Singular — configured in your own MMP dashboard.
+  </Card>
+  <Card title="Testing and signing off" icon="clipboard-check" href="/qa">
+    Proving the integration works before a build ships.
+  </Card>
+
   <Card title="Building the integration" icon="terminal" href="/technical/integration-guide">
     Go straight to the SDK and the integration guide.
   </Card>
@@ -116,9 +123,10 @@ mode: "custom"
 <footer className="al-landing-footer">
   <span>Almedia Link — documentation for publishers and engineers.</span>
   <nav>
-    <a href="/overview/what-is-almedia-link">Overview</a>
-    <a href="/publisher">Publisher Guide</a>
-    <a href="/technical">Technical Docs</a>
+    <a href="/overview">Overview</a>
+    <a href="/publisher">For Product &amp; UA</a>
+    <a href="/qa">For QA</a>
+    <a href="/technical">For Engineering</a>
     <a href="https://github.com/almedia-tm/almedia-link-sdk">GitHub</a>
   </nav>
 </footer>

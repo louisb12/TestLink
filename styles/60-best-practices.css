@@ -13,7 +13,7 @@
 /* Scoped by path rather than by a wrapper class so the guide's markdown
    headings can sit at MDX top level — headings nested inside a JSX <div> are
    rendered as spans and never reach Mintlify's table of contents. */
-html[data-current-path="/publisher/best-practices"],
+html[data-current-path="/overview/best-practices"],
 .bp-guide {
   --bp-do: var(--accent-bold);
   --bp-do-tint: color-mix(in srgb, var(--accent-bold) 7%, var(--surface-raised));
@@ -71,11 +71,11 @@ html[data-current-path="/publisher/best-practices"],
    "Copy page" control survives. Selector is by exclusion rather than by
    Tailwind class, which would be brittle. */
 
-html[data-current-path="/publisher/best-practices"] #header > div:not(#page-context-menu) {
+html[data-current-path="/overview/best-practices"] #header > div:not(#page-context-menu) {
   display: none;
 }
 
-html[data-current-path="/publisher/best-practices"] #header {
+html[data-current-path="/overview/best-practices"] #header {
   min-height: 0;
   margin-bottom: 0;
 }
@@ -121,7 +121,7 @@ html[data-current-path="/publisher/best-practices"] #header {
    Mintlify's prose puts 2em margins on every image) also wiped this logo's
    auto side-margins, which left it hard against the left edge of the column.
    Restated here with enough specificity to win. */
-html[data-current-path="/publisher/best-practices"] .bp-hero-logo {
+html[data-current-path="/overview/best-practices"] .bp-hero-logo {
   height: 44px;
   width: auto;
   display: block;
@@ -395,8 +395,8 @@ html[data-current-path="/publisher/best-practices"] .bp-hero-logo {
    ever a standalone prose figure — they are all inside a frame or are UI
    chrome (the Link Coin icons) — so the margin is always wrong here. It was
    inflating the coin chips to nearly three times their intended height. */
-html[data-current-path="/publisher/best-practices"] img,
-html[data-current-path="/publisher/best-practices"] video {
+html[data-current-path="/overview/best-practices"] img,
+html[data-current-path="/overview/best-practices"] video {
   margin: 0;
 }
 /* Capped by HEIGHT and sized to the image, not to a fixed ratio.
@@ -1260,7 +1260,7 @@ dialog.bp-lightbox::backdrop { background: transparent; }
   border-radius: var(--r-pill);
   background-color: var(--accent-bold);
   /* width comes from a --bp-pct custom property set on the element. See the
-     note in publisher/best-practices.mdx: this is a genuinely dynamic value
+     note in overview/best-practices.mdx: this is a genuinely dynamic value
      driven by user interaction, not static layout. */
   width: calc(var(--bp-pct, 0) * 1%);
   transition: width var(--dur-slow) var(--ease-soft);

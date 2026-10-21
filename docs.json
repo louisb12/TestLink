@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Almedia Launchpad",
-  "description": "Documentation for Almedia Link \u2014 the rewarded link that turns players into earners. Integration guides for publishers, product teams and engineers.",
+  "description": "Documentation for Almedia Link — the rewarded link that turns players into earners. Integration guides for publishers, product teams and engineers.",
   "theme": "aspen",
   "colors": {
     "primary": "#0021F3",
@@ -75,8 +75,8 @@
             "href": "/overview/what-is-almedia-link"
           },
           {
-            "label": "Experiences",
-            "href": "/overview/experiences"
+            "label": "Best practices",
+            "href": "/overview/best-practices"
           },
           {
             "label": "How revenue works",
@@ -89,28 +89,28 @@
         ]
       },
       {
-        "header": "Publisher Guide",
+        "header": "Product & UA",
         "items": [
           {
             "label": "Prerequisites",
             "href": "/publisher/prerequisites"
           },
           {
-            "label": "Best practices",
-            "href": "/publisher/best-practices"
+            "label": "Experiences",
+            "href": "/publisher/experiences"
           },
           {
-            "label": "Adjust",
-            "href": "/publisher/mmp/adjust"
+            "label": "MMP Setup",
+            "href": "/publisher/mmp"
           },
           {
-            "label": "AppsFlyer",
-            "href": "/publisher/mmp/appsflyer"
+            "label": "QA",
+            "href": "/qa"
           }
         ]
       },
       {
-        "header": "Technical Docs",
+        "header": "For Engineering",
         "items": [
           {
             "label": "Overview",
@@ -182,7 +182,7 @@
     "404": {
       "redirect": false,
       "title": "That page moved, or never existed",
-      "description": "Pick a path instead \u2014 the [Publisher Guide](/publisher) for commercial, product and design, or the [Technical Docs](/technical) for engineering. Or start from the [top](/)."
+      "description": "Pick a path instead — the [Overview](/overview) for what Almedia Link is, [For Product & UA](/publisher) for placement, planning and attribution, [For QA](/qa) for sign-off, or [For Engineering](/technical) for the SDK. Or start from the [top](/)."
     }
   },
   "redirects": [
@@ -198,7 +198,7 @@
     },
     {
       "source": "/best-practices",
-      "destination": "/publisher/best-practices",
+      "destination": "/overview/best-practices",
       "permanent": true
     },
     {
@@ -208,12 +208,22 @@
     },
     {
       "source": "/best-practices-2",
-      "destination": "/publisher/best-practices",
+      "destination": "/overview/best-practices",
       "permanent": true
     },
     {
       "source": "/webgl-test",
       "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/publisher/best-practices",
+      "destination": "/overview/best-practices",
+      "permanent": true
+    },
+    {
+      "source": "/overview/experiences",
+      "destination": "/publisher/experiences",
       "permanent": true
     }
   ]

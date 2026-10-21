@@ -5,38 +5,68 @@ description: "Configure Adjust to attribute and report on Almedia Link activity.
 icon: "chart-no-axes-column"
 ---
 
-This page covers configuring **Adjust** so that Almedia Link activity is attributed and shows
-up in your reporting alongside everything else.
-
-<Info>
-  **TODO(copy)** — the Adjust configuration steps.
-
-  This page is intentionally empty rather than approximated. Attribution setup is exactly the
-  kind of content where a plausible-looking guess causes real damage: a wrong event name or
-  partner ID produces an integration that appears to work and silently misreports.
-
-  Needed, from someone who has done a real Adjust integration:
-
-  - Where in Adjust the configuration lives, and what permissions it needs.
-  - The exact event names Almedia Link sends, taken from the SDK repository rather than
-    written by hand.
-  - The partner or channel identifier to use for Almedia Link.
-  - How to verify attribution is working, and what a correct result looks like.
-  - Anything Adjust does differently from the other two MMPs.
-</Info>
-
-## Verifying it works
-
-<Info>
-  **TODO(copy)** — how a publisher confirms the setup is correct before launch, and what to
-  check first when numbers look wrong.
-</Info>
+Everything below happens inside your **Adjust** dashboard. Almedia appears there as a partner
+you grant access to and share data with — no SDK work is involved, so this can be completed
+before or in parallel with the engineering integration.
 
 <Note>
-  Event names are owned by the SDK, not by this guide. When this page is written, take them
-  from the [API reference](/technical/api-reference) so the two can never disagree.
+  Screenshots show the Adjust dashboard as it looked when this guide was written. Adjust moves
+  things around from time to time; the setting names are the reliable part, not the exact
+  position on screen.
+
+  Click any screenshot to enlarge it.
 </Note>
 
-<Card title="Adjust documentation" icon="external-link" href="https://adjust.com" horizontal>
+## Grant Almedia access
+
+Add access to the email address `account-manager@almedia.co`.
+
+## Activate "Apps with data sharing"
+
+<Frame caption="Adjust → Partners. Almedia should show as active under Apps with data sharing.">
+  ![The Adjust partner list, with the Almedia row showing 2 active under the Apps with data sharing column.](/images/mmp/adjust/apps-with-data-sharing.jpg)
+</Frame>
+
+## Set your data sharing options
+
+Edit setups:
+
+- Check **"Data from all attribution sources** (recommended)".
+- Please share **"Ad revenue"**, **"Sessions"** and **"In-app revenue (from in-app purchases)"**.
+
+<Frame caption="Adjust → Partners → Almedia → Data sharing.">
+  ![The Adjust Data sharing page. Data from all attribution sources is selected, and Ad revenue, Sessions and In-app revenue are checked.](/images/mmp/adjust/data-sharing-options.png)
+</Frame>
+
+## Map your events
+
+Add events including **"Purchase"** to the **"Data Sharing"** page, and send a screenshot back
+to Almedia.
+
+<Frame caption="The app event to partner event mapping on the Data sharing page.">
+  ![The Adjust Data sharing event table, mapping app events such as af_new_purchase to the partner event purchase.](/images/mmp/adjust/event-mapping.png)
+</Frame>
+
+## Enable probabilistic modeling
+
+Please **enable probabilistic modeling** in **Attribution settings**.
+
+<Frame caption="Adjust → Attribution settings → Clicks → Device matching.">
+  ![The Adjust Attribution settings tab with the Enable probabilistic modeling toggle highlighted.](/images/mmp/adjust/probabilistic-modeling.png)
+</Frame>
+
+## Set up S2S Security
+
+<Frame caption="Adjust's own instructions for creating an S2S authentication token.">
+  ![Adjust documentation: Set up S2S authentication, listing the steps to create a token under All Settings and S2S Security.](/images/mmp/adjust/s2s-security.jpg)
+</Frame>
+
+## Activate S2S authentication
+
+<Frame caption="Adjust's own instructions for switching S2S authentication on.">
+  ![Adjust documentation: Activate S2S authentication, listing the steps under AppView, the Protection tab and S2S Security.](/images/mmp/adjust/s2s-authentication.png)
+</Frame>
+
+<Card title="Adjust documentation" icon="external-link" horizontal href="https://help.adjust.com">
   Adjust's own documentation, for anything specific to their platform.
 </Card>

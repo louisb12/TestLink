@@ -138,7 +138,16 @@ html[data-nav-scrolled="true"] #navbar {
    rectangle rather than a 999px pill — at this height a pill reads as a
    bubble. */
 
-.nav-tabs { gap: var(--sp-1); }
+/* Centred under the search bar rather than left-aligned under the logo.
+   `margin-inline: auto` on the flex item, NOT `justify-content` on the parent —
+   the parent is an unnamed Tailwind-utility div, and the tab row is its only
+   child, so the item-side rule needs no selector for markup we do not control.
+   The maths lands exactly: the parent's content box is inset 36px/36px inside
+   the 1440px header, so its centre and the search bar's centre are both 720. */
+.nav-tabs {
+  gap: var(--sp-1);
+  margin-inline: auto;
+}
 
 a.nav-tabs-item {
   height: auto;
@@ -381,8 +390,23 @@ pagination-next:hover {
   #footer > div { padding-inline: 0; }
 }
 
-@media (min-width: 1280px) {
-  #footer { max-width: calc(100% - 5.5rem - 28rem); }
+/* The reserve is 22rem, not the 28rem Aspen nominally gives the right-hand
+   column. Measured: the table of contents is 304px (19rem) wide and starts
+   104px to the right of where a 28rem reserve stopped the footer — so 28rem was
+   reserving space nothing occupies, and squeezing the footer's four link
+   columns to 64px tracks at 1440 and 24px at 1280. 22rem still clears the
+   "On this page" rail (4px at 1280, the tightest case) and buys the link
+   columns 104-144px each. */
+
+/* Gated at 1440, not 1280. Between those two widths the content column is
+   narrow enough that constraining the footer as well leaves the link grid ~288px
+   once the logo block takes its share — 48px tracks, and headings overrun
+   whatever wrapping is allowed, because a flex item will not shrink below the
+   min-content width of a word like "Engineering". Above 1440 there is room for
+   four columns and the constraint earns its keep. */
+
+@media (min-width: 1440px) {
+  #footer { max-width: calc(100% - 5.5rem - 22rem); }
 }
 
 #footer a {
@@ -390,6 +414,24 @@ pagination-next:hover {
   transition: color var(--dur-fast) var(--ease-soft);
 }
 #footer a:hover { color: var(--accent); }
+
+/* The link columns carry `whitespace-nowrap`, so a heading wider than its track
+   overran into the next column — it read as "Product & GrowthFor Engineering".
+   Letting them wrap is the safety net; the real fix is the 22rem reserve above,
+   which gives the tracks enough room that they rarely need to.
+
+   ⚠️ Do NOT try to re-template this grid. Aspen sets
+   `grid-template-columns: repeat(4, minmax(0, 1fr))` as an INLINE STYLE, which
+   no stylesheet rule can beat without the priority flag this project bans
+   outside the reduced-motion block. An `auto-fit` rule was tried and is a
+   silent no-op.
+
+   Selected by structure (`> div > p` is the column → heading chain) rather than
+   by a Tailwind class substring, which is the trap behind D-027. */
+
+#footer div:has(> div > p) {
+  white-space: normal;
+}
 
 /* ─── Wide screens ────────────────────────────────────────────────────────
    Aspen caps #body-content at max-w-8xl (1536px) and #content-container at
@@ -463,7 +505,7 @@ pagination-next:hover {
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    html[data-current-path="/publisher/best-practices"] :is(
+    html[data-current-path="/overview/best-practices"] :is(
       .bp-readme,
       .bp-outcome-head,
       .bp-sub-title,
@@ -499,4 +541,22 @@ pagination-next:hover {
 #content-area article > ol,
 #content-area article > blockquote {
   max-width: var(--measure);
+}
+
+/* ─── Adjust MMP page — screenshot scale ──────────────────────────────────
+   Adjust's captures are the tall ones on the site: 678×689, 1010×860 and
+   1416×1010. At the full 616px content width the portrait ones render over
+   600px tall and dominate the step they illustrate, which is not what a
+   dashboard screenshot is for.
+
+   Capping the frame width rather than the image height is deliberate — <Frame>
+   carries `overflow: hidden`, so a height cap would crop the picture instead of
+   scaling it. The images stay click-to-zoom, so nothing is lost at this size.
+
+   Scoped to Adjust only, on request. AppsFlyer's and Singular's captures are
+   landscape and already sit comfortably. */
+
+html[data-current-path="/publisher/mmp/adjust"] [data-name="frame"] {
+  max-width: 32rem;
+  margin-inline: auto;
 }

@@ -961,3 +961,243 @@ Two consequences handled:
 
 Contrast re-audited on the new ground: body text 14.46 AAA, muted 5.64 AA, links 8.36 AAA.
 `docs.json`'s `background.color.light` was updated to match, since JSON cannot read the tokens.
+
+---
+
+## D-034 — The three MMP pages are transcribed from Notion, not written here
+
+The Adjust, AppsFlyer and Singular pages were the last three deliberately-empty pages on the
+site. Their placeholder said, in as many words, that attribution setup is where a
+plausible-looking guess does real damage, so they would stay empty until someone who had done a
+real integration supplied the steps. Lou supplied that source: three live Notion pages.
+
+### The pages are public, so the images came down directly
+
+The URLs given were `app.notion.com` workspace URLs, which render as an authenticated SPA —
+`WebFetch` returns a loading shell, exactly like the Linear ticket in D-032. **But the pages
+themselves are publicly shared**, which the unauthenticated Notion API confirms:
+
+```
+POST https://www.notion.so/api/v3/loadPageChunk  { pageId, limit, cursor, chunkNumber }
+POST https://www.notion.so/api/v3/syncRecordValues  { requests: [{pointer:{table:"block",id,spaceId}}] }
+```
+
+Both return the full `recordMap` with no auth header. Two notes for anyone repeating this:
+
+- **Cloudflare blocks Node's bare `fetch`** (403 challenge page) because it sends no browser
+  User-Agent. Shelling out to `curl` works. This cost a cycle.
+- `loadPageChunk` returns only the blocks it reaches. Child blocks referenced in a parent's
+  `content` array have to be pulled separately with `syncRecordValues`, looping until no
+  referenced id is missing.
+
+Images resolve through `https://www.notion.so/image/<urlencoded src>?table=block&id=<block-id>`.
+That URL works for both source schemes present on these pages — the legacy
+`prod-files-secure.s3…` URLs and the newer `attachment:<uuid>:<filename>` form. All 16 media
+blocks downloaded; 13 were kept, and the 3 identical Almedia logo sign-offs were dropped since
+the site already carries the brand.
+
+Two files arrived as JPEG despite a `.png` block source and are stored with a `.jpg` extension.
+Mintlify paths are case- and extension-sensitive in production, so this matters.
+
+### What was changed from the source, and what was not
+
+The rule is transcribe, not paraphrase — these are the approved facts, and rewording an MMP
+setting name is exactly the failure the placeholder warned about. Setting names, event names,
+values (`180` days, `install`, `af_purchase`, `__SESSION__`, `__ADMON_USER_LEVEL_REVENUE__`)
+and the order of operations are verbatim. Four deliberate departures:
+
+1. **`IMPORATNT` → `IMPORTANT`** in the AppsFlyer callout. A spelling error in a warning
+   heading, not a substantive edit.
+2. **Event lists became fenced code blocks.** In the Notion source they are an italic run of
+   plain lines. Rendered as prose in MDX, `__SESSION__` and `__iap__` are **Markdown strong
+   emphasis** — they would have rendered as bold `SESSION` and `iap`, silently corrupting two
+   event names on a page whose entire job is exact event names. A code block is both the
+   correct presentation and the only safe one.
+3. **First person was made plural.** The Notion pages are written by an account manager to one
+   publisher: "please let me know so I can send you…". On a public docs page addressed to every
+   publisher that reads as an unnamed individual. Changed to "us"/"we"; no meaning moved.
+4. **Structure added, content not.** The Notion pages are flat bullet or numbered lists with no
+   headings at all. Each step became an `##` section so the page gets a table of contents and
+   is linkable step by step. No explanatory prose was invented around the steps.
+
+### `<Steps>` was not used
+
+The brief's rule — the numbered `Steps` component reads as a CLI install wizard, so it is
+confined to Technical Docs — still applies. Numbered `##` headings carry the sequence without
+that connotation, and they populate the TOC, which `Steps` does not.
+
+### They stay plain MDX
+
+These are `publisher/**` pages, so the §4 ownership rule binds: built-in components only
+(`Frame`, `Note`, `Warning`, `Info`, `Card`), no snippets, no custom components, no imports.
+The commercial team can maintain them in the web editor. `publisher/best-practices.mdx` remains
+the only carve-out.
+
+### Click-to-zoom was free
+
+Several screenshots are wide dashboard captures (up to 2076px) shown in a 616px column, where
+the text is unreadable. No custom lightbox was needed: Mintlify's built-in `<Frame>` already
+wraps the image in `button.zoom-image-trigger[data-ramka-trigger]` and opens a
+`.zoom-image-backdrop` / `.zoom-image-content` overlay on click. Verified by clicking in
+headless Chrome and reading the resulting DOM. Each page's intro note now says so, since a
+zoomable image with no affordance beyond `cursor: pointer` is easy to miss.
+
+---
+
+## D-035 — The site is organised by reader, and a directory may not span two tabs
+
+Lou asked for the Publisher Guide to be split into audience tabs rather than one catch-all, for
+the tab row to sit centred under the search bar, for "Attribution setup" to become "MMP Setup",
+and for the Adjust screenshots to come down a size. Five tabs, confirmed by Lou:
+
+| Tab | Holds |
+|---|---|
+| **Overview** | What is Almedia Link · **Best practices** · How revenue works · Get started |
+| **For Product Teams** | Prerequisites · Experiences |
+| **For Growth & UA** | **MMP Setup** — Adjust · AppsFlyer · Singular |
+| **For QA & Launch** | Test checklist · Verify attribution *(new, scaffolded)* |
+| **For Engineering** | README · Integration guide · API reference |
+
+Best practices replaced Experiences in Overview on Lou's instruction. Experiences was **not**
+deleted — its own opening line says it is "for the product and design leads deciding which ones
+to use and where they belong in the player journey", which is precisely the new
+**For Product Teams** tab, so it moved there rather than being thrown away.
+
+### The finding that cost the most: a directory cannot span two tabs
+
+Putting `publisher/best-practices` in the **Overview** tab while `publisher/index` was the root
+of the **For Product Teams** tab silently broke `/publisher`: it served the *best-practices
+page*, under the *Overview* tab.
+
+**Mintlify resolves a group-root URL to the first page under that directory in navigation
+order, regardless of which tab that page sits in.** Because Overview is tab 1, its
+`publisher/…` entry won `/publisher` outright. Nothing warns about this — `mint validate` and
+`mint broken-links` are both clean, and `verify-build.sh` reports `/publisher renders`, because
+it only asserts the route responds, not *which page* it serves.
+
+Confirmed by bisection: moving the entry back under the `publisher/` tab restored
+`/publisher` → "For Product Teams" immediately.
+
+**Two file moves followed, and both are improvements in their own right:**
+
+- `publisher/best-practices.mdx` → **`overview/best-practices.mdx`**. This also retires the
+  §4 carve-out. The guide was an engineering-owned interactive page sitting in the
+  commercial-owned, plain-MDX-only directory — an exception that `scripts/verify.sh` had to
+  special-case with `! -name 'best-practices.mdx'`. That exclusion is now gone and the
+  web-editor guard covers **every** page under `publisher/`, which is strictly safer.
+- `overview/experiences.mdx` → **`publisher/experiences.mdx`**, for the same rule. `/overview`
+  happened to resolve correctly only because Overview is tab 1; reordering the tabs later would
+  have broken it. Latent traps that depend on tab order are not worth keeping.
+
+Both old URLs are kept alive by permanent redirects. `/publisher/best-practices` matters
+particularly: it is the closing line of both AI audit prompts, which people have already copied
+out of the guide.
+
+**Verified** by driving all 20 pages in headless Chrome and asserting the active tab on each,
+not by reading the config.
+
+### Export `serve.js` cannot serve group-root routes
+
+Worth knowing before it wastes an hour: in `mint export` output, `/overview`, `/publisher`,
+`/publisher/mmp` and `/publisher/qa` all render an empty document, with or without a trailing
+slash. This is **not** a regression and not a production signal — `/overview` behaved the same
+way before any of this work. Leaf pages serve correctly. For anything about group-root routing,
+use `mint dev`; `verify-build.sh` remains the right tool for production *parse* failures only.
+
+### Centred tab row
+
+`.nav-tabs { margin-inline: auto; }` — an item-side rule, not `justify-content` on the parent,
+because the parent is an unnamed Tailwind-utility div and the tab row is its only child. The
+maths lands exactly: the parent's content box is inset 36px either side, so its centre and the
+search bar's centre coincide. Measured at 1024/1152/1280/1440/1600/1920/2560 — all five tabs
+occupy 735–746px inside 952–1400px available, centred to the pixel, no page overflow.
+
+### `<Frame>` was never being styled
+
+Chasing the Adjust image sizing turned up dead CSS. **`<Frame>` renders as
+`figure.frame[data-name="frame"]` — there is no `frame` custom element**, so
+`30-components.css`'s bare `frame { … }` block had never applied and every frame on the site was
+wearing Mintlify's stock `bg-gray-50/50` rather than a brand token. Same trap as `#sidebar`
+(D-022) and the theme toggle. Now selected as `[data-name="frame"]`, which is also safer than
+`[class*="frame"]` — that substring form would collide with our own `bp-frame` classes, which is
+exactly how the nav-bubble bug happened (D-027).
+
+Adjust's frames are capped at `32rem` (616px → 494px images). Capping *width* rather than height
+is deliberate: `<Frame>` carries `overflow: hidden`, so a height cap crops instead of scaling.
+Scoped to Adjust alone, on request — its captures are the portrait ones.
+
+### Footer columns cap at four
+
+`mint validate` rejects a fifth: *"A footer can have a maximum of 4 links columns"*. Five tabs
+therefore do not map one-to-one onto footer columns; Product and Growth share one.
+
+### Footer: two bugs, both pre-existing, both surfaced by longer tab names
+
+**Columns collided.** Headings read as "Product & GrowthFor Engineering". Aspen's link columns
+carry `whitespace-nowrap`, and the footer box was constrained to `100% - 5.5rem - 28rem` —
+reserving 28rem for a table of contents that measures **304px (19rem)** and starts 104px further
+right than that reserve stopped the footer. Four columns were sharing 64px tracks at 1440 and
+24px at 1280. The old labels ("Publisher Guide", "Technical Docs") collided too; they were just
+short enough to look like tight spacing rather than a bug.
+
+Fixed by reserving **22rem** (8px clearance from the "On this page" rail, measured at the
+tightest width) and gating the constraint at **1440 instead of 1280** — between those two widths
+the content column is narrow enough that constraining the footer as well leaves the link grid
+~288px once the logo block takes its share, and no amount of wrapping saves a 48px track.
+
+**An `auto-fit` grid rule is a silent no-op.** Aspen sets
+`grid-template-columns: repeat(4, minmax(0, 1fr))` as an **inline style**. No stylesheet rule
+beats that without `!important`, which is banned here outside the reduced-motion block. The rule
+was written, measured, found inert, and removed — with a warning comment so it is not re-added.
+`white-space: normal` on the columns stays as a safety net, since that one is inheritable and
+does apply.
+
+### `directory: "card"` already renders the child cards
+
+Every group root with `directory: "card"` auto-renders one card per child page. The hand-written
+`<CardGroup>` added to each new index page duplicated them — `/publisher` listed Prerequisites
+three times (my card, the auto card, the "Next" link). Caught by counting duplicate hrefs in the
+rendered DOM rather than by eye. Removed from all three index pages; the surrounding prose stays.
+
+---
+
+## D-036 — Four tabs, and the directory rule extended to subdirectories
+
+Lou collapsed the five-tab layout from D-035: **For Product Teams** and **For Growth & UA**
+merge into **For Product & UA**, and **For QA & Launch** shortens to **For QA**. Final shape:
+
+| Tab | Holds |
+|---|---|
+| **Overview** | What is Almedia Link · Best practices · How revenue works · Get started |
+| **For Product & UA** | Prerequisites · Experiences — and the **MMP Setup** group: Adjust · AppsFlyer · Singular |
+| **For QA** | Test checklist · Verify attribution |
+| **For Engineering** | README · Integration guide · API reference |
+
+The merge is sound editorially: placement and attribution are both "decided and configured
+outside the code", and on a small team they are often the same person. `publisher/index.mdx` now
+says so explicitly rather than pretending they are one job — product owns the placement, UA owns
+the postbacks, and the page names both.
+
+### `publisher/qa/` → `qa/`
+
+D-035 established that a directory cannot span two tabs. That was written about *pages* in a
+directory; it turns out to cover **subdirectories** too, and the previous layout was quietly
+relying on luck.
+
+With `publisher/qa/*` in the For QA tab and `publisher/index` in For Product & UA, `/publisher`
+resolved correctly — but only because For Product & UA happened to come first. Reordering the
+tabs so For QA led was enough to make **`/publisher` serve the QA index under the QA tab**.
+Verified by doing exactly that, then reverting.
+
+Moving QA to a top-level `qa/` removes the dependency on tab order entirely. Re-running the same
+reorder afterwards leaves `/publisher` correct, which is the actual proof the fix works rather
+than just moves the problem. Every top-level directory now maps to exactly one tab, and that
+table is in CLAUDE.md §4.
+
+The QA URLs were created in this session and never deployed, so no redirects were added for
+`/publisher/qa/*` — there is nothing pointing at them. `verify.sh`'s web-editor guard was widened
+from `find publisher` to `find publisher qa`, since those pages are still commercial-owned plain
+MDX and must stay web-editor safe.
+
+**Verified** by loading all 20 pages and asserting the active tab on each, before and after the
+move.
