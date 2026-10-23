@@ -35,6 +35,40 @@ anything subtle:
   alike.
 </Warning>
 
+## The two failures we actually see
+
+Almost every attribution problem on a live integration is one of these two. Both are silent —
+nothing errors, the integration looks fine, and the symptom shows up as players earning less
+than they should.
+
+### Tasks do not progress
+
+**Symptom.** Players link successfully, but their task list never ticks. The clearest tell is
+the **"Keep playing and fill the bar"** task sitting at zero.
+
+**Cause.** Ad revenue is being shared, but without the revenue value attached. The event
+arrives and carries nothing to score.
+
+**Fix.** In your MMP, open **In app Events Postback**, find
+`__ADMON_USER_LEVEL_REVENUE__` and tick **Revenue**.
+
+This matters most on high-IAA games, where ad revenue is the main thing players are scored on.
+
+### Nothing arrives after the install
+
+**Symptom.** The install lands, and then no further events are received at all.
+
+**Cause.** Postbacks are enabled, but only for attributed users.
+
+**Fix.** Enable postbacks for **unattributed users as well**, across all media sources
+including organic. Almedia needs the unattributed stream specifically — see
+[prerequisites](/publisher/prerequisites).
+
+<Note>
+  If you have changed one of these, send a screenshot of the setting to `link@almedia.co` so
+  it can be confirmed from our side rather than waiting to see whether the numbers move.
+</Note>
+
 ## Confirming events are arriving
 
 <div className="al-todo">

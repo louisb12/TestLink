@@ -29,6 +29,32 @@ Needed, from someone who has taken a Link integration through QA:
 
 </div>
 
+## Re-testing the link flow on the same device
+
+There is no unlink in the SDK. Once a test account has linked, that device will not show the
+linking flow again, which makes a second test run awkward.
+
+Two ways round it:
+
+- **Delete the Freecash user**, from **Profile → Settings** inside the Freecash flow. This is
+  the cleaner option.
+- **Reset the app and the advertising ID.** This works, but every run leaves behind an
+  orphaned player record on Almedia's side, so it is worth avoiding where you can.
+
+<Note>
+  A first-class testing environment is being built and will replace both of these. Until it
+  ships, deleting the Freecash user is the recommended route.
+</Note>
+
+## Test the experiences in the right order
+
+The Earn Tab only exists for players who have already linked. The supported sequence is
+**link first, Earn Tab second** — showing the Earn Tab to an unlinked player is not a
+supported setup, so a test that starts there is testing something the product does not do.
+
+Worth writing into the test plan explicitly, because it is an easy one to get backwards when
+both entry points are being added in the same release.
+
 ## What the placement is judged against
 
 The rules the pop-up and entry point have to satisfy are already written up, with worked
