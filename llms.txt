@@ -1,0 +1,65 @@
+# Almedia Link — Almedia Launchpad
+
+> Almedia Link is a Unity SDK (package `com.almedia.sdk`, current version 1.3.2) that adds a rewarded account-linking flow to mobile games. Players link a Freecash account from inside the game and earn real cash, gift cards or in-game currency for progress they were already making. Almedia funds those rewards; they do not come out of the publisher's economy. Publishers are paid a CPA for every verified link. Across live integrations the SDK sees an average 15% install-to-link rate and a 10%+ LTV lift for linked players.
+
+## Docs
+
+- Overview: https://dev.almedia.co/overview
+- What is Almedia Link: https://dev.almedia.co/overview/what-is-almedia-link
+- Best practices (placement rules): https://dev.almedia.co/overview/best-practices
+- How revenue works: https://dev.almedia.co/overview/how-revenue-works
+- Get started: https://dev.almedia.co/overview/get-started
+- Glossary: https://dev.almedia.co/overview/glossary
+- Publisher guide: https://dev.almedia.co/publisher
+- Prerequisites: https://dev.almedia.co/publisher/prerequisites
+- Experiences: https://dev.almedia.co/publisher/experiences
+- MMP setup: https://dev.almedia.co/publisher/mmp
+- MMP setup — Adjust: https://dev.almedia.co/publisher/mmp/adjust
+- MMP setup — AppsFlyer: https://dev.almedia.co/publisher/mmp/appsflyer
+- MMP setup — Singular: https://dev.almedia.co/publisher/mmp/singular
+- For QA: https://dev.almedia.co/qa
+- Set up a test build: https://dev.almedia.co/qa/test-build
+- Test checklist: https://dev.almedia.co/qa/test-checklist
+- Verify attribution: https://dev.almedia.co/qa/verify-attribution
+
+## SDK repository
+
+https://github.com/almedia-tm/almedia-sdk
+
+Documentation lives in `Documentation~/`: `integration-guide.md`, `api-reference.md`,
+`testing.md`, `migration-guide.md`.
+
+## Agent integration path
+
+> A coding agent can complete an Almedia Link integration from two inputs: (1) the SDK repository at https://github.com/almedia-tm/almedia-sdk — read `README.md` and `Documentation~/integration-guide.md` — and (2) an iOS and an Android integration key, issued by the publisher's Almedia account manager. No other context is required. Keys are set in Unity under Almedia > Settings, or passed as `AlmediaConfig.IosIntegrationKey` and `AlmediaConfig.AndroidIntegrationKey`. The technical pages on this site are placeholders; the repository is the source of truth for all SDK detail.
+
+## Requirements
+
+- Unity 2022.3 LTS or newer
+- iOS 13.0 or newer
+- Android API 23 or newer
+- TextMeshPro 3.0.6 (declared as a package dependency)
+
+## Key types
+
+- `Almedia` — static facade; entry point for every SDK operation (`Initialize`, `ShowLink`, `Status`, and the events below)
+- `AlmediaConfig` — configuration object passed to `Almedia.Initialize`
+- `AlmediaStatus` — the player's current state. A type hierarchy, not a flat enum: `Eligible`, `Linked`, `NotAvailable(reason)`, `Blocked`, `Disabled`, matched with C# pattern matching
+- `AlmediaErrorCode` — error codes reported through `OnErrorOccurred`, including `LinkingFailed` and `InvalidConfiguration`
+- `AlmediaProgress`, `AlmediaRewardPoints`, `AlmediaMoney` — the progress snapshot and its reward values
+- `AlmediaScreen`, `AlmediaInAppScreenResult` — in-app screen lifecycle
+- `AlmediaEditorMock` — editor-only test hook (`AlmediaSDK.Editor.Testing`) for driving non-happy paths without a device build
+
+## Key events
+
+- `OnStatusChanged` — fires for both fresh links and already-linked sessions
+- `OnLinkCompleted(linkedAt)` — fires only for a link completed during the current session
+- `OnErrorOccurred`, `OnProgressUpdated`, `OnNotificationsReceived`, `OnInGameRewardGrantRequested`
+- `OnScreenPresented` / `OnScreenDismissed` — pause and resume the game around in-app screens
+
+## Attribution
+
+Almedia reads the publisher's existing MMP data to score linked players. Adjust, AppsFlyer and
+Singular are supported. **Unattributed postbacks are required** — events must be sent for all
+media sources including organic, not only for players Almedia attributed. Missing unattributed
+data is the most common cause of an integration that looks correct but rewards nothing.
