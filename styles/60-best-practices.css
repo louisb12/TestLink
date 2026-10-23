@@ -64,21 +64,9 @@ html[data-current-path="/overview/best-practices"],
 .bp-copies ul > li::marker,
 .bp-placements > li::marker { content: none; }
 
-/* ─── One hero, not two ───────────────────────────────────────────────────
-   Mintlify renders its own page header (eyebrow + title + description) from
-   frontmatter, which said almost exactly what the branded hero below says.
-   Hide the text half on this page only and keep #page-context-menu, so the
-   "Copy page" control survives. Selector is by exclusion rather than by
-   Tailwind class, which would be brittle. */
-
-html[data-current-path="/overview/best-practices"] #header > div:not(#page-context-menu) {
-  display: none;
-}
-
-html[data-current-path="/overview/best-practices"] #header {
-  min-height: 0;
-  margin-bottom: 0;
-}
+/* The page used to hide Mintlify's header because it drew its own centred
+   hero. It now uses the standard page header like every other doc page, so
+   the header stays. */
 
 /* ─── Hero ────────────────────────────────────────────────────────────────── */
 
@@ -171,12 +159,15 @@ html[data-current-path="/overview/best-practices"] .bp-hero-logo {
   text-wrap: pretty;
 }
 
+/* The page now uses Mintlify's standard header, like every other doc page,
+   so these sit left-aligned under the description rather than centred under a
+   bespoke hero. */
 .bp-hero-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--sp-3);
-  margin-top: var(--sp-6);
+  margin-top: var(--sp-5);
 }
 
 /* ─── "How to read this guide" — the one bold Lead Blue panel ─────────────── */
