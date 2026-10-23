@@ -33,10 +33,33 @@
 #content strong,
 #content em,
 #content b,
-#content span,
 #content summary,
 #content label {
   color: var(--text);
+}
+
+/* Mintlify does not render body paragraphs as <p>. It emits
+   <span data-as="p"> directly inside #content, which is why a plain `p`
+   selector misses most of the page's prose.
+
+   The same marker is used for the label inside a styled link, so colouring
+   every [data-as="p"] repainted the "Submit your integration" button white on
+   its white pill. The second rule hands those back: it is more specific and
+   later, so a link's own colour wins inside it. */
+#content [data-as="p"] {
+  color: var(--text);
+}
+
+#content a [data-as="p"],
+#content button [data-as="p"] {
+  color: inherit;
+}
+
+/* Card descriptions are secondary text and should read that way — but in our
+   muted token, not Mintlify's neutral gray, which goes muddy on a blue
+   ground. */
+#content div[class*="prose"] [data-as="p"] {
+  color: var(--text-muted);
 }
 
 #content small,
