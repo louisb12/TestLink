@@ -96,9 +96,15 @@ accordion,
   overflow: hidden;
 }
 
-accordion summary,
-accordion button { transition: background-color var(--dur-fast) var(--ease-soft); }
-accordion summary:hover { background-color: var(--surface-sunken); }
+/* Scoped by id to outrank Mintlify's own hover:bg-gray-* utility on the summary. */
+#content [class*="accordion"] > summary,
+#content [class*="accordion"] > button {
+  transition: background-color var(--dur-fast) var(--ease-soft);
+}
+
+#content [class*="accordion"] > summary:hover {
+  background-color: var(--surface-sunken);
+}
 
 /* ─── Tabs ────────────────────────────────────────────────────────────────── */
 

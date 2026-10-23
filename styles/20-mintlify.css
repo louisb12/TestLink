@@ -946,3 +946,34 @@ html[data-current-path="/publisher/mmp/adjust"] [data-name="frame"] {
 html {
   scroll-padding-top: calc(var(--nav-float-total) + var(--sp-4));
 }
+
+/* ── Accordion groups ─────────────────────────────────────────────────────
+   Mintlify wraps a group in one outer border and strips the children's own.
+   We want the opposite: separate cards, no box around the box. */
+
+#content .accordion-group {
+  border-width: 0;
+  border-radius: 0;
+  background-color: transparent;
+  overflow: visible;
+}
+
+/* A ring, not a border. Mintlify's divide-y claims the top edge with a priority
+   flag we are not allowed to match, so a border-top never lands. */
+#content .accordion-group > details {
+  border-width: 0;
+  box-shadow: 0 0 0 1px var(--border);
+  border-radius: var(--r-md);
+  margin-block-end: var(--sp-3);
+  overflow: hidden;
+}
+
+#content .accordion-group > details:last-child { margin-block-end: 0; }
+
+#content [data-component-part="accordion-title"] { font-weight: var(--fw-heading); }
+
+/* Steps carry font-semibold but it computes to 400 — the prose reset wins. */
+#content [data-component-part="step-title"] {
+  font-weight: var(--fw-heading);
+  color: var(--text);
+}

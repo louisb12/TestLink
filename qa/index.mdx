@@ -11,20 +11,27 @@ management, or the engineer doing the last pass before a build goes out.
 It is deliberately separate from the [engineering docs](/technical): those describe how to
 build the integration, these describe how to prove it behaves correctly for a real player.
 
+## The three passes
 
-<div className="al-todo">
+<CardGroup cols={3}>
+  <Card title="Set up a test build" icon="wrench" href="/qa/test-build">
+    Devices and OS versions, which build talks to which backend, and how to force any SDK state
+    from the Unity editor.
+  </Card>
+  <Card title="Test checklist" icon="list-checks" href="/qa/test-checklist">
+    What a successful link looks like end to end, what a failed one looks like, and the order to
+    test the experiences in.
+  </Card>
+  <Card title="Verify attribution" icon="chart-no-axes-column" href="/qa/verify-attribution">
+    Confirm events are reaching Almedia, and the three failures that account for almost every
+    problem on a live integration.
+  </Card>
+</CardGroup>
 
-**TODO(copy)** — the section introduction, once the two pages below are written.
+Work through them in that order. The first is a one-time setup per project; the other two run
+on every build that touches Link.
 
-This section is new and its pages are scaffolds. Nothing here has been filled in with
-plausible-sounding test steps: a QA checklist that looks authoritative but was guessed at is
-worse than an empty one, because it gets signed off.
-
-</div>
-
-## What already exists and can be used today
-
-Two things on this site are usable for QA right now, and neither needed to be written here:
+## Two references worth having open
 
 - The **[best practices guide](/overview/best-practices)** states the rules the player-facing
   placement is judged against — timing, dismissal, CTA wording, reward wording. It also carries
@@ -34,6 +41,7 @@ Two things on this site are usable for QA right now, and neither needed to be wr
   dashboard should show, which is the reference to check a live integration against.
 
 <Note>
-  Until these pages are written, a human review is the reliable path: send your setup to
-  `link@almedia.co`.
+  Attribution problems are quiet — nothing errors, and the symptom is players earning less than
+  they should. If the numbers disagree and the cause is not obvious, send what you are seeing to
+  `link@almedia.co` rather than changing settings to make the totals match.
 </Note>

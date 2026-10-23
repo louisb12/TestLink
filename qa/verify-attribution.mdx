@@ -35,13 +35,15 @@ anything subtle:
   alike.
 </Warning>
 
-## The two failures we actually see
+## The three failures we actually see
 
-Almost every attribution problem on a live integration is one of these two. Both are silent —
-nothing errors, the integration looks fine, and the symptom shows up as players earning less
-than they should.
+Almost every attribution problem on a live integration is one of these three. All of them are
+silent — nothing errors, the integration looks fine, and the symptom shows up as players
+earning less than they should.
 
-### Tasks do not progress
+<AccordionGroup>
+
+<Accordion title="1. Tasks do not progress">
 
 **Symptom.** Players link successfully, but their task list never ticks. The clearest tell is
 the **"Keep playing and fill the bar"** task sitting at zero.
@@ -54,7 +56,9 @@ arrives and carries nothing to score.
 
 This matters most on high-IAA games, where ad revenue is the main thing players are scored on.
 
-### Nothing arrives after the install
+</Accordion>
+
+<Accordion title="2. Nothing arrives after the install">
 
 **Symptom.** The install lands, and then no further events are received at all.
 
@@ -63,6 +67,28 @@ This matters most on high-IAA games, where ad revenue is the main thing players 
 **Fix.** Enable postbacks for **unattributed users as well**, across all media sources
 including organic. Almedia needs the unattributed stream specifically — see
 [prerequisites](/publisher/prerequisites).
+
+</Accordion>
+
+<Accordion title="3. Ad revenue arrives a day late">
+
+**Symptom.** Everything works, but the **"Keep playing and fill the bar"** task only moves
+once a day, and every completion carries the same late-night timestamp. A tester who links in
+the afternoon sees nothing happen and reports the integration as broken.
+
+**Cause.** Ad revenue is being sent to Almedia on a **daily** schedule rather than in real
+time. The batch carries the previous day's revenue stamped at the end of that day, so progress
+lands the following morning while every other event credits immediately.
+
+**Fix.** Switch the ad revenue event from daily to **real time** in your MMP.
+
+This one is worth checking before a test session rather than after. It has been mistaken for a
+broken integration more than once, and nothing in the dashboard distinguishes it from a real
+failure.
+
+</Accordion>
+
+</AccordionGroup>
 
 <Note>
   If you have changed one of these, send a screenshot of the setting to `link@almedia.co` so
@@ -80,14 +106,16 @@ No verification procedure has been approved for this site yet, and none is guess
 Naming the wrong dashboard view or the wrong expected value would send someone chasing a
 problem that does not exist, or worse, sign off an integration that is broken.
 
-Needed:
+Still needed:
 
-- Where in each MMP to look for incoming Almedia events, and how soon they appear.
-- The expected event names per MMP, cross-checked against the setup pages rather than retyped.
+- Where in each MMP to look for incoming Almedia events, and how soon they appear. Allow for
+  some delay after go-live — events do not arrive instantly — but the expected window has not
+  been pinned down.
 - What a healthy volume looks like relative to installs, so an obviously-wrong number is
   recognisable.
-- The first three things to check when events are missing.
-- Who to contact when the data disagrees, and what to send them.
+
+The first things to check when events are missing are now covered above, and
+`link@almedia.co` is the route when the data disagrees.
 
 </div>
 
@@ -104,3 +132,8 @@ Two of the three setups already include a hand-off back to us, which doubles as 
   `link@almedia.co` rather than adjusting settings to make the totals match. A setting changed
   to fix a symptom is how attribution ends up wrong in a way nobody can reconstruct later.
 </Note>
+
+---
+
+*Unfamiliar with a term on this page? The [glossary](/overview/glossary) explains the
+vocabulary used across this site.*

@@ -11,7 +11,8 @@
             "overview/what-is-almedia-link",
             "overview/best-practices",
             "overview/how-revenue-works",
-            "overview/get-started"
+            "overview/get-started",
+            "overview/glossary"
           ]
         }
       ]
@@ -47,6 +48,7 @@
           "group": "Sign-off",
           "pages": [
             "qa/index",
+            "qa/test-build",
             "qa/test-checklist",
             "qa/verify-attribution"
           ]
