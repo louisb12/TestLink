@@ -1,47 +1,39 @@
 ---
 title: "Get started"
-description: "The path from deciding to integrate to a player completing their first link — about 15 minutes of engineering time."
+description: "The order things happen in, who owns each stage, and what runs in parallel."
 icon: "rocket"
 ---
 
-Getting to a first link takes about **15 minutes** of engineering time. Most of the calendar
-time goes to the commercial and attribution setup around it, which can happen in parallel.
+This page is the map: what happens, in what order, and who owns it. Every stage links to the
+page that carries the detail.
 
-## Pick your path
+Most of the calendar time is the commercial and attribution setup, not the build. Two stages
+run in parallel, which is what keeps it short.
 
-<CardGroup cols={2}>
-  <Card title="I am building the integration" icon="terminal" href="/technical/integration-guide">
-    Go to the integration guide. It is synced from the SDK repository, so it matches the code
-    you are about to install.
-  </Card>
-  <Card title="I am getting us ready to launch" icon="clipboard-check" href="/publisher/prerequisites">
-    Start with prerequisites — accounts, attribution and the decisions to make before
-    engineering begins.
-  </Card>
-</CardGroup>
+## The seven stages
 
-## What happens, in order
+**1. Scope it** — you and your account manager.
+Which experiences you want, and a check that your game is on Unity 2022.3 LTS or newer.
+See [experiences](/publisher/experiences).
 
-Seven stages. Two of them run in parallel, which is what keeps the calendar time down.
+**2. Set up attribution** — your growth or UA team.
+**Start this now.** It does not depend on anything below it, and it is the stage most likely
+to be waiting on someone else. See [MMP setup](/publisher/mmp).
 
-**1. Scope it** — you and your account manager. Which experiences you want, and a check that
-your game is on Unity 2022.3 LTS or newer.
+**3. Send what Almedia needs** — you.
+App IDs, MMP events, and a deep link if you have one. The full list is on
+[prerequisites](/publisher/prerequisites).
 
-**2. Set up attribution** — your growth or UA team. Configure your MMP to share unattributed
-events with Almedia. **Start this now.** It does not depend on anything below it, and it is
-the stage most likely to be waiting on someone else.
+**4. Receive your keys** — Almedia.
+Your campaign and offers are created, and your integration keys are issued.
 
-**3. Send your app IDs** — you. Bundle ID and package name, plus a deep link if you have one.
+**5. Integrate** — your engineers.
+About **15 minutes** using the bundled UI. Building your own UI instead is measured in days
+rather than weeks. See the [integration guide](/technical/integration-guide).
 
-**4. Receive your keys** — Almedia. Your campaign and offers are created, and integration keys
-are issued, one per platform.
-
-**5. Integrate** — your engineers. About **15 minutes** using the bundled UI. Building your own
-UI instead is measured in days rather than weeks.
-
-**6. Test and review** — your QA, with feedback from Almedia. The SDK ships an editor mock that
-drives every state from inside the Unity editor, so most testing needs no device build. Share
-screenshots of your popup and Almedia will review them against what performs.
+**6. Test and review** — your QA, with feedback from Almedia.
+The SDK ships an editor mock that drives every state from inside the Unity editor, so most
+testing needs no device build. See [For QA](/qa).
 
 **7. Go live.**
 
@@ -50,25 +42,21 @@ screenshots of your popup and Almedia will review them against what performs.
   are issued proves nothing, and it is where most "it doesn't work" reports come from.
 </Warning>
 
-## Before you start
+## Where to go next
 
-Worth having in place first — the full list is on
-[prerequisites](/publisher/prerequisites):
-
-- **Your app IDs** — bundle ID for iOS, package name for Android.
-- **Unattributed MMP events** flowing to Almedia across all media sources.
-- **A deep link** into your game, if you have one. Recommended, not required.
-- **Unity 2022.3 LTS or newer.**
+<CardGroup cols={2}>
+  <Card title="I am building the integration" icon="terminal" href="/technical/integration-guide">
+    Straight to the SDK and the integration guide.
+  </Card>
+  <Card title="I am getting us ready to launch" icon="clipboard-check" href="/publisher/prerequisites">
+    Accounts, attribution, and the decisions to settle before engineering starts.
+  </Card>
+</CardGroup>
 
 <Callout icon="life-buoy">
-  **Stuck? Your account manager is the route.** They issue the keys, create the campaign,
-  review your screenshots, and pull in Almedia engineers when the question is technical.
-  Asking them early is cheaper than testing against a campaign that does not exist yet.
-</Callout>
+  **Stuck at any stage? Your account manager is the route.** They issue the keys, create the
+  campaign, review your screenshots, and pull in Almedia engineers when the question is
+  technical. Asking early is cheaper than testing against a campaign that does not exist yet.
 
-<Info>
-  **TODO(copy)** — the support channel. "Your account manager" is the right answer to *who*,
-  and it is what the source material says throughout. What it does not give is a **channel** —
-  a shared Slack Connect channel, a support address, a response expectation. Publishers
-  without a named account manager yet also need somewhere to start.
-</Info>
+  No account manager yet, or need a written record? Email `link@almedia.co`.
+</Callout>

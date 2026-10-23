@@ -163,6 +163,16 @@ arbitrary tab reordering. Keep it that way.
 | `qa/` | For QA |
 | `technical/` | For Engineering |
 
+### The same rule, restated on the site
+
+`publisher/index.mdx` carries an editor note making this rule visible to whoever opens the
+section in the web editor — the audience that most needs it and is least likely to read this
+file. It is duplicated there on purpose. **Keep the two in sync:** if the ownership rule
+changes here, change it there too, and vice versa.
+
+It is internal process on a partner-facing page, so it is a candidate for removal once the
+commercial team is comfortable with the constraint. Until then it stays.
+
 Before shipping, verify a `publisher/**` page by **actually opening it in the web editor**.
 "It looks like plain MDX" is not verification.
 
