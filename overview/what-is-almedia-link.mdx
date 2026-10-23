@@ -4,15 +4,9 @@ description: "A plain-language explanation of Almedia Link — what it does for 
 icon: "link"
 ---
 
-Almedia Link lets a player link an account once and start earning real rewards — cash, gift
-cards, and in-game currency — for activity they were already doing.
-
-For a publisher, that single link is the whole integration surface. It typically takes about
-**15 minutes** to go from opening the SDK to a player completing their first link.
-
 Almedia Link is an account link, not an ad placement. A player connects their Freecash account
-from inside your game, keeps playing, and earns real rewards for progress they were already
-making. You get paid for every verified link.
+from inside your game, keeps playing, and earns real rewards — cash, gift cards and in-game
+currency — for progress they were already making. You get paid for every verified link.
 
 Almedia funds those rewards. They do not come out of your economy.
 
@@ -31,15 +25,16 @@ New and existing Freecash users both count as a verified link.
 
 | You | Almedia |
 |---|---|
-| Place the entry point | Creates your campaign and offers |
-| Send your app IDs — bundle ID and package name | Issues your integration keys, one per platform |
-| Share unattributed MMP events | Decides per player whether the entry point shows at all |
-| Optionally grant an in-game reward when a player links | Funds every reward the player earns |
-| Optionally send a deep link so Freecash can reopen your game | Runs the linking flow, builds the links, handles the identifiers and the confirmation |
+| Place the entry point | Decides per player whether it shows at all |
+| Send your app IDs and share MMP events | Creates your campaign and issues your integration keys |
+| Optionally reward a player for linking | Funds every reward the player earns |
 
 The work that normally causes integration bugs — link building, attribution parameters,
 confirmation callbacks, eligibility checks — sits inside the SDK. Your engineers never touch
 any of it.
+
+The full list of what to send, and who to send it to, is on
+[prerequisites](/publisher/prerequisites).
 
 ## Why publishers integrate it
 
@@ -86,18 +81,44 @@ no close button to build.
 **It is not a hard dependency on a recent OS.** On older systems the SDK stays dormant and
 reports "not available" rather than breaking your build or crashing for your players.
 
-<div className="al-todo">
+**It is not an offerwall, and it does not replace your ad stack.** It sits on top of your
+existing rewarded ads and IAP rather than competing with them for attention. That is the
+difference from offerwall formats, which compete directly with rewarded video for the same
+session.
 
-**TODO(copy)** — the commercial boundaries. Three questions arrive in most first integration
-calls and none of them are answered in the source material:
+## What it does to your existing revenue
 
-- Is this an ad network? (It is not, but the positioning needs approved wording.)
-- How does it sit alongside existing monetisation — rewarded video, IAP, subscriptions?
-- What happens with player data, and what does a publisher need to tell their own users?
+Link adds revenue rather than moving it. Gryphon Games ran it across six titles, with roughly
+70% of their revenue coming from in-app purchases:
 
-The third likely needs legal review rather than a copy decision.
+<ul className="al-stats">
+  <li className="al-stat">
+    <span className="al-stat-value">+18.6%</span>
+    <span className="al-stat-label">Total revenue per user</span>
+    <span className="al-stat-note">1.985 → 2.353, including all in-game revenue and Link CPA payments.</span>
+  </li>
+  <li className="al-stat">
+    <span className="al-stat-value">+5.2%</span>
+    <span className="al-stat-label">Day 7 retention</span>
+    <span className="al-stat-note">11.9% → 12.5%.</span>
+  </li>
+</ul>
 
-</div>
+The first figure is the one worth reading twice: it is **total** publisher revenue per user,
+not Link's payments on their own. A number that includes in-game revenue could not rise if
+Link were taking from it.
+
+<Card title="Gryphon Games case study" icon="file-text" href="https://almedia.co/resource-hub/case-studies/gryphon-games-link" horizontal>
+  The full write-up, including how they rolled it across the portfolio.
+</Card>
+
+<Info>
+  **TODO(copy)** — player data. What a publisher needs to tell their own users, and Almedia's
+  role for data the SDK sends. The public privacy policy states Almedia is a **data
+  controller** but does not mention the SDK, device identifiers or partner apps at all, so
+  there is nothing to transcribe. Needs legal, not a copy decision — and may belong in the
+  contract rather than on this page.
+</Info>
 
 <Callout icon="compass">
   Next: [what makes a placement work](/overview/best-practices), then
