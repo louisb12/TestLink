@@ -50,8 +50,33 @@
   color: var(--text);
 }
 
+/* Anything inside a link or a button takes that element's own colour AND
+   weight. Mintlify's wrapper sets the span back to 400, which is why the
+   "Submit your integration" label rendered thin inside a bold pill. */
 #content a [data-as="p"],
 #content button [data-as="p"] {
+  color: inherit;
+  font-weight: inherit;
+}
+
+/* ─── Fixed-ground components ─────────────────────────────────────────────
+   These paint their own background from a brand colour, so it does NOT flip
+   with the theme — and their text must not either. Each already sets its own
+   colour correctly; the rule above was simply outranking it, which in light
+   mode left Midnight text on Lead Blue at 1.73:1 and a Lead-Blue label on a
+   Lead-Blue pill at 1.00:1.
+
+   ADD NEW FIXED-GROUND COMPONENTS TO THIS LIST. The test is simple: if the
+   component's background comes from a brand token rather than --surface,
+   it belongs here.                                                        */
+#content :is(
+  .bp-close,
+  .bp-readme,
+  .bp-toast-inner,
+  .al-route,
+  .al-btn,
+  .al-pill-cta
+) :is([data-as="p"], p, span, li) {
   color: inherit;
 }
 
@@ -224,6 +249,22 @@ body {
   color: var(--accent);
 }
 
+/* The landing page is not inside any tab, but Aspen still marks Overview as
+   active because `/` resolves into that group. Nothing is selected when you
+   are on the landing page, so nothing should look selected. */
+html[data-current-path="/"] #navbar .nav-tabs-item[data-active],
+html[data-current-path="/"] #navbar .nav-tabs-item[aria-current],
+html[data-current-path="/"] #navbar .nav-tabs-item[aria-selected="true"] {
+  color: var(--text);
+  background: none;
+  font-weight: 400;
+  /* Aspen fakes a heavier weight on the active tab with a hairline
+     text-shadow on both sides — `[text-shadow:-0.2px_0_0_currentColor,...]`.
+     It computes as weight 400 but renders bold, which is why clearing colour
+     and weight alone left Overview still looking selected. */
+  text-shadow: none;
+}
+
 /* Icons and the active underline/pill that Aspen draws under the current tab. */
 #navbar .nav-tabs-item svg,
 #navbar .nav-tabs-item > span[class*="bg-"],
@@ -276,6 +317,109 @@ body {
   border-radius: var(--r-pill);
 }
 
+/* ─── Mobile header ──────────────────────────────────────────────────────
+   Below Aspen's `lg` breakpoint the tab row is hidden and a breadcrumb row
+   takes its place, so the shell has to size to its content instead of the
+   desktop's fixed 90px. The logo also has to come down: at 47px it was 147px
+   wide — 29% of a 500px viewport — which left the search and menu controls
+   fighting for the rest.
+
+   A full pill reads badly on a two-row box, so the radius softens too.      */
+
+@media (max-width: 1023px) {
+  #navbar {
+    height: auto;
+    margin-block-start: var(--sp-3);
+    border-radius: var(--r-2xl);
+    inset-inline: var(--sp-3);
+    /* Aspen sets w-full. On a fixed element that resolves against the
+       viewport, so the shell kept its full width AND took the left inset —
+       overhanging the right edge by exactly that inset. Let the two insets
+       decide the width instead. */
+    width: auto;
+  }
+
+  #navbar > div[class*="mx-auto"] {
+    height: auto;
+    padding-inline: var(--sp-4);
+  }
+
+  #navbar .nav-logo { height: 28px; }
+
+  /* ── One row, logo centred ──────────────────────────────────────────────
+     Aspen stacks a brand row and a breadcrumb row on mobile. almedia.co's
+     mobile header is a single bar — controls left, logo centred, menu right —
+     so the two rows are flattened into one flex line and the breadcrumb text
+     is dropped, leaving its button as the menu control. */
+
+  #navbar > div[class*="mx-auto"] > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 56px;
+  }
+
+  /* The brand row keeps the controls; the logo inside it is centred against
+     the whole bar rather than against this row, so it lines up with the
+     visual middle and not with the leftover space. */
+  #navbar > div[class*="mx-auto"] > div:first-child > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* Centred on both axes. Absolute positioning takes it out of flow, so
+     without `top` it kept the vertical position it happened to inherit and
+     sat high in the bar. */
+  #navbar .nav-logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+  }
+
+  /* Show the real GitHub and theme controls rather than Aspen's overflow
+     menu, which only hid them behind a second tap. */
+  #navbar .topbar-right-container {
+    display: flex;
+    flex: 0 0 auto;
+    order: -2;
+    margin-inline-start: 0;
+  }
+
+  #navbar button[aria-label="More actions"] { display: none; }
+
+  /* Icon only. With its label the GitHub link is 97px wide, which pushes the
+     left group into the centred logo. */
+  #navbar a[href*="github.com"] {
+    gap: 0;
+    padding-inline: var(--sp-2);
+  }
+  #navbar a[href*="github.com"] span,
+  #navbar a[href*="github.com"] [data-as="p"] {
+    display: none;
+  }
+
+  /* Two icons each side of the logo: GitHub and theme lead on the left,
+     search joins the menu button on the right. The logo group carries flex:1
+     between them, which is what holds the two clusters apart. */
+  #navbar > div[class*="mx-auto"] > div:first-child div[class*="lg:hidden"][class*="gap-3"] {
+    order: 8;
+  }
+
+  /* The breadcrumb button becomes the menu button: icon only, trailing. */
+  #navbar > div[class*="mx-auto"] > div:first-child > button {
+    order: 9;
+    height: auto;
+    width: auto;
+    padding: var(--sp-2);
+    margin-inline-start: 0;
+  }
+
+  #navbar > div[class*="mx-auto"] > div:first-child > button > div[class*="ml-4"] {
+    display: none;
+  }
+}
+
 /* The primary CTA.
    Do NOT match on [class*="primary"]. Aspen's ACTIVE nav tab carries
    `hover:text-primary` in its class list, so that selector silently captured
@@ -308,15 +452,20 @@ body {
   transform: translateY(-1px);
 }
 
-/* GitHub link: icon-only and de-emphasised, site-wide.
+/* Navbar controls read at full strength, not de-emphasised. They were
+   --text-muted at 0.75 opacity, which on the floating shell looked grey and
+   half-disabled rather than quiet. --text resolves correctly in both modes:
+   white on the dark shell, Midnight on the light one.
    Per-tab navbar variation is not achievable — see decisions.md D-017. */
-#navbar a[href*="github.com"] {
-  color: var(--text-muted);
-  opacity: 0.75;
+#navbar a[href*="github.com"],
+#navbar button[aria-label*="search" i],
+#navbar button[aria-label*="theme" i] {
+  color: var(--text);
+  opacity: 1;
   transition: opacity var(--dur-fast) var(--ease-soft),
               color var(--dur-fast) var(--ease-soft);
 }
-#navbar a[href*="github.com"]:hover { opacity: 1; color: var(--text); }
+#navbar a[href*="github.com"]:hover { color: var(--accent); }
 
 /* Auto-hide on scroll down, reveal on scroll up.
    State comes from scroll-navbar.js, which only sets data attributes on <html>.
