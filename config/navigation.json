@@ -5,10 +5,9 @@
       "icon": "compass",
       "groups": [
         {
-          "group": "Overview",
-          "root": "overview/index",
-          "directory": "card",
+          "group": "Start here",
           "pages": [
+            "overview/index",
             "overview/what-is-almedia-link",
             "overview/best-practices",
             "overview/how-revenue-works",
@@ -22,19 +21,17 @@
       "icon": "layout-dashboard",
       "groups": [
         {
-          "group": "For Product & UA",
-          "root": "publisher/index",
-          "directory": "card",
+          "group": "Plan the launch",
           "pages": [
+            "publisher/index",
             "publisher/prerequisites",
             "publisher/experiences"
           ]
         },
         {
           "group": "MMP Setup",
-          "root": "publisher/mmp/index",
-          "directory": "card",
           "pages": [
+            "publisher/mmp/index",
             "publisher/mmp/adjust",
             "publisher/mmp/appsflyer",
             "publisher/mmp/singular"
@@ -47,10 +44,9 @@
       "icon": "clipboard-check",
       "groups": [
         {
-          "group": "For QA",
-          "root": "qa/index",
-          "directory": "card",
+          "group": "Sign-off",
           "pages": [
+            "qa/index",
             "qa/test-checklist",
             "qa/verify-attribution"
           ]
@@ -62,10 +58,9 @@
       "icon": "code",
       "groups": [
         {
-          "group": "For Engineering",
-          "root": "technical/index",
-          "directory": "card",
+          "group": "SDK docs",
           "pages": [
+            "technical/index",
             "technical/readme",
             "technical/integration-guide",
             "technical/api-reference"

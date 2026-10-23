@@ -643,19 +643,63 @@ html[data-current-path="/"] .al-tl-case-body {
 
 html[data-current-path="/"] .al-tl-stats-case { margin-block-start: var(--sp-6); }
 
-/* ─── Mobile ──────────────────────────────────────────────────────────────── */
+/* ─── Mobile ──────────────────────────────────────────────────────────────
+   The marketing layout is built for a wide viewport: a two-column hero, a
+   three-up stat row and a four-up step row. All of them have to stack, and
+   the band rhythm has to come down — 120px of padding and an 88vh floor read
+   as generous on a desktop and as dead space on a phone. */
 
 @media (max-width: 640px) {
-  html[data-current-path="/"] .al-statement { margin-block: var(--sp-7); }
-  html[data-current-path="/"] .al-demo { margin-block: var(--sp-7); }
-  html[data-current-path="/"] .al-hero { padding-block: var(--sp-7) var(--sp-6); }
-  html[data-current-path="/"] .al-hero-inner { max-width: 100%; }
-  html[data-current-path="/"] .al-landing { padding-block: var(--sp-5) var(--sp-8); }
+  html[data-current-path="/"] .al-landing { padding-block: 0 var(--sp-8); }
   html[data-current-path="/"] .al-landing-section { margin-block: var(--sp-7); }
   html[data-current-path="/"] .al-route { min-height: 0; }
   html[data-current-path="/"] .al-quickclaim { border-radius: var(--r-lg); }
-  /* Blobs are decoration; they cost more than they give on a small screen. */
+
+  /* Decoration costs more than it gives on a small screen. */
   html[data-current-path="/"] .al-blob { display: none; }
+
+  /* Hero: copy first, demo under it. */
+  html[data-current-path="/"] .al-tl-hero { padding-block: var(--sp-5) var(--sp-6); }
+  html[data-current-path="/"] .al-tl-hero-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-7);
+  }
+
+  /* A touch smaller so the handset never crowds the viewport edges. */
+  html[data-current-path="/"] .al-tl-phone { --phone-scale: 0.62; }
+
+  /* Bands: no screen-height floor, and a rhythm that suits a phone. */
+  html[data-current-path="/"] .al-tl-band {
+    min-height: 0;
+    padding-block: var(--sp-8);
+  }
+
+  /* Stat row and step row both stack. The stats' vertical rules become
+     horizontal ones, or they read as hanging fragments. */
+  html[data-current-path="/"] .al-tl-stats,
+  html[data-current-path="/"] .al-tl-steps {
+    grid-template-columns: 1fr;
+    gap: var(--sp-5);
+  }
+
+  html[data-current-path="/"] .al-tl-stat {
+    padding-inline: 0;
+    padding-block-start: var(--sp-5);
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--border);
+  }
+  html[data-current-path="/"] .al-tl-stat:first-child {
+    padding-block-start: 0;
+    border-block-start: 0;
+  }
+
+  html[data-current-path="/"] .al-tl-case { padding: var(--sp-6) var(--sp-5); }
+
+  /* Full-width buttons are easier to hit than centred pills. */
+  html[data-current-path="/"] .al-tl-cta-row .al-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
 }
 
 /* ─── One ground ──────────────────────────────────────────────────────────

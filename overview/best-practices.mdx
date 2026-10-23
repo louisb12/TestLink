@@ -972,22 +972,10 @@ Once you have the visual, ask these questions in one short numbered batch and wa
 
 {/* ═══════════════════ PAGE CONTENT ═══════════════════ */}
 
-<section className="bp-hero">
-  <span className="bp-hero-blob bp-hero-blob-a" aria-hidden="true" />
-  <span className="bp-hero-blob bp-hero-blob-b" aria-hidden="true" />
-  <div className="bp-hero-inner">
-    <img className="bp-hero-logo" src="/images/best-practices/link-logo-blue.png" alt="Almedia Link" />
-    <h1 className="bp-hero-title">Best Practices</h1>
-    <p className="bp-hero-sub">
-      These are the patterns behind a high install-to-link rate, and a clear lift in LTV for
-      linked users. Follow them to see better results.
-    </p>
-    <div className="bp-hero-actions">
-      <CopyButton label="Copy AI prompt: audit my pop-up" prompt={POPUP_PROMPT} />
-      <CopyButton label="Copy AI prompt: audit my entry point" prompt={ENTRY_PROMPT} variant="secondary" />
-    </div>
-  </div>
-</section>
+<div className="bp-hero-actions">
+  <CopyButton label="Copy AI prompt: audit my pop-up" prompt={POPUP_PROMPT} />
+  <CopyButton label="Copy AI prompt: audit my entry point" prompt={ENTRY_PROMPT} variant="secondary" />
+</div>
 
 <div className="bp-readme">
   <span className="bp-readme-blob" aria-hidden="true" />
