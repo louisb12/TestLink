@@ -1,0 +1,108 @@
+---
+title: "Set up a test build"
+sidebarTitle: "Set up a test build"
+description: "What to test on, which build talks to what, and how to drive the SDK into any state without waiting for the real conditions."
+icon: "wrench"
+---
+
+Everything you need in place before working through the [test checklist](/qa/test-checklist).
+Most of it is a one-time setup per project.
+
+## What to test on
+
+The SDK's supported range, and what Almedia tests against:
+
+| | Minimum | Tested on |
+|---|---|---|
+| Unity Editor | 2022.3 LTS | 2022.3.62f2, 6000.3.25f1, 6000.6.4f1 |
+| iOS | 13.0 | 16.x, 17.x, 18.x, 26.x |
+| Android API | 23 | API 27–37 |
+| TextMeshPro | 3.0.6 | declared as a dependency |
+
+**iOS and Android do differ**, in one place that matters. iOS needs a non-empty
+`NSUserTrackingUsageDescription`, and the advertising identifier is only read once the player
+grants tracking. Android needs `minSdkVersion 23` or higher in the Gradle template. Cover both
+platforms rather than assuming a pass on one carries.
+
+## Which build talks to what
+
+| Where | What it talks to |
+|---|---|
+| Unity editor, Play Mode | nothing — the mock, no backend |
+| Development Build on a device | Almedia's testing backend, if you point it there |
+| Release build | production, always |
+
+Pointing a development build at the testing backend keeps your test sessions out of production,
+where they cannot be removed. It needs **SDK 1.3.2 or newer**, and the backend is set in code
+under `DEVELOPMENT_BUILD` so release builds are unaffected:
+
+```csharp
+#if DEVELOPMENT_BUILD
+config.BackendUrl = "https://<testing host>";
+config.AttBackendUrl = "https://<testing host>";   // iOS only, to test IDFA behaviour
+#endif
+```
+
+The guard rails are deliberate: a production host is rejected, an invalid value fails
+`Initialize` rather than quietly falling back to production, and a release build that still
+contains the testing URL **does not compile**.
+
+<div className="al-todo">
+
+**TODO(copy)** — the testing backend host and console URL.
+
+The testing backend is not public yet, so the code above cannot be completed and the
+device-testing route is unavailable to partners. The editor mock below is the working
+alternative in the meantime.
+
+</div>
+
+## Driving the states without waiting
+
+Most of a Link integration can be tested **inside the Unity editor**, with no device build and
+no backend. Play Mode falls back to a mock that drives the SDK, and `AlmediaEditorMock` puts it
+into any state in one line:
+
+```csharp
+AlmediaEditorMock.EmitStatus(new AlmediaStatus.Blocked());
+AlmediaEditorMock.EmitError(AlmediaErrorCode.LinkingFailed, "simulated");
+AlmediaEditorMock.EmitLinkCompleted();
+```
+
+Auto-simulate covers the happy path only — eligible, then linked. Everything else
+(`NotAvailable`, `Blocked`, `Disabled`, every error code, empty or oversized notification
+batches) needs an explicit call. The first call switches the mock to manual mode for the rest
+of the session, so a state set right after `Initialize` cannot be overwritten by the canned
+sequence.
+
+<Note>
+  This is the fastest way to answer "what does the player see when it goes wrong", which is the
+  half of QA that device testing tends to skip. The
+  [integration guide](/technical/integration-guide) lists every method.
+</Note>
+
+## Re-testing on the same device
+
+There is no unlink in the SDK. Once a test account has linked, that device will not show the
+linking flow again, which makes a second run awkward.
+
+Two ways round it:
+
+- **Delete the Freecash user**, from **Profile → Settings** inside the Freecash flow. This is
+  the cleaner option.
+- **Reset the app and the advertising ID.** This works, but every run leaves behind an
+  orphaned player record on Almedia's side, so it is worth avoiding where you can.
+
+<Note>
+  A first-class testing environment is being built and will replace both of these. Until it
+  ships, deleting the Freecash user is the recommended route.
+</Note>
+
+<Card title="Next: the test checklist" icon="list-checks" href="/qa/test-checklist" horizontal>
+  What to exercise once the build is ready.
+</Card>
+
+---
+
+*Unfamiliar with a term on this page? The [glossary](/overview/glossary) explains the
+vocabulary used across this site.*

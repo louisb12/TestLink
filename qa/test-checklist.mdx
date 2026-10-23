@@ -7,44 +7,47 @@ icon: "list-checks"
 
 A pre-ship pass over the parts of a Link integration a player actually touches.
 
-<div className="al-todo">
-
-**TODO(copy)** — the checklist itself.
-
-This page is a scaffold, not a draft. Test steps are exactly the kind of content where a
-plausible guess is dangerous: a checklist that looks complete gets signed off, and anything
-missing from it never gets tested.
-
-Needed, from someone who has taken a Link integration through QA:
-
-- The device and OS matrix worth covering, and whether iOS and Android differ.
-- How to put a test device into a state where the pop-up fires, without waiting for the real
-  timing rules.
-- What a successful link looks like end to end, including where the in-game currency reward
-  appears and how long it takes.
-- What a failed or abandoned link looks like, and whether the player can retry.
-- Whether a test account can be unlinked and re-linked, and how.
-- Which build configuration is required — sandbox versus production, and any test flag.
-- The known-good result for each step, so a tester can tell pass from fail without asking.
-
-</div>
-
-## Re-testing the link flow on the same device
-
-There is no unlink in the SDK. Once a test account has linked, that device will not show the
-linking flow again, which makes a second test run awkward.
-
-Two ways round it:
-
-- **Delete the Freecash user**, from **Profile → Settings** inside the Freecash flow. This is
-  the cleaner option.
-- **Reset the app and the advertising ID.** This works, but every run leaves behind an
-  orphaned player record on Almedia's side, so it is worth avoiding where you can.
-
 <Note>
-  A first-class testing environment is being built and will replace both of these. Until it
-  ships, deleting the Freecash user is the recommended route.
+  This page assumes a build you can test with. [Set up a test build](/qa/test-build) covers the
+  device matrix, which build talks to which backend, and how to force any SDK state from the
+  Unity editor.
 </Note>
+
+## A successful link, end to end
+
+<Steps>
+  <Step title="The player opens the pop-up">
+    They tap the entry point, or your code calls `ShowLink()`. Both open the same link pop-up.
+  </Step>
+  <Step title="The linking page opens">
+    The pop-up's CTA opens the Freecash linking page in a secure browser.
+  </Step>
+  <Step title="The player links, and the page closes">
+    They complete linking on the Freecash side and are returned to your game.
+  </Step>
+  <Step title="Status becomes Linked">
+    The SDK syncs and reports `Linked`. Anything gated on linked state should now be visible.
+  </Step>
+  <Step title="`OnLinkCompleted` fires">
+    The hook for a celebration, a one-time reward, or a one-off analytics event.
+  </Step>
+</Steps>
+
+<Warning>
+  The last step only fires for a link completed **in that session**. A player who was already
+  linked when the game started gets a `Linked` status with no `OnLinkCompleted`. A test that
+  checks for the celebration on a second launch will fail for the wrong reason.
+</Warning>
+
+## A failed or abandoned link
+
+If linking fails, or the player simply closes the linking page, the SDK reports
+`LinkingFailed` and **status stays Eligible — the player can try again immediately.** There is
+nothing to reset and no cooldown.
+
+A *completed* link is different: there is no unlink, so that device will not show the flow
+again. [Re-testing on the same device](/qa/test-build#re-testing-on-the-same-device) covers the
+ways round it.
 
 ## Test the experiences in the right order
 
@@ -69,7 +72,19 @@ That guide also carries two AI audit prompts. Paste one into an assistant with a
 your pop-up or entry point and it returns a rule-by-rule scorecard and a ranked fix list, which
 is a faster first pass than reading the guide end to end.
 
+<div className="al-todo">
+
+**TODO(copy)** — the known-good result for each step, so a tester can tell pass from fail
+without asking.
+
+</div>
+
 <Note>
-  A human review is available and is the reliable check until this page is written. Send your
+  A human review is available and is the reliable check until the above is written. Send your
   setup to `link@almedia.co`.
 </Note>
+
+---
+
+*Unfamiliar with a term on this page? The [glossary](/overview/glossary) explains the
+vocabulary used across this site.*

@@ -1,0 +1,130 @@
+---
+title: "Glossary"
+sidebarTitle: "Glossary"
+description: "The terms used across this site, in plain language — attribution, postbacks, the three Link experiences, and the measures Almedia reports on."
+icon: "book-a"
+---
+
+Integration work spans three vocabularies: yours, your MMP's, and Almedia's. This page is the
+shared one. Every entry links to the page that covers it properly.
+
+## Attribution
+
+Working out which campaign a player came from. Your MMP does this. Almedia Link does not need
+a player to be attributed — see [unattributed postback](#unattributed-postback).
+
+## CPA
+
+Cost per action. The fixed amount Almedia pays for one completed action — most often a
+verified link. Rates are agreed with your account manager, not published.
+See [how revenue works](/overview/how-revenue-works).
+
+## Deep link
+
+A link that opens a specific place inside your game rather than the store page. Link uses one
+to return a player to your game after they finish linking.
+See [prerequisites](/publisher/prerequisites).
+
+## Earn Tab
+
+See [Offers](#offers-earn-tab).
+
+## Freecash
+
+The rewards platform players link their account to. Almedia funds the rewards paid there —
+they do not come out of your economy.
+See [what is Almedia Link](/overview/what-is-almedia-link).
+
+## Holdout group
+
+A slice of players randomly held back from seeing Link, used to measure what Link actually
+added rather than what correlated with it. Almedia runs these automatically, server-side.
+
+## IAA
+
+In-app advertising revenue — what a game earns from ads. A "high-IAA game" earns mostly from
+ads rather than purchases, which matters because ad revenue is the main thing players are
+scored on. See [verify attribution](/qa/verify-attribution).
+
+## IAP
+
+In-app purchase revenue — what a game earns from players buying things.
+
+## Install-to-link rate
+
+The share of players who install your game and go on to link a Freecash account. The average
+across live integrations is **~15%**. It is the main number a placement is judged on.
+See [best practices](/overview/best-practices).
+
+## Integration key
+
+The credential that identifies your app to the SDK. Almedia issues one per platform, so an
+iOS build and an Android build each carry their own.
+See [get started](/overview/get-started).
+
+## Link
+
+Two meanings on this site. Capitalised, **Link** is the product. Lowercase, a **link** is one
+player connecting their Freecash account to your game — the thing a CPA is paid for.
+
+## Link Coins
+
+The score in the [best practices](/overview/best-practices) checklist. A self-assessment
+device for rating your own placement, not a player-facing currency and not money.
+
+## LTV
+
+Lifetime value — total revenue expected from a player over their life in your game. Linked
+players show a **10%+ lift**, which is the second reason to run Link beyond the CPA itself.
+
+## Milestone
+
+A step in a player's reward progression that pays out when reached. Which milestones exist,
+and what each pays, is set per campaign.
+
+## MMP
+
+Mobile measurement partner — the attribution tool your game already uses. Almedia supports
+[Adjust](/publisher/mmp/adjust), [AppsFlyer](/publisher/mmp/appsflyer) and
+[Singular](/publisher/mmp/singular). Almedia reads your MMP's events to know what a linked
+player is doing, which is how rewards get scored.
+
+## Offers (Earn Tab)
+
+The experience that shows other games a player can install and earn from, inside your game.
+It pays a separate CPA on top of the link itself.
+See [experiences](/publisher/experiences).
+
+## Offerwall
+
+A placement showing many paid offers, competing with rewarded video for the same attention.
+**Link is not an offerwall** — it sits on top of your existing monetisation rather than
+replacing any of it. See [what is Almedia Link](/overview/what-is-almedia-link).
+
+## Postback
+
+A server-to-server message from your MMP telling Almedia that something happened — an
+install, a session, a purchase, ad revenue. Almedia cannot score a player's progress without
+them. See [verify attribution](/qa/verify-attribution).
+
+## Probabilistic modeling
+
+An Adjust attribution setting that fills gaps where a deterministic match is unavailable. It
+has to be on for Link. See [Adjust setup](/publisher/mmp/adjust).
+
+## Rewarded Progression
+
+The in-game screen listing what a player has to do in your game, their progress against each
+task, and what they have earned on Freecash. Also written **Reward Progression** on this site.
+See [experiences](/publisher/experiences).
+
+## S2S
+
+Server-to-server. Describes a direct integration between two backends, with no device in the
+middle — how postbacks travel.
+
+## Unattributed postback
+
+An event for a player your MMP could not tie to a campaign — most organic players. **Almedia
+needs these specifically.** Sending only attributed events is the single most common reason a
+new integration looks broken. See [prerequisites](/publisher/prerequisites).
